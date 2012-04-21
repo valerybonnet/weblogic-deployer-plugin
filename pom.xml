@@ -35,7 +35,7 @@
     </licenses>
 	
 	<scm>
-    	<connection>scm:git:git://github.com/jenkinsci/weblogic-deployer-plugin.git</connection>
+    	<connection>scm:ssh://git@github.com/jenkinsci/weblogic-deployer-plugin.git</connection>
     	<developerConnection>scm:git:ssh://git@github.com/jenkinsci/weblogic-deployer-plugin.git</developerConnection>
     	<url>https://github.com/jenkinsci/weblogic-deployer-plugin</url>
   	</scm>
