@@ -4,18 +4,18 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.jvnet.hudson.plugins</groupId>
-		<artifactId>hudson-plugin-parent</artifactId>
-		<version>2.1.0</version>
-	</parent>
+	    <groupId>org.jenkins-ci.plugins</groupId>
+	    <artifactId>plugin</artifactId>
+	    <version>1.445</version>
+  	</parent>
 
 	<artifactId>weblogic-deployer-plugin</artifactId>
-	<name>Hudson WebLogic Deployer Plug-in</name>
-	<version>1.0</version>
+	<name>Deploy WebLogic Plugin</name>
+	<version>1.1-SNASPHOT</version>
 	<packaging>hpi</packaging>
 
-	<url>http://wiki.hudson-ci.org/display/HUDSON/WebLogic+Deployer+Plugin</url>
-	<description>This plugin deploy artifacts built on a CI server Hudson to a weblogic target (managed server, cluster ...) as an application or a library component.</description>
+	<url>http://wiki.jenkins-ci.org/display/JENKINS/WebLogic+Deployer+Plugin</url>
+	<description>This plugin deploy the artifacts built on Jenkins to a weblogic target (admin server, managed server, cluster ...) as an application or a library module.</description>
 
 	<developers>
 		<developer>
@@ -33,17 +33,15 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
+	
 	<scm>
-		<connection>scm:git:git://github.com/hudson-plugins/weblogic-deployer-plugin.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com/hudson-plugins/weblogic-deployer-plugin.git</developerConnection>
-		<url>https://github.com/hudson-plugins/weblogic-deployer-plugin</url>
-	</scm>
+    	<connection>scm:git:git://github.com/jenkinsci/weblogic-deployer-plugin.git</connection>
+    	<developerConnection>scm:git:ssh://git@github.com/jenkinsci/weblogic-deployer-plugin.git</developerConnection>
+    	<url>https://github.com/jenkinsci/weblogic-deployer-plugin</url>
+  	</scm>
 
 	<properties>
 		<java.net.id>raphael_c</java.net.id>
-		<!-- <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> -->
-		<hudsonTags></hudsonTags>
 	</properties>
 
 	<build>
@@ -72,7 +70,7 @@
 			<version>3.0.2</version>
 		</dependency>
 		<dependency>
-        	<groupId>org.jvnet.hudson.main</groupId>
+			<groupId>org.jenkins-ci.main</groupId>
         	<artifactId>maven-plugin</artifactId>
 		</dependency>
 		<dependency>
@@ -89,7 +87,7 @@
 		
 	<profiles>
 		<profile>
-			<id>hudson-publish</id>
+			<id>jenkins-publish</id>
 			<activation>
                 <property>
                     <name>performRelease</name>
