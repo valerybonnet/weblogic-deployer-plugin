@@ -109,6 +109,7 @@ public class JdkUtils {
 		JDK out = null;
 		
 		//On verifie la valeur de l'executable java reference par defaut
+		// TODO Test bizarre
 		if(JdkUtils.isJDK15(null,listener.getLogger())){
 			//On renvoit null 
 			return null;

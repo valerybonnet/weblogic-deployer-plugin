@@ -380,6 +380,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		}
 				
 		// Verification version JDK
+		// TODO Controle fait a la validation de la conf globale
 		try {
 			usedJdk = JdkUtils.getRequiredJDK(build, listener);
 		} catch (RequiredJDKNotFoundException rjnfe) {
@@ -448,6 +449,11 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		 * Pattern des artifacts a exclure
 		 */
 		private String excludedArtifactNamePattern;
+		
+		/**
+		 * 
+		 */
+		private String jdkSelected;
 		
 		/**
 		 * classpath additionnel (librairie weblogic a utiliser)
@@ -576,6 +582,22 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		public void setJavaOpts(String javaOpts) {
 			this.javaOpts = javaOpts;
 		}
+		
+		/**
+		 * 
+		 * @return
+		 */
+		public String getJdkSelected() {
+			return jdkSelected;
+		}
+
+		/**
+		 * 
+		 * @param jdkHomeSelected
+		 */
+		public void setJdkSelected(String jdkSelected) {
+			this.jdkSelected = jdkSelected;
+		}
 
 		/*
 		 * (non-Javadoc)
@@ -595,6 +617,9 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			}
 			
 			javaOpts = json.getString("javaOpts");
+			
+			// Sauvegarde du jdk selectionne
+			jdkSelected = json.getString("jdkSelected");
 			
 			//Chargement des weblogicTargets
 			configurationFilePath = json.getString("configurationFilePath");
