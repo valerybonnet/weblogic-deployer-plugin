@@ -30,11 +30,17 @@ import org.jenkinsci.plugins.deploy.weblogic.exception.RequiredJDKNotFoundExcept
  */
 public class JdkUtils {
 	
+	public static final String DEFAULT_JDK = "default";
+	
+	public static final String EMBEDDED_JDK = "current";
+	
 	public static final String JAVA_HOME_PROPERTY = "JAVA_HOME";
 	
 	public static final String JAVA_SPECIFICATION_VERSION_15 = "1.5";
 	
 	public static final String JAVA_VERSION_COMMAND_VERSION_LINE_REGEX = "^(java version )(\")(.+)(\")(.*\\r*\\n*)$";
+	
+	
 	
 	/**
 	 * 
@@ -47,6 +53,7 @@ public class JdkUtils {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			TaskListener listener = new StreamTaskListener(out);
 			Launcher launcher = Hudson.getInstance().createLauncher(listener);
+			// TODO La gestion du jdk par defaut n'est plus prise en compte ici
 			String cmd = jdk != null ? jdk.getBinDir().getAbsolutePath().concat("/java") : "java";
 			int result = launcher.launch().cmds(cmd,"-version").stdout(out).join();
 			//L'executable n'existe pas
@@ -138,5 +145,28 @@ public class JdkUtils {
 		
 		return out;
 	}
+	
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public static JDK getSelectedJDK(String name) {
+		JDK selectedJdk = null;
+		
+		if (DEFAULT_JDK.equals(name)){
+			// TODO find java
+		}
+		if (EMBEDDED_JDK.equals(name)){
+			// find embedded JDK
+			
+		}
+		
+		// Else lookup JDK referenced
+		selectedJdk = Hudson.getInstance().getJDK(name);
+		return selectedJdk;
+		
+	}
+	
 
 }

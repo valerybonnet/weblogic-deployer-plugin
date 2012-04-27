@@ -381,8 +381,12 @@ public class WeblogicDeploymentPlugin extends Recorder {
 				
 		// Verification version JDK
 		// TODO Controle fait a la validation de la conf globale
+		// Deprecated avec la version 10.3 de WL
+		//Doit prendre en compte la version de WL pour etre exhaustif
 		try {
-			usedJdk = JdkUtils.getRequiredJDK(build, listener);
+			usedJdk = JdkUtils.getSelectedJDK(getDescriptor().getJdkSelected());
+			// TODO Validite du JDK vis a vis de l'API deployer
+//			usedJdk = JdkUtils.getRequiredJDK(build, listener);
 		} catch (RequiredJDKNotFoundException rjnfe) {
 			listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - No JDK 1.5 found. The plugin execution is disabled.");
 			return false;
@@ -619,7 +623,12 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			javaOpts = json.getString("javaOpts");
 			
 			// Sauvegarde du jdk selectionne
-			jdkSelected = json.getString("jdkSelected");
+			if("default".equalsIgnoreCase(json.getString("jdkSelected"))) {
+				// TODO find default jdk
+				
+			} else {
+				jdkSelected = json.getString("jdkSelected");
+			}
 			
 			//Chargement des weblogicTargets
 			configurationFilePath = json.getString("configurationFilePath");
