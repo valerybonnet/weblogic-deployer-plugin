@@ -190,13 +190,12 @@ public class JdkUtils {
 	public static JDK getSelectedJDK(String name, PrintStream logger) throws RequiredJDKNotFoundException {
 		JDK selectedJdk = null;
 		
-		logger.println("[HudsonWeblogicDeploymentPlugin] - jdk selected : NAME "+name+" java.home " +  System.getProperty("java.home"));
-		
+		logger.println("[HudsonWeblogicDeploymentPlugin] - jdk selected : "+name+" [java.home=" +  System.getProperty("java.home")+"]");
 		
 		if (DEFAULT_JDK.equals(name) 
 				&& org.apache.commons.lang.StringUtils.isNotBlank(System.getProperty("java.home"))){ // find embedded JDK
 			String embeddedHome = System.getProperty("java.home");
-			selectedJdk = new JDK("embedded", embeddedHome);
+			selectedJdk = new JDK("default", embeddedHome);
 		} else {
 			// Else lookup JDK referenced
 			selectedJdk = Hudson.getInstance().getJDK(name);
