@@ -3,8 +3,7 @@
     <f:entry title="${%JdkHome}" field="jdkSelected">
 		<select  class="setting-input" name="jdkSelected">
 			<!-- valeur par defaut -->
-			<f:option value="default == descriptor.jdkSelected">${%Default}</f:option>
-			<f:option value="current == descriptor.jdkSelected">${%Current}</f:option>
+			<f:option selected="${descriptor.jdkSelected == 'default'}" value="default">${%Default}</f:option>
 			<j:forEach var="jdk" items="${it.jDKs}">
 				<!-- ${jdk.javaHome} ${jdk.executable} ${jdk.binDir} ${jdk.exists} -->
 		    	<f:option selected="${jdk.name == descriptor.jdkSelected}" value="${jdk.name}">${jdk.name}</f:option>

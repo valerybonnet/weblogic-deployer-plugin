@@ -380,15 +380,15 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		}
 				
 		// Verification version JDK
-		// TODO Controle fait a la validation de la conf globale
 		// Deprecated avec la version 10.3 de WL
-		//Doit prendre en compte la version de WL pour etre exhaustif
+		// Check only if the JDK PATH is reachable
+		// Displaying a warning about jdk version compatibility with Weblogic Deployer API
 		try {
-			usedJdk = JdkUtils.getSelectedJDK(getDescriptor().getJdkSelected());
+			usedJdk = JdkUtils.getSelectedJDK(getDescriptor().getJdkSelected(), listener.getLogger());
 			// TODO Validite du JDK vis a vis de l'API deployer
 //			usedJdk = JdkUtils.getRequiredJDK(build, listener);
 		} catch (RequiredJDKNotFoundException rjnfe) {
-			listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - No JDK 1.5 found. The plugin execution is disabled.");
+			listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - No JDK found. The plugin execution is disabled.");
 			return false;
 		}
 		listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - the JDK " +usedJdk != null ? usedJdk.getHome(): System.getProperty("JAVA_HOME")+ " will be used.");
@@ -623,12 +623,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			javaOpts = json.getString("javaOpts");
 			
 			// Sauvegarde du jdk selectionne
-			if("default".equalsIgnoreCase(json.getString("jdkSelected"))) {
-				// TODO find default jdk
-				
-			} else {
-				jdkSelected = json.getString("jdkSelected");
-			}
+			jdkSelected = json.getString("jdkSelected");
 			
 			//Chargement des weblogicTargets
 			configurationFilePath = json.getString("configurationFilePath");

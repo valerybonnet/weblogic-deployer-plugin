@@ -9,6 +9,7 @@ import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 import hudson.model.Hudson;
 import hudson.model.JDK;
+import hudson.tools.ToolProperty;
 import hudson.util.StreamTaskListener;
 
 import java.io.ByteArrayOutputStream;
@@ -32,8 +33,6 @@ public class JdkUtils {
 	
 	public static final String DEFAULT_JDK = "default";
 	
-	public static final String EMBEDDED_JDK = "current";
-	
 	public static final String JAVA_HOME_PROPERTY = "JAVA_HOME";
 	
 	public static final String JAVA_SPECIFICATION_VERSION_15 = "1.5";
@@ -48,6 +47,7 @@ public class JdkUtils {
 	 * @param logger
 	 * @return
 	 */
+	@Deprecated
 	public static boolean isJDK15(JDK jdk, PrintStream logger){
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -83,14 +83,50 @@ public class JdkUtils {
         }
 	}
 	
+	public static boolean checkJdkVersion(JDK jdk, PrintStream logger){
+		
+		if(jdk == null || ! jdk.getExists()){
+			return false;
+		}
+		
+		
+		try {
+//			ByteArrayOutputStream out = new ByteArrayOutputStream();
+//			TaskListener listener = new StreamTaskListener(out);
+//			Launcher launcher = Hudson.getInstance().createLauncher(listener);
+			Iterator<ToolProperty<?>> iter = jdk.getProperties().iterator();
+			
+			while(iter.hasNext()){
+				System.out.println("gsdgdsgds "+iter.next().toString());
+			}
+//			String cmd = jdk.getExecutable().getAbsolutePath();
+//			int result = launcher.launch().cmds(cmd,"-version").stdout(out).join();
+			//L'executable n'existe pas
+//			if(result  != 0){
+//				return false;
+//			}
+//		} catch (IOException e) {
+//            return false;
+//        } catch (InterruptedException e) {
+//            return false;
+        } catch(IllegalStateException ise){
+        	return false;
+        } catch(IndexOutOfBoundsException ioobe) {
+        	return false;
+        }
+		
+		return true;
+	}
+	
 	/**
 	 * 
 	 * @param out
 	 * @param javaSpecificationVersion
 	 * @return
 	 */
+	@Deprecated
 	public static boolean extractAndCheckJavaVersion(String out, String javaSpecificationVersion){
-		boolean jdk15found = false;
+		boolean jdkFound = false;
 		Vector<String> lines = StringUtils.lineSplit(out.toString());
 		Iterator<String> it = lines.iterator();
 		Pattern pattern = Pattern.compile(JAVA_VERSION_COMMAND_VERSION_LINE_REGEX);
@@ -99,10 +135,10 @@ public class JdkUtils {
 			String line = it.next();
 			Matcher matcher = pattern.matcher(line);
 			if(matcher.matches() && matcher.group(3).startsWith(javaSpecificationVersion)){
-				jdk15found = true;
+				jdkFound = true;
 			}
 		}
-		return jdk15found;
+		return jdkFound;
 	}
 	
 	/**
@@ -151,21 +187,30 @@ public class JdkUtils {
 	 * @param name
 	 * @return
 	 */
-	public static JDK getSelectedJDK(String name) {
+	public static JDK getSelectedJDK(String name, PrintStream logger) throws RequiredJDKNotFoundException {
 		JDK selectedJdk = null;
 		
-		if (DEFAULT_JDK.equals(name)){
-			// TODO find java
-		}
-		if (EMBEDDED_JDK.equals(name)){
-			// find embedded JDK
-			
+		logger.println("[HudsonWeblogicDeploymentPlugin] - jdk selected : NAME "+name+" java.home " +  System.getProperty("java.home"));
+		
+		
+		if (DEFAULT_JDK.equals(name) 
+				&& org.apache.commons.lang.StringUtils.isNotBlank(System.getProperty("java.home"))){ // find embedded JDK
+			String embeddedHome = System.getProperty("java.home");
+			selectedJdk = new JDK("embedded", embeddedHome);
+		} else {
+			// Else lookup JDK referenced
+			selectedJdk = Hudson.getInstance().getJDK(name);
 		}
 		
-		// Else lookup JDK referenced
-		selectedJdk = Hudson.getInstance().getJDK(name);
+		// Check exists
+		if(selectedJdk == null || ! selectedJdk.getExists()){
+			String execu = selectedJdk != null ? selectedJdk.getHome(): "";
+			throw new RequiredJDKNotFoundException("Unable to find PATH to the JDK's executable ["+execu+"]");
+		}
+		
+		// Check version
+		
 		return selectedJdk;
-		
 	}
 	
 
