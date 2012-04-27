@@ -201,6 +201,9 @@ public class JdkUtils {
 			selectedJdk = Hudson.getInstance().getJDK(name);
 		}
 		
+		// JDK utilise pour compiler le projet
+		//parameter.getBuild().getProject().getJDK()
+		
 		// Check exists
 		if(selectedJdk == null || ! selectedJdk.getExists()){
 			String execu = selectedJdk != null ? selectedJdk.getHome(): "";

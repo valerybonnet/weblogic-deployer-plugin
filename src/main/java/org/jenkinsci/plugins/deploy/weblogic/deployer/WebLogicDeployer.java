@@ -58,10 +58,11 @@ public class WebLogicDeployer {
         
 		//jdk
 		if(parameter.getUsedJdk() == null) {
-            args.add("java");
-        } else {
-            args.add(parameter.getBuild().getProject().getJDK().getBinDir().getAbsolutePath().concat("/java"));
-        }
+//            args.add("java");
+            parameter.getListener().error("[HudsonWeblogicDeploymentPlugin] - No JDK selected to deploy artifact.");
+            throw new RunnerAbortedException();
+		}
+        args.add(parameter.getUsedJdk().getBinDir().getAbsolutePath().concat("/java"));
         
 		//java options specifique
         if(StringUtils.isNotBlank(parameter.getJavaOpts())){
@@ -82,11 +83,11 @@ public class WebLogicDeployer {
         	try {
     	        remotingJar =parameter.getLauncher().getChannel().call(new WebLogicDeployer.GetRemotingJar());
             } catch (Exception e){
-            	parameter.getListener().error("Failed to determine the location of weblogic-9.2.jar");
+            	parameter.getListener().error("[HudsonWeblogicDeploymentPlugin] - Failed to determine the location of weblogic-9.2.jar");
                 throw new RunnerAbortedException();
             }
             if(remotingJar==null) {// this shouldn't be possible, but there are still reports indicating this, so adding a probe here.
-            	parameter.getListener().error("Failed to determine the location of weblogic-9.2.jar");
+            	parameter.getListener().error("[HudsonWeblogicDeploymentPlugin] - Failed to determine the location of weblogic-9.2.jar");
                 throw new RunnerAbortedException();
             }
         }
