@@ -223,7 +223,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
         if(! checkPreRequisites( build, launcher, listener)){
         	return exitPerformAction(build, listener, WebLogicDeploymentStatus.DISABLED, null);
         }
-		
+        
 		// Identification de la ressource a deployer
         FilePath archivedArtifact = null;
 		String artifactName = null;
@@ -379,14 +379,9 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			return false;
 		}
 				
-		// Verification version JDK
-		// Deprecated avec la version 10.3 de WL
-		// Check only if the JDK PATH is reachable
-		// Displaying a warning about jdk version compatibility with Weblogic Deployer API
+		// Recuperation du JDK
 		try {
 			usedJdk = JdkUtils.getSelectedJDK(getDescriptor().getJdkSelected(), listener.getLogger());
-			// TODO Validite du JDK vis a vis de l'API deployer
-//			usedJdk = JdkUtils.getRequiredJDK(build, listener);
 		} catch (RequiredJDKNotFoundException rjnfe) {
 			listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - No JDK found. The plugin execution is disabled.");
 			return false;

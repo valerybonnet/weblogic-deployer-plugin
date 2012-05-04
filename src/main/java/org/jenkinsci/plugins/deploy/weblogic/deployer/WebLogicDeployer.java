@@ -4,13 +4,10 @@
 package org.jenkinsci.plugins.deploy.weblogic.deployer;
 
 import hudson.model.Run.RunnerAbortedException;
-import hudson.remoting.Callable;
-import hudson.remoting.Which;
 import hudson.util.ArgumentListBuilder;
 
-import java.io.IOException;
-
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
 
 /**
  * @author rchaumie
@@ -18,35 +15,6 @@ import org.apache.commons.lang.StringUtils;
  */
 public class WebLogicDeployer {
 
-	
-	private static final String WEBLOGIC_TOOL_DEPLOYER_MAIN_CLASS = "weblogic.Deployer";
-	
-	/**
-	 * 
-	 * @author rchaumie
-	 * @deprecated find another way to load outside remoting jar
-	 */
-	@Deprecated
-	public static final class GetRemotingJar implements Callable<String,IOException> {
-        /**
-		 * 
-		 */
-		private static final long serialVersionUID = 4132805045587298491L;
-
-		public String call() throws IOException {
-            
-			Class<?> classReference = null;
-			
-			try {
-				classReference = Class.forName(WEBLOGIC_TOOL_DEPLOYER_MAIN_CLASS);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-            
-            return Which.jarFile(classReference).getPath();
-            
-        }
-    }
 	
 	/**
 	 * 
@@ -58,7 +26,6 @@ public class WebLogicDeployer {
         
 		//jdk
 		if(parameter.getUsedJdk() == null) {
-//            args.add("java");
             parameter.getListener().error("[HudsonWeblogicDeploymentPlugin] - No JDK selected to deploy artifact.");
             throw new RunnerAbortedException();
 		}
@@ -75,26 +42,13 @@ public class WebLogicDeployer {
         args.add("-cp");
         
         // remoting.jar
-        String remotingJar = null;
-        if(StringUtils.isNotBlank(parameter.getClasspath())){
-        	remotingJar = parameter.getClasspath();
-        } else {
-        	//Recuperation de la librairie weblogic interne
-        	try {
-    	        remotingJar =parameter.getLauncher().getChannel().call(new WebLogicDeployer.GetRemotingJar());
-            } catch (Exception e){
-            	parameter.getListener().error("[HudsonWeblogicDeploymentPlugin] - Failed to determine the location of weblogic-9.2.jar");
-                throw new RunnerAbortedException();
-            }
-            if(remotingJar==null) {// this shouldn't be possible, but there are still reports indicating this, so adding a probe here.
-            	parameter.getListener().error("[HudsonWeblogicDeploymentPlugin] - Failed to determine the location of weblogic-9.2.jar");
-                throw new RunnerAbortedException();
-            }
+        if(StringUtils.isBlank(parameter.getClasspath())){
+        	parameter.getListener().error("[HudsonWeblogicDeploymentPlugin] - Classpath is not set. Please configure correctly the plugin.");
+            throw new RunnerAbortedException();
         }
+        String remotingJar = parameter.getClasspath();
         args.add(remotingJar);
-        args.add(WEBLOGIC_TOOL_DEPLOYER_MAIN_CLASS);
-        
-        
+        args.add(WebLogicDeploymentPluginConstantes.WL_WEBLOGIC_API_DEPLOYER_MAIN_CLASS);
         
         // mode debug force
         args.add("-debug");

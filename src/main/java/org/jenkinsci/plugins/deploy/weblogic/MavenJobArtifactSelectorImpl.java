@@ -31,7 +31,6 @@ public class MavenJobArtifactSelectorImpl implements ArtifactSelector {
 	/* (non-Javadoc)
 	 * @see org.jenkinsci.plugins.deploy.weblogic.TargetGeneratedSelector#getTargetGeneratedFilePath()
 	 */
-	@Override
 	public Artifact selectArtifactRecorded(AbstractBuild<?, ?> build, BuildListener listener) throws IOException, XmlPullParserException, InterruptedException  {
 		
 		Artifact selectedArtifact = null;

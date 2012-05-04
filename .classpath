@@ -59,11 +59,6 @@
 			<attribute name="javadoc_location" value="jar:file:/P:/Document/.m2/repository/org/sonatype/aether/aether-util/1.9/aether-util-1.9-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/com/sun/akuma/akuma/1.4/akuma-1.4.jar" sourcepath="M2_REPO/com/sun/akuma/akuma/1.4/akuma-1.4-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/P:/Document/.m2/repository/com/sun/akuma/akuma/1.4/akuma-1.4-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="var" path="M2_REPO/org/jvnet/hudson/annotation-indexer/1.2/annotation-indexer-1.2.jar" sourcepath="M2_REPO/org/jvnet/hudson/annotation-indexer/1.2/annotation-indexer-1.2-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/P:/Document/.m2/repository/org/jvnet/hudson/annotation-indexer/1.2/annotation-indexer-1.2-javadoc.jar!/"/>
@@ -207,17 +202,6 @@
 			<attribute name="javadoc_location" value="jar:file:/P:/Document/.m2/repository/org/codehaus/groovy/groovy-all/1.7.6/groovy-all-1.7.6-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/com/google/guava/guava/r09/guava-r09.jar" sourcepath="M2_REPO/com/google/guava/guava/r09/guava-r09-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/P:/Document/.m2/repository/com/google/guava/guava/r09/guava-r09-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/com/google/inject/extensions/guice-servlet/2.0/guice-servlet-2.0.jar" sourcepath="M2_REPO/com/google/inject/extensions/guice-servlet/2.0/guice-servlet-2.0-sources.jar"/>
-	<classpathentry kind="var" path="M2_REPO/com/flipthebird/gwt-hashcode-equals/gwt-hashcode-equals/0.1.0/gwt-hashcode-equals-0.1.0.jar" sourcepath="M2_REPO/com/flipthebird/gwt-hashcode-equals/gwt-hashcode-equals/0.1.0/gwt-hashcode-equals-0.1.0-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/P:/Document/.m2/repository/com/flipthebird/gwt-hashcode-equals/gwt-hashcode-equals/0.1.0/gwt-hashcode-equals-0.1.0-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="var" path="M2_REPO/org/jvnet/hudson/htmlunit/2.6-hudson-2/htmlunit-2.6-hudson-2.jar" sourcepath="M2_REPO/org/jvnet/hudson/htmlunit/2.6-hudson-2/htmlunit-2.6-hudson-2-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jvnet/hudson/htmlunit-core-js/2.6-hudson-1/htmlunit-core-js-2.6-hudson-1.jar" sourcepath="M2_REPO/org/jvnet/hudson/htmlunit-core-js/2.6-hudson-1/htmlunit-core-js-2.6-hudson-1-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jvnet/hudson/main/hudson-cli/2.1.0/hudson-cli-2.1.0.jar" sourcepath="M2_REPO/org/jvnet/hudson/main/hudson-cli/2.1.0/hudson-cli-2.1.0-sources.jar">
@@ -299,7 +283,6 @@
 	<classpathentry kind="var" path="M2_REPO/org/codehaus/jackson/jackson-mapper-asl/1.7.1/jackson-mapper-asl-1.7.1.jar" sourcepath="M2_REPO/org/codehaus/jackson/jackson-mapper-asl/1.7.1/jackson-mapper-asl-1.7.1-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/codehaus/jackson/jackson-xc/1.7.1/jackson-xc-1.7.1.jar" sourcepath="M2_REPO/org/codehaus/jackson/jackson-xc/1.7.1/jackson-xc-1.7.1-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/jaxen/jaxen/1.1-beta-11/jaxen-1.1-beta-11.jar"/>
-	<classpathentry kind="var" path="M2_REPO/com/octo/captcha/jcaptcha-all/1.0-RC6/jcaptcha-all-1.0-RC6.jar" sourcepath="M2_REPO/com/octo/captcha/jcaptcha-all/1.0-RC6/jcaptcha-all-1.0-RC6-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/samba/jcifs/jcifs/1.3.14-kohsuke-1/jcifs-1.3.14-kohsuke-1.jar" sourcepath="M2_REPO/org/samba/jcifs/jcifs/1.3.14-kohsuke-1/jcifs-1.3.14-kohsuke-1-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/P:/Document/.m2/repository/org/samba/jcifs/jcifs/1.3.14-kohsuke-1/jcifs-1.3.14-kohsuke-1-javadoc.jar!/"/>
@@ -308,21 +291,6 @@
 	<classpathentry kind="var" path="M2_REPO/jfree/jcommon/1.0.12/jcommon-1.0.12.jar" sourcepath="M2_REPO/jfree/jcommon/1.0.12/jcommon-1.0.12-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/P:/Document/.m2/repository/jfree/jcommon/1.0.12/jcommon-1.0.12-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-core/1.5/jersey-core-1.5.jar" sourcepath="M2_REPO/com/sun/jersey/jersey-core/1.5/jersey-core-1.5-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/P:/Document/.m2/repository/com/sun/jersey/jersey-core/1.5/jersey-core-1.5-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/com/sun/jersey/contribs/jersey-guice/1.5/jersey-guice-1.5.jar" sourcepath="M2_REPO/com/sun/jersey/contribs/jersey-guice/1.5/jersey-guice-1.5-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/P:/Document/.m2/repository/com/sun/jersey/contribs/jersey-guice/1.5/jersey-guice-1.5-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-server/1.5/jersey-server-1.5.jar" sourcepath="M2_REPO/com/sun/jersey/jersey-server/1.5/jersey-server-1.5-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/P:/Document/.m2/repository/com/sun/jersey/jersey-server/1.5/jersey-server-1.5-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="var" path="M2_REPO/org/mortbay/jetty/jetty/6.1.11/jetty-6.1.11.jar" sourcepath="M2_REPO/org/mortbay/jetty/jetty/6.1.11/jetty-6.1.11-sources.jar"/>
@@ -355,7 +323,6 @@
 	<classpathentry kind="var" path="M2_REPO/jline/jline/0.9.94/jline-0.9.94.jar" sourcepath="M2_REPO/jline/jline/0.9.94/jline-0.9.94-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/net/java/dev/jna/jna/3.2.4/jna-3.2.4.jar" sourcepath="M2_REPO/net/java/dev/jna/jna/3.2.4/jna-3.2.4-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jruby/ext/posix/jna-posix/1.0.3/jna-posix-1.0.3.jar" sourcepath="M2_REPO/org/jruby/ext/posix/jna-posix/1.0.3/jna-posix-1.0.3-sources.jar"/>
-	<classpathentry kind="var" path="M2_REPO/com/jcraft/jsch/0.1.38/jsch-0.1.38.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/kohsuke/stapler/json-lib/2.1-rev6/json-lib-2.1-rev6.jar" sourcepath="M2_REPO/org/kohsuke/stapler/json-lib/2.1-rev6/json-lib-2.1-rev6-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/P:/Document/.m2/repository/org/kohsuke/stapler/json-lib/2.1-rev6/json-lib-2.1-rev6-javadoc.jar!/"/>
@@ -661,6 +628,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="var" path="M2_REPO/org/jvnet/hudson/xstream/1.3.1-hudson-8/xstream-1.3.1-hudson-8.jar" sourcepath="M2_REPO/org/jvnet/hudson/xstream/1.3.1-hudson-8/xstream-1.3.1-hudson-8-sources.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.6.0_21"/>
 	<classpathentry kind="output" path="target/eclipse-classes"/>
 </classpath>

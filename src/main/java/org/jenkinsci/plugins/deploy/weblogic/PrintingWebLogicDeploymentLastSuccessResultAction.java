@@ -38,8 +38,6 @@ public class PrintingWebLogicDeploymentLastSuccessResultAction implements Action
 		}
 	}
 	
-	
-	
 	/*
 	 * (non-Javadoc)
 	 * @see hudson.model.Action#getDisplayName()
@@ -79,6 +77,5 @@ public class PrintingWebLogicDeploymentLastSuccessResultAction implements Action
 	public boolean hasAtLeastOneDeploymentSuccessfull(){
 		return lastDeploymentSucessfull != null;
 	}
-	
 
 }

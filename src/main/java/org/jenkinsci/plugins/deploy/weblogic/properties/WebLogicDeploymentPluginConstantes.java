@@ -19,4 +19,6 @@ public class WebLogicDeploymentPluginConstantes {
 	public static transient final String WL_HOME_LIB_DIR = "/server/lib/";
 	
 	public static transient final String WL_WEBLOGIC_LIBRARY_NAME = "weblogic.jar";
+	
+	public static transient final String WL_WEBLOGIC_API_DEPLOYER_MAIN_CLASS = "weblogic.Deployer";
 }
