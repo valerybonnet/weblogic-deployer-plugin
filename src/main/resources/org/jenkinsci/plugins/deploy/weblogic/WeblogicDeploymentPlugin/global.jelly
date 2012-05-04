@@ -2,10 +2,10 @@
   <f:section title="${%WebLogic Deployment Plugin}">
     <f:entry title="${%JdkHome}" field="jdkSelected">
 		<select  class="setting-input" name="jdkSelected">
+			<!-- valeur de la JVM active -->
+			<f:option selected="${descriptor.jdkSelected == 'system'}" value="system">${%System}</f:option>
 			<!-- valeur par defaut : current -->
-			<f:option selected="${descriptor.jdkSelected == 'default'}" value="default">${%Default}</f:option>
-			<!-- valeur de la Home -->
-			<f:option selected="${descriptor.jdkSelected == 'home'}" value="home">${%Home}</f:option>
+			<f:option selected="${descriptor.jdkSelected == 'environment'}" value="environment">${%Environment}</f:option>
 			<j:forEach var="jdk" items="${it.jDKs}">
 				<!-- ${jdk.javaHome} ${jdk.executable} ${jdk.binDir} ${jdk.exists} -->
 		    	<f:option selected="${jdk.name == descriptor.jdkSelected}" value="${jdk.name}">${jdk.name}</f:option>

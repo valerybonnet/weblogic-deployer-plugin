@@ -9,10 +9,8 @@ import hudson.model.Hudson;
 import hudson.model.JDK;
 import hudson.util.StreamTaskListener;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,9 +26,9 @@ import org.jenkinsci.plugins.deploy.weblogic.exception.RequiredJDKNotFoundExcept
  */
 public class JdkUtils {
 	
-	public static final String DEFAULT_JDK = "default";
+	public static final String EXTERNAL_ENV_JDK = "environment";
 	
-	public static final String HOME_JDK = "home";
+	public static final String SYSTEM_JDK = "system";
 	
 	public static final String JAVA_VERSION_COMMAND_VERSION_LINE_REGEX = ".*\\r*\\n*(java version )(\")(.+)(\").*\\r*\\n*.*\\r*\\n*.*\\r*\\n*";
 	
@@ -87,23 +85,14 @@ public class JdkUtils {
 		
 		logger.println("[HudsonWeblogicDeploymentPlugin] - jdk selected : "+name);
 		
-		if (DEFAULT_JDK.equals(name) && StringUtils.isNotBlank(SystemUtils.JAVA_HOME)){ // find embedded JDK
+		if (SYSTEM_JDK.equals(name) && StringUtils.isNotBlank(SystemUtils.JAVA_HOME)){
 			logger.println("[HudsonWeblogicDeploymentPlugin] - java.home=" +  SystemUtils.JAVA_HOME);
 			String embeddedHome = System.getProperty("java.home");
-			selectedJdk = new JDK("default", embeddedHome);
-		} else if(HOME_JDK.equals(name)){
-			// JDK utiliser pour demarrer le produit
-			try {
-				Process java = Runtime.getRuntime().exec("java -version");
-				BufferedReader in = new BufferedReader(new InputStreamReader(java.getInputStream()));
-				String line;
-				while ((line = in.readLine()) != null) {
-					System.out.println("ligne commande java -version : "+ line);
-				}
-			} catch(Exception e) {
-				
-			}
-		
+			selectedJdk = new JDK(SYSTEM_JDK, embeddedHome);
+		} else if(EXTERNAL_ENV_JDK.equals(name) && StringUtils.isNotBlank(System.getenv("JAVA_HOME"))){
+			logger.println("[HudsonWeblogicDeploymentPlugin] - JAVA_HOME=" +  System.getenv("JAVA_HOME"));
+			String embeddedHome = System.getenv("JAVA_HOME");
+			selectedJdk = new JDK(EXTERNAL_ENV_JDK, embeddedHome);
 		} else {
 			// Else lookup JDK referenced
 			selectedJdk = Hudson.getInstance().getJDK(name);
