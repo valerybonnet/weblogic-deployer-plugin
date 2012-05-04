@@ -262,7 +262,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 				listener.error("[HudsonWeblogicDeploymentPlugin] - WebLogic environment Name " +weblogicEnvironmentTargetedName+ " not found in the list. Please check the configuration file.");
 				return exitPerformAction(build, listener, WebLogicDeploymentStatus.ABORTED, weblogicEnvironmentTargeted);
 			}
-			listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - Deploiement de l'artifact vers le serveur : (name="+weblogicEnvironmentTargetedName+") (host=" + weblogicEnvironmentTargeted.getHost() + ") (port=" +weblogicEnvironmentTargeted.getPort()+ ")");
+			listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - Deploying the artifact on the following target : (name="+weblogicEnvironmentTargetedName+") (host=" + weblogicEnvironmentTargeted.getHost() + ") (port=" +weblogicEnvironmentTargeted.getPort()+ ")");
 			
 			//Execution commande undeploy
 			WebLogicDeployerParameters undeployWebLogicDeployerParameters = new WebLogicDeployerParameters(build, launcher, listener, usedJdk, deploymentName, isLibrary, deploymentTargets, weblogicEnvironmentTargeted, artifactName, null, WebLogicCommand.UNDEPLOY, true, getDescriptor().getJavaOpts(), getDescriptor().getExtraClasspath());
@@ -386,11 +386,10 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - No JDK found. The plugin execution is disabled.");
 			return false;
 		}
-		listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - the JDK " +usedJdk != null ? usedJdk.getHome(): System.getProperty("JAVA_HOME")+ " will be used.");
+		String valueJdk = usedJdk != null ? "the JDK " +usedJdk.getHome()+ " will be used." : "no JDK retrieved.";
+		listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - " +valueJdk);
 		return true;		
 	}
-	
-
 	
 	/**
 	 * 
