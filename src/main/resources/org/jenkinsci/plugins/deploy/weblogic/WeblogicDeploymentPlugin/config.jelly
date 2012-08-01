@@ -12,6 +12,9 @@
 		  	<f:entry title="${%Name}" field="deploymentName">
 		  		<f:textbox/>
 		  	</f:entry>
+		  	<f:entry title="${%RegexBuiltResourceToDeploy}" field="builtResourceRegexToDeploy">
+		  		<f:textbox/>
+		  	</f:entry>
 		  	<f:entry title="${%DeploymentTargets}" field="deploymentTargets">
 		  		<f:textbox default="AdminServer"/>
 		  	</f:entry>

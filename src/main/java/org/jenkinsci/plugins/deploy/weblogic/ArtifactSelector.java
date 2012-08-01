@@ -21,11 +21,12 @@ public interface ArtifactSelector {
 	 * 
 	 * @param build
 	 * @param listener
+	 * @param filteredResource
 	 * @return
 	 * @throws IOException
 	 * @throws XmlPullParserException
 	 * @throws InterruptedException
 	 */
-	public Artifact selectArtifactRecorded(AbstractBuild<?, ?> build, BuildListener listener) throws IOException, XmlPullParserException, InterruptedException;
+	public Artifact selectArtifactRecorded(AbstractBuild<?, ?> build, BuildListener listener, String filteredResource) throws IOException, XmlPullParserException, InterruptedException;
 	
 }

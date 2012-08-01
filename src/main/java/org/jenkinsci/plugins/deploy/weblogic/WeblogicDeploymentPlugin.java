@@ -119,8 +119,14 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	 */
 	private String deployedProjectsDependencies;
 	
+	/**
+	 * Regex permettant de filtrer la ressource à deployer si plusieurs ressources 
+	 * correspondantes sont trouvées
+	 */
+	private String builtResourceRegexToDeploy;
+	
 	@DataBoundConstructor
-    public WeblogicDeploymentPlugin(String weblogicEnvironmentTargetedName, String deploymentName, String deploymentTargets, boolean isLibrary, boolean mustExitOnFailure, List<String> selectedDeploymentStrategyIds, String deployedProjectsDependencies, boolean isDeployingOnlyWhenUpdates) {
+    public WeblogicDeploymentPlugin(String weblogicEnvironmentTargetedName, String deploymentName, String deploymentTargets, boolean isLibrary, boolean mustExitOnFailure, List<String> selectedDeploymentStrategyIds, String deployedProjectsDependencies, boolean isDeployingOnlyWhenUpdates, String builtResourceRegexToDeploy) {
         this.weblogicEnvironmentTargetedName = weblogicEnvironmentTargetedName;
         this.deploymentName = deploymentName;
         this.deploymentTargets = deploymentTargets;
@@ -129,6 +135,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
         this.selectedDeploymentStrategyIds = selectedDeploymentStrategyIds;
         this.deployedProjectsDependencies = deployedProjectsDependencies;
         this.isDeployingOnlyWhenUpdates = isDeployingOnlyWhenUpdates;
+        this.builtResourceRegexToDeploy = builtResourceRegexToDeploy;
     }
 	
 	/**
@@ -198,6 +205,20 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	public void setDeployingOnlyWhenUpdates(boolean isDeployingOnlyWhenUpdates) {
 		this.isDeployingOnlyWhenUpdates = isDeployingOnlyWhenUpdates;
 	}
+	
+	/**
+	 * @return the builtResourceRegexToDeploy
+	 */
+	public String getBuiltResourceRegexToDeploy() {
+		return builtResourceRegexToDeploy;
+	}
+
+	/**
+	 * @param builtResourceRegexToDeploy the builtResourceRegexToDeploy to set
+	 */
+	public void setBuiltResourceRegexToDeploy(String builtResourceRegexToDeploy) {
+		this.builtResourceRegexToDeploy = builtResourceRegexToDeploy;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -230,13 +251,13 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		String fullArtifactFinalName = null;
 		try {
 			ArtifactSelector artifactSelector = new MavenJobArtifactSelectorImpl();
-			Artifact selectedArtifact = artifactSelector.selectArtifactRecorded(build, listener);
+			Artifact selectedArtifact = artifactSelector.selectArtifactRecorded(build, listener, builtResourceRegexToDeploy);
 			// Ne devrait pas etre le nom mais la valeur finale du artifact.name (sans l'extension)
 			artifactName = StringUtils.substringBeforeLast(selectedArtifact.getFileName(), ".");
 			archivedArtifact = new FilePath(selectedArtifact.getFile());
 			fullArtifactFinalName = selectedArtifact.getFileName();
 		} catch (Throwable e) {
-            listener.error("[HudsonWeblogicDeploymentPlugin] - Failed to get artifact from archive directory : " + e.getMessage());
+            listener.error("[WeblogicDeploymentPlugin] - Failed to get artifact from archive directory : " + e.getMessage());
             return exitPerformAction(build, listener, WebLogicDeploymentStatus.ABORTED, null);
         }
 		
@@ -251,7 +272,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			Pattern pattern = Pattern.compile(getDescriptor().getExcludedArtifactNamePattern());
 			Matcher matcher = pattern.matcher(artifactName);
 			if(matcher.matches()){
-				listener.error("[HudsonWeblogicDeploymentPlugin] - The artifact Name " +artifactName+ " is excluded from deployment (see exclusion list).");
+				listener.error("[WeblogicDeploymentPlugin] - The artifact Name " +artifactName+ " is excluded from deployment (see exclusion list).");
 				return exitPerformAction(build, listener, WebLogicDeploymentStatus.ABORTED, weblogicEnvironmentTargeted);
 			}
 			
@@ -259,20 +280,20 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			weblogicEnvironmentTargeted = getWeblogicEnvironmentTargeted(listener);
 			
 			if(weblogicEnvironmentTargeted == null){
-				listener.error("[HudsonWeblogicDeploymentPlugin] - WebLogic environment Name " +weblogicEnvironmentTargetedName+ " not found in the list. Please check the configuration file.");
+				listener.error("[WeblogicDeploymentPlugin] - WebLogic environment Name " +weblogicEnvironmentTargetedName+ " not found in the list. Please check the configuration file.");
 				return exitPerformAction(build, listener, WebLogicDeploymentStatus.ABORTED, weblogicEnvironmentTargeted);
 			}
-			listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - Deploying the artifact on the following target : (name="+weblogicEnvironmentTargetedName+") (host=" + weblogicEnvironmentTargeted.getHost() + ") (port=" +weblogicEnvironmentTargeted.getPort()+ ")");
+			listener.getLogger().println("[WeblogicDeploymentPlugin] - Deploying the artifact on the following target : (name="+weblogicEnvironmentTargetedName+") (host=" + weblogicEnvironmentTargeted.getHost() + ") (port=" +weblogicEnvironmentTargeted.getPort()+ ")");
 			
 			//Execution commande undeploy
 			WebLogicDeployerParameters undeployWebLogicDeployerParameters = new WebLogicDeployerParameters(build, launcher, listener, usedJdk, deploymentName, isLibrary, deploymentTargets, weblogicEnvironmentTargeted, artifactName, null, WebLogicCommand.UNDEPLOY, true, getDescriptor().getJavaOpts(), getDescriptor().getExtraClasspath());
 			String[] undeployCommand = WebLogicDeployer.getWebLogicCommandLine(undeployWebLogicDeployerParameters);
 	        
 	        deploymentLogOut.write("------------------------------------  ARTIFACT UNDEPLOYMENT ------------------------------------------------\r\n".getBytes());
-	        listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - UNDEPLOYING ARTIFACT...");
+	        listener.getLogger().println("[WeblogicDeploymentPlugin] - UNDEPLOYING ARTIFACT...");
 	        final Proc undeploymentProc = launcher.launch().cmds(undeployCommand).stdout(deploymentLogOut).start();
 	        undeploymentProc.join();
-	        listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - ARTIFACT UNDEPLOYED SUCCESSFULLY.");
+	        listener.getLogger().println("[WeblogicDeploymentPlugin] - ARTIFACT UNDEPLOYED SUCCESSFULLY.");
 	        
 	        //Transfert FTP pour les librairies (contrainte weblogic)
 	        if(isLibrary){
@@ -281,9 +302,9 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	        	// path to remote resource
 	            remoteFilePath = weblogicEnvironmentTargeted.getRemoteDir() + "/" + fullArtifactFinalName;
 	            String localFilePath = archivedArtifact.getRemote();
-	            listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - TRANSFERING LIBRARY : (local=" +fullArtifactFinalName+ ") (remote=" + remoteFilePath + ") to (ftp=" +ftpHost + "@" +weblogicEnvironmentTargeted.getFtpUser()+ ") ...");
+	            listener.getLogger().println("[WeblogicDeploymentPlugin] - TRANSFERING LIBRARY : (local=" +fullArtifactFinalName+ ") (remote=" + remoteFilePath + ") to (ftp=" +ftpHost + "@" +weblogicEnvironmentTargeted.getFtpUser()+ ") ...");
 	            FTPUtils.transfertFile(new TransfertConfiguration(ftpHost, weblogicEnvironmentTargeted.getFtpUser(), weblogicEnvironmentTargeted.getFtpPassowrd(), localFilePath, remoteFilePath),listener.getLogger());
-	        	listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - LIBRARY TRANSFERED SUCCESSFULLY.");
+	        	listener.getLogger().println("[WeblogicDeploymentPlugin] - LIBRARY TRANSFERED SUCCESSFULLY.");
 	        }
 	        
 	        //Execution commande deploy
@@ -296,19 +317,19 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	        
 	        WebLogicDeployerParameters deployWebLogicDeployerParameters = new WebLogicDeployerParameters(build,launcher,listener, usedJdk, deploymentName, isLibrary, deploymentTargets, weblogicEnvironmentTargeted, artifactName, sourceFile, WebLogicCommand.DEPLOY, false,getDescriptor().getJavaOpts(),getDescriptor().getExtraClasspath());
 	        String[] deployCommand = WebLogicDeployer.getWebLogicCommandLine(deployWebLogicDeployerParameters);
-	        listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - DEPLOYING ARTIFACT...");
+	        listener.getLogger().println("[WeblogicDeploymentPlugin] - DEPLOYING ARTIFACT...");
 	        deploymentLogOut.write("------------------------------------  ARTIFACT DEPLOYMENT ------------------------------------------------\r\n".getBytes());
 	        final Proc deploymentProc = launcher.launch().cmds(deployCommand).stdout(deploymentLogOut).start();
 	        int exitStatus = deploymentProc.join();
 	        if(exitStatus != 0){
-	        	listener.error("[HudsonWeblogicDeploymentPlugin] - Command " +StringUtils.join(deployCommand, '|')+" completed abnormally (exit code = "+exitStatus+")");
+	        	listener.error("[WeblogicDeploymentPlugin] - Command " +StringUtils.join(deployCommand, '|')+" completed abnormally (exit code = "+exitStatus+")");
 	        	throw new RuntimeException("Command " +StringUtils.join(deployCommand, '|')+" completed abnormally (exit code = "+exitStatus+")");
 	        }
-	        listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - ARTIFACT DEPLOYED SUCCESSFULLY.");
+	        listener.getLogger().println("[WeblogicDeploymentPlugin] - ARTIFACT DEPLOYED SUCCESSFULLY.");
 			
         } catch (Throwable e) {
         	e.printStackTrace(listener.getLogger());
-        	listener.error("[HudsonWeblogicDeploymentPlugin] - Failed to deploy.");
+        	listener.error("[WeblogicDeploymentPlugin] - Failed to deploy.");
             return exitPerformAction(build, listener, WebLogicDeploymentStatus.FAILED, weblogicEnvironmentTargeted);
         } finally {
         	IOUtils.closeQuietly(deploymentLogOut);
@@ -329,7 +350,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		
 		//Verification desactivation plugin
 		if(getDescriptor().isPluginDisabled()){
-			listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - The plugin execution is disabled.");
+			listener.getLogger().println("[WeblogicDeploymentPlugin] - The plugin execution is disabled.");
 			return false;
 		}
 				
@@ -341,13 +362,13 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		}
 		
 		if(isSpecifiedDeploymentStrategyValue && !hasAtLeastOneBuildCauseChecked(build, selectedDeploymentStrategyIds)){
-			listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - Not properly build causes expected (configured=" +StringUtils.join(selectedDeploymentStrategyIds,';')+ ") (currents=" +StringUtils.join(build.getCauses(),';')+ ") : The plugin execution is disabled.");
+			listener.getLogger().println("[WeblogicDeploymentPlugin] - Not properly build causes expected (configured=" +StringUtils.join(selectedDeploymentStrategyIds,';')+ ") (currents=" +StringUtils.join(build.getCauses(),';')+ ") : The plugin execution is disabled.");
 			return false;
 		}
 		
 		//Verification strategie relative a la gestion des sources (systematique (par defaut) / uniquement sur modification(actif) )
 		if(isDeployingOnlyWhenUpdates && build.getChangeSet().isEmptySet()) {
-			listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - No changes : The plugin execution is disabled.");
+			listener.getLogger().println("[WeblogicDeploymentPlugin] - No changes : The plugin execution is disabled.");
 			return false;
 		}
 		
@@ -360,7 +381,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 				TopLevelItem item = Hudson.getInstance().getItem(listeDependances[i]);
 				if(item instanceof Job){
 					WatchingWeblogicDeploymentLogsAction deploymentAction = ((Job<?,?>) item).getLastBuild().getAction(WatchingWeblogicDeploymentLogsAction.class);
-					listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - satisfying dependencies project involved : " + item.getName()+ " deploymentAction : "+ deploymentAction.getDeploymentActionStatus());
+					listener.getLogger().println("[WeblogicDeploymentPlugin] - satisfying dependencies project involved : " + item.getName()+ " deploymentAction : "+ deploymentAction.getDeploymentActionStatus());
 					if(deploymentAction != null && WebLogicDeploymentStatus.FAILED.equals(deploymentAction.getDeploymentActionStatus())){
 						satisfiedDependenciesDeployments = false;
 					}
@@ -368,14 +389,14 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			}
 			
 			if(!satisfiedDependenciesDeployments){
-				listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - Not satisfied project dependencies deployment : The plugin execution is disabled.");
+				listener.getLogger().println("[WeblogicDeploymentPlugin] - Not satisfied project dependencies deployment : The plugin execution is disabled.");
 				return false;
 			}
 		}
 				
 		// Verification build SUCCESS
 		if (build.getResult().isWorseThan(Result.SUCCESS)) {
-			listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - build didn't finished successfully. The plugin execution is disabled.");
+			listener.getLogger().println("[WeblogicDeploymentPlugin] - build didn't finished successfully. The plugin execution is disabled.");
 			return false;
 		}
 				
@@ -383,11 +404,11 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		try {
 			usedJdk = JdkUtils.getSelectedJDK(getDescriptor().getJdkSelected(), listener.getLogger());
 		} catch (RequiredJDKNotFoundException rjnfe) {
-			listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - No JDK found. The plugin execution is disabled.");
+			listener.getLogger().println("[WeblogicDeploymentPlugin] - No JDK found. The plugin execution is disabled.");
 			return false;
 		}
 		String valueJdk = usedJdk != null ? "the JDK " +usedJdk.getHome()+ " will be used." : "no JDK retrieved.";
-		listener.getLogger().println("[HudsonWeblogicDeploymentPlugin] - " +valueJdk);
+		listener.getLogger().println("[WeblogicDeploymentPlugin] - " +valueJdk);
 		return true;		
 	}
 	
@@ -420,8 +441,8 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	 * @see hudson.model.AbstractDescribableImpl#getDescriptor()
 	 */
 	@Override
-	public HudsonWeblogicDeploymentPluginDescriptor getDescriptor() {
-		return (HudsonWeblogicDeploymentPluginDescriptor) super.getDescriptor();
+	public WeblogicDeploymentPluginDescriptor getDescriptor() {
+		return (WeblogicDeploymentPluginDescriptor) super.getDescriptor();
 	}
 	
 	/*
@@ -433,7 +454,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	}
 	
 	@Extension
-	public static final class HudsonWeblogicDeploymentPluginDescriptor extends BuildStepDescriptor<Publisher> {
+	public static final class WeblogicDeploymentPluginDescriptor extends BuildStepDescriptor<Publisher> {
 		
 		public static transient final String PLUGIN_XSD_SCHEMA_CONFIG_FILE_PATH = WebLogicDeploymentPluginConstantes.PLUGIN_RESOURCES_PATH + "/defaultConfig/plugin-configuration.xsd";
 		
@@ -466,7 +487,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		/**
 		 * 
 		 */
-		public HudsonWeblogicDeploymentPluginDescriptor(){
+		public WeblogicDeploymentPluginDescriptor(){
 			super(WeblogicDeploymentPlugin.class);
 			
 			//on charge les annotations XStream
@@ -510,7 +531,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		 */
 		@Override
 		public String getDisplayName() {
-			return Messages.HudsonWeblogicDeploymentPluginDescriptor_DisplayName();
+			return Messages.WeblogicDeploymentPluginDescriptor_DisplayName();
 		}
 
 		/**
