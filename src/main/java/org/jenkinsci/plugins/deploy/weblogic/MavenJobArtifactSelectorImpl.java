@@ -42,15 +42,19 @@ public class MavenJobArtifactSelectorImpl implements ArtifactSelector {
             listener.getLogger().println("[WeblogicDeploymentPlugin] - No artifacts are recorded. Is this a Maven project?");
         }
         
-        listener.getLogger().println("[WeblogicDeploymentPlugin] - Retrieving artifacts recorded...");
+        listener.getLogger().println("[WeblogicDeploymentPlugin] - Retrieving artifacts recorded [filtered resources on "+filteredResource+"]...");
         List<Artifact> artifactsRecorded = new ArrayList<Artifact>();
         for (MavenAbstractArtifactRecord<MavenBuild> mar : mars) {
         	listener.getLogger().println("[WeblogicDeploymentPlugin] - "+mar.getBuild().getArtifacts().size()+ " artifacts recorded in "+mar.getBuild().getArtifactsDir());
             for(Artifact artifact : mar.getBuild().getArtifacts()){
-            	//Si une expression reguliere est fournie on filtre en priorité sur la regex
-            	if(StringUtils.isNotEmpty(filteredResource) && Pattern.matches(filteredResource, artifact.getFileName())){
-            		listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact recorded "+artifact.getFileName()+" is eligible.");
-        		    artifactsRecorded.add(artifact);
+            	//Si une expression reguliere est fournie on filtre en priorite sur la regex
+            	if(StringUtils.isNotEmpty(filteredResource)) {
+            		if(Pattern.matches(filteredResource, artifact.getFileName())){
+            			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact recorded "+artifact.getFileName()+" is eligible.");
+            		    artifactsRecorded.add(artifact);
+            		} else {
+            			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact "+artifact.getFileName()+" doesn't match "+filteredResource);
+            		}
             	} else {
 	            	//On ne conserve que les jar,ear et war
 	            	Matcher matcher = ARTIFACT_DEPLOYABLE_PATTERN.matcher(artifact.getFileName());
