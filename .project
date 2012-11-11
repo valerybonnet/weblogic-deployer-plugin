@@ -1,6 +1,6 @@
 <projectDescription>
   <name>weblogic-deployer-plugin</name>
-  <comment>This plugin deploy artifacts built on a CI server Hudson to a weblogic target (managed server, cluster ...) as an application or a library component. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
+  <comment>This plugin deploy the artifacts built on Jenkins to a weblogic target (admin server, managed server, cluster ...) as an application or a library module. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
   <projects/>
   <buildSpec>
     <buildCommand>
@@ -13,5 +13,6 @@
   <natures>
     <nature>org.eclipse.m2e.core.maven2Nature</nature>
     <nature>org.eclipse.jdt.core.javanature</nature>
+    <nature>org.eclipse.jdt.groovy.core.groovyNature</nature>
   </natures>
 </projectDescription>

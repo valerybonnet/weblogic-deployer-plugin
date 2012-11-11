@@ -3,9 +3,9 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic;
 
+import hudson.FilePath;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
-import hudson.model.Run.Artifact;
 
 import java.io.IOException;
 
@@ -22,11 +22,12 @@ public interface ArtifactSelector {
 	 * @param build
 	 * @param listener
 	 * @param filteredResource
+	 * @param baseDirectory : base directory where the filtered resources will be searched.If the directory is not specified, it will search into the workspace.
 	 * @return
 	 * @throws IOException
 	 * @throws XmlPullParserException
 	 * @throws InterruptedException
 	 */
-	public Artifact selectArtifactRecorded(AbstractBuild<?, ?> build, BuildListener listener, String filteredResource) throws IOException, XmlPullParserException, InterruptedException;
+	public FilePath selectArtifactRecorded(AbstractBuild<?, ?> build, BuildListener listener, String filteredResource, String baseDirectory) throws IOException, XmlPullParserException, InterruptedException;
 	
 }

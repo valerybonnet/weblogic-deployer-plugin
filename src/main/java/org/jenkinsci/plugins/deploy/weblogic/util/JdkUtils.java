@@ -52,14 +52,14 @@ public class JdkUtils {
 			int result = launcher.launch().cmds(cmd,"-version").stdout(out).join();
 //			L'executable n'existe pas
 			if(result  != 0){
-				logger.println("[HudsonWeblogicDeploymentPlugin] - Unable to detect JDK version");
+				logger.println("[WeblogicDeploymentPlugin] - Unable to detect JDK version");
 				return false;
 			}
 			
 			Pattern pattern = Pattern.compile(JAVA_VERSION_COMMAND_VERSION_LINE_REGEX);
 			Matcher matcher = pattern.matcher(out.toString());
 			if(matcher.matches()){
-				logger.println("[HudsonWeblogicDeploymentPlugin] - Pay attention of Jdk version {selected version is "+matcher.group(3)+"} compatibility with Weblogic Deployer API (see Oracle documentation).");
+				logger.println("[WeblogicDeploymentPlugin] - Pay attention of Jdk version {selected version is "+matcher.group(3)+"} compatibility with Weblogic Deployer API (see Oracle documentation).");
 			}
 			
 		} catch (IOException e) {
@@ -83,14 +83,14 @@ public class JdkUtils {
 	public static JDK getSelectedJDK(String name, PrintStream logger) throws RequiredJDKNotFoundException {
 		JDK selectedJdk = null;
 		
-		logger.println("[HudsonWeblogicDeploymentPlugin] - jdk selected : "+name);
+		logger.println("[WeblogicDeploymentPlugin] - jdk selected : "+name);
 		
 		if (SYSTEM_JDK.equals(name) && StringUtils.isNotBlank(SystemUtils.JAVA_HOME)){
-			logger.println("[HudsonWeblogicDeploymentPlugin] - java.home=" +  SystemUtils.JAVA_HOME);
+			logger.println("[WeblogicDeploymentPlugin] - java.home=" +  SystemUtils.JAVA_HOME);
 			String embeddedHome = System.getProperty("java.home");
 			selectedJdk = new JDK(SYSTEM_JDK, embeddedHome);
 		} else if(EXTERNAL_ENV_JDK.equals(name) && StringUtils.isNotBlank(System.getenv("JAVA_HOME"))){
-			logger.println("[HudsonWeblogicDeploymentPlugin] - JAVA_HOME=" +  System.getenv("JAVA_HOME"));
+			logger.println("[nWeblogicDeploymentPlugin] - JAVA_HOME=" +  System.getenv("JAVA_HOME"));
 			String embeddedHome = System.getenv("JAVA_HOME");
 			selectedJdk = new JDK(EXTERNAL_ENV_JDK, embeddedHome);
 		} else {

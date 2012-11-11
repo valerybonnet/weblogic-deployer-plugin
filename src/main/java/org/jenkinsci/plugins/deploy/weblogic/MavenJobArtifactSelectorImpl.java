@@ -3,6 +3,7 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic;
 
+import hudson.FilePath;
 import hudson.maven.MavenBuild;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSetBuild;
@@ -19,7 +20,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
@@ -30,12 +30,13 @@ public class MavenJobArtifactSelectorImpl implements ArtifactSelector {
 	
 	private static transient final Pattern ARTIFACT_DEPLOYABLE_PATTERN = Pattern.compile(".*\\.(ear|war|jar)", Pattern.CASE_INSENSITIVE);
 	
-	/* (non-Javadoc)
-	 * @see org.jenkinsci.plugins.deploy.weblogic.ArtifactSelector#selectArtifactRecorded(hudson.model.AbstractBuild, hudson.model.BuildListener, java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * @see org.jenkinsci.plugins.deploy.weblogic.ArtifactSelector#selectArtifactRecorded(hudson.model.AbstractBuild, hudson.model.BuildListener, java.lang.String, java.lang.String)
 	 */
-	public Artifact selectArtifactRecorded(AbstractBuild<?, ?> build, BuildListener listener, String filteredResource) throws IOException, XmlPullParserException, InterruptedException  {
+	public FilePath selectArtifactRecorded(AbstractBuild<?, ?> build, BuildListener listener, String filteredResource, String baseDirectory) throws IOException, XmlPullParserException, InterruptedException  {
 		
-		Artifact selectedArtifact = null;
+		FilePath selectedArtifact = null;
 		
       	List<MavenAbstractArtifactRecord<MavenBuild>> mars = getActions( build, listener);
         if(mars==null || mars.isEmpty()) {
@@ -74,11 +75,13 @@ public class MavenJobArtifactSelectorImpl implements ArtifactSelector {
         	listener.getLogger().println("[WeblogicDeploymentPlugin] - More than 1 artifact found : The first one "+artifactsRecorded.get(0)+ " will be deployed!!!");
         }
         
-        selectedArtifact = artifactsRecorded.get(0);
-		
+        if(artifactsRecorded.get(0) != null && artifactsRecorded.get(0).getFile() != null){
+        	selectedArtifact = new FilePath(artifactsRecorded.get(0).getFile());
+        }
+        
 		// Erreur si l'artifact n'existe pas
 		if(selectedArtifact == null){
-			throw new RuntimeException("[WeblogicDeploymentPlugin] - No artifact to deploy found.");
+			throw new RuntimeException("No artifact to deploy found.");
 		}
         
 		return selectedArtifact;

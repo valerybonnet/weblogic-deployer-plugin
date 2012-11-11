@@ -17,7 +17,6 @@ import hudson.model.Cause;
 import hudson.model.Hudson;
 import hudson.model.JDK;
 import hudson.model.Job;
-import hudson.model.Run.Artifact;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
@@ -125,8 +124,17 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	 */
 	private String builtResourceRegexToDeploy;
 	
+	/**
+	 * Repertoire parent dans lequel la ressource à deployer peut etre localisée.
+	 * Utilise principalement pour les job non maven dans le cas où la ressource
+	 * à deployer ne se trouve pas dans le workspace
+	 */
+	private String baseResourcesGeneratedDirectory;
+	
 	@DataBoundConstructor
-    public WeblogicDeploymentPlugin(String weblogicEnvironmentTargetedName, String deploymentName, String deploymentTargets, boolean isLibrary, boolean mustExitOnFailure, List<String> selectedDeploymentStrategyIds, String deployedProjectsDependencies, boolean isDeployingOnlyWhenUpdates, String builtResourceRegexToDeploy) {
+    public WeblogicDeploymentPlugin(String weblogicEnvironmentTargetedName, String deploymentName, 
+    		String deploymentTargets, boolean isLibrary, boolean mustExitOnFailure, List<String> selectedDeploymentStrategyIds, 
+    		String deployedProjectsDependencies, boolean isDeployingOnlyWhenUpdates, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory) {
         this.weblogicEnvironmentTargetedName = weblogicEnvironmentTargetedName;
         this.deploymentName = deploymentName;
         this.deploymentTargets = deploymentTargets;
@@ -136,6 +144,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
         this.deployedProjectsDependencies = deployedProjectsDependencies;
         this.isDeployingOnlyWhenUpdates = isDeployingOnlyWhenUpdates;
         this.builtResourceRegexToDeploy = builtResourceRegexToDeploy;
+        this.baseResourcesGeneratedDirectory = baseResourcesGeneratedDirectory;
     }
 	
 	/**
@@ -219,6 +228,13 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	public void setBuiltResourceRegexToDeploy(String builtResourceRegexToDeploy) {
 		this.builtResourceRegexToDeploy = builtResourceRegexToDeploy;
 	}
+	
+	/**
+	 * @return the baseResourcesGeneratedDirectory
+	 */
+	public String getBaseResourcesGeneratedDirectory() {
+		return baseResourcesGeneratedDirectory;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -250,12 +266,27 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		String artifactName = null;
 		String fullArtifactFinalName = null;
 		try {
-			ArtifactSelector artifactSelector = new MavenJobArtifactSelectorImpl();
-			Artifact selectedArtifact = artifactSelector.selectArtifactRecorded(build, listener, builtResourceRegexToDeploy);
+			// En fonction du type de projet on utilise pas le meme selecteur
+			Class<? extends AbstractProject> jobType = build.getProject().getClass();
+			ArtifactSelector artifactSelector = null;
+			if(hudson.maven.AbstractMavenProject.class.isAssignableFrom(jobType)){
+				artifactSelector = new MavenJobArtifactSelectorImpl();
+			}
+			// Cas d'un projet freestyle
+			else if(hudson.model.FreeStyleProject.class.isAssignableFrom(jobType)){
+				artifactSelector = new FreeStyleJobArtifactSelectorImpl();
+			}
+			
+			//Test d'acquisition d'un selecteur
+			if(artifactSelector == null){
+				throw new RuntimeException("No artifact selector has been found for the jop type ["+jobType+"]");
+			}
+			
+			FilePath selectedArtifact = artifactSelector.selectArtifactRecorded(build, listener, builtResourceRegexToDeploy, baseResourcesGeneratedDirectory);
 			// Ne devrait pas etre le nom mais la valeur finale du artifact.name (sans l'extension)
-			artifactName = StringUtils.substringBeforeLast(selectedArtifact.getFileName(), ".");
-			archivedArtifact = new FilePath(selectedArtifact.getFile());
-			fullArtifactFinalName = selectedArtifact.getFileName();
+			artifactName = StringUtils.substringBeforeLast(selectedArtifact.getBaseName(), ".");
+			archivedArtifact = selectedArtifact;
+			fullArtifactFinalName = selectedArtifact.getName();
 		} catch (Throwable e) {
             listener.error("[WeblogicDeploymentPlugin] - Failed to get artifact from archive directory : " + e.getMessage());
             return exitPerformAction(build, listener, WebLogicDeploymentStatus.ABORTED, null);
@@ -751,10 +782,10 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		public boolean isApplicable(Class<? extends AbstractProject> jobType) {
 			// indicates that this builder can be used with all kinds of project types
 			//Verification projet Maven
-			if(hudson.maven.AbstractMavenProject.class.isAssignableFrom(jobType)){
+//			if(hudson.maven.AbstractMavenProject.class.isAssignableFrom(jobType)){
 				return true;
-			}
-			return false;
+//			}
+//			return false;
 		}
 	}
 	
