@@ -45,30 +45,31 @@ public class MavenJobArtifactSelectorImpl implements ArtifactSelector {
         
         listener.getLogger().println("[WeblogicDeploymentPlugin] - Retrieving artifacts recorded [filtered resources on "+filteredResource+"]...");
         List<Artifact> artifactsRecorded = new ArrayList<Artifact>();
+        String patternToUse = StringUtils.defaultIfEmpty(filteredResource, ARTIFACT_DEPLOYABLE_PATTERN.pattern());
         for (MavenAbstractArtifactRecord<MavenBuild> mar : mars) {
         	listener.getLogger().println("[WeblogicDeploymentPlugin] - "+mar.getBuild().getArtifacts().size()+ " artifacts recorded in "+mar.getBuild().getArtifactsDir());
             for(Artifact artifact : mar.getBuild().getArtifacts()){
             	//Si une expression reguliere est fournie on filtre en priorite sur la regex
-            	if(StringUtils.isNotEmpty(filteredResource)) {
-            		if(Pattern.matches(filteredResource, artifact.getFileName())){
+//            	if(StringUtils.isNotEmpty(filteredResource)) {
+            		if(Pattern.matches(patternToUse, artifact.getFileName())){
             			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact recorded "+artifact.getFileName()+" is eligible.");
             		    artifactsRecorded.add(artifact);
             		} else {
             			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact "+artifact.getFileName()+" doesn't match "+filteredResource);
             		}
-            	} else {
-	            	//On ne conserve que les jar,ear et war
-	            	Matcher matcher = ARTIFACT_DEPLOYABLE_PATTERN.matcher(artifact.getFileName());
-	        		while (matcher.find()) {
-	        			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact recorded "+artifact.getFileName()+" is eligible.");
-	        		    artifactsRecorded.add(artifact);
-	        		}
-            	}
+//            	} else {
+//	            	//On ne conserve que les jar,ear et war
+//	            	Matcher matcher = ARTIFACT_DEPLOYABLE_PATTERN.matcher(artifact.getFileName());
+//	        		while (matcher.find()) {
+//	        			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact recorded "+artifact.getFileName()+" is eligible.");
+//	        		    artifactsRecorded.add(artifact);
+//	        		}
+//            	}
             }
         }
         
         if(artifactsRecorded.size() < 1){
-        	throw new RuntimeException("[WeblogicDeploymentPlugin] - No artifact to deploy found.");
+        	throw new RuntimeException("[WeblogicDeploymentPlugin] - No artifact to deploy ["+patternToUse+"] found.");
         }
         
         if(artifactsRecorded.size() > 1){

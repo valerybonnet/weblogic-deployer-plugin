@@ -47,7 +47,7 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
 	    		}
 	        }
         } else {
-        	Collection files = FileUtils.listFiles(new File(baseDirectory), null, true);
+        	Collection<?> files = FileUtils.listFiles(new File(baseDirectory), null, true);
         	for(File file : (Collection<File>) files){
         		if(! file.isDirectory() && Pattern.matches(filteredResource, file.getName())){
 	    			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following file recorded "+file.getName()+" is eligible.");
@@ -59,7 +59,7 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
         }
         
         if(artifactsRecorded.size() < 1){
-        	throw new RuntimeException("[WeblogicDeploymentPlugin] - No artifact to deploy found.");
+        	throw new RuntimeException("[WeblogicDeploymentPlugin] - No artifact to deploy ["+filteredResource+"] found.");
         }
         
         if(artifactsRecorded.size() > 1){
