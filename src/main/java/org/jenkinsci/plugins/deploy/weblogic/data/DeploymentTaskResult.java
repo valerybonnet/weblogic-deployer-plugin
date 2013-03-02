@@ -11,19 +11,19 @@ public class DeploymentTaskResult {
 
 	private WebLogicDeploymentStatus status;
 	
-	private WeblogicEnvironment environment;
+	private DeploymentTask task;
 	
-	private String artifactName;
+	private String resourceName;
 	
 	/**
 	 * 
 	 * @param status
 	 * @param environment
 	 */
-	public DeploymentTaskResult(WebLogicDeploymentStatus status, WeblogicEnvironment environment, String artifactName) {
-		this.environment = environment;
+	public DeploymentTaskResult(WebLogicDeploymentStatus status, DeploymentTask task, String resourceName) {
+		this.task = task;
 		this.status = status;
-		this.artifactName = artifactName;
+		this.resourceName = resourceName;
 	}
 
 	/**
@@ -41,31 +41,31 @@ public class DeploymentTaskResult {
 	}
 
 	/**
-	 * @return the environment
+	 * @return the task
 	 */
-	public WeblogicEnvironment getEnvironment() {
-		return environment;
+	public DeploymentTask getTask() {
+		return task;
 	}
 
 	/**
-	 * @param environment the environment to set
+	 * @param task the task to set
 	 */
-	public void setEnvironment(WeblogicEnvironment environment) {
-		this.environment = environment;
+	public void setTask(DeploymentTask task) {
+		this.task = task;
 	}
 
 	/**
-	 * @return the artifactName
+	 * @return the resourceName
 	 */
-	public String getArtifactName() {
-		return artifactName;
+	public String getResourceName() {
+		return resourceName;
 	}
 
 	/**
-	 * @param artifactName the artifactName to set
+	 * @param resourceName the resourceName to set
 	 */
-	public void setArtifactName(String artifactName) {
-		this.artifactName = artifactName;
+	public void setResourceName(String resourceName) {
+		this.resourceName = resourceName;
 	}
 	
 }

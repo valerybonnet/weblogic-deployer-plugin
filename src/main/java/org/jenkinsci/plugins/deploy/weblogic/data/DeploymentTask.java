@@ -3,6 +3,7 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.data;
 
+import org.jenkinsci.plugins.deploy.weblogic.util.RandomGenerator;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -11,6 +12,11 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class DeploymentTask {
 
+	/**
+	 * Identify the task
+	 */
+	private String id = RandomGenerator.generateAlphaNumericString(10);
+	
 	/**
      * Identifies {@link WeblogicEnvironment} to be used.
      */
@@ -44,10 +50,17 @@ public class DeploymentTask {
 	 */
 	private String baseResourcesGeneratedDirectory;
 	
+	/**
+	 * The task name (optional)
+	 */
+	private String taskName;
+	
 	@DataBoundConstructor
-	public DeploymentTask(String weblogicEnvironmentTargetedName, String deploymentName, 
+	public DeploymentTask(String id, String taskName, String weblogicEnvironmentTargetedName, String deploymentName, 
   		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory) {
-      this.weblogicEnvironmentTargetedName = weblogicEnvironmentTargetedName;
+		this.id = id;
+		this.taskName = taskName;
+		this.weblogicEnvironmentTargetedName = weblogicEnvironmentTargetedName;
       this.deploymentName = deploymentName;
       this.deploymentTargets = deploymentTargets;
       this.isLibrary = isLibrary;
@@ -107,4 +120,26 @@ public class DeploymentTask {
 	public String getBaseResourcesGeneratedDirectory() {
 		return baseResourcesGeneratedDirectory;
 	}
+
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	/**
+	 * @return the taskName
+	 */
+	public String getTaskName() {
+		return taskName;
+	}
+	
 }

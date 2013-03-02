@@ -64,7 +64,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			deploymentLogOut = new FileOutputStream(WeblogicDeploymentPluginLog.getDeploymentLogFile(build));
 		} catch (FileNotFoundException fnfe) {
 			listener.error("[WeblogicDeploymentPlugin] - Failed to find deployment log file : " + fnfe.getMessage());
-            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, null, task.getDeploymentName()));
+            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, task, null));
 		}
 		
 		// Identification de la ressource a deployer
@@ -96,7 +96,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			fullArtifactFinalName = selectedArtifact.getName();
 		} catch (Throwable e) {
             listener.error("[WeblogicDeploymentPlugin] - Failed to get artifact from archive directory : " + e.getMessage());
-            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, null, task.getDeploymentName()));
+            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, task, null));
         }
 		
 		//Deploiement
@@ -111,7 +111,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			Matcher matcher = pattern.matcher(artifactName);
 			if(matcher.matches()){
 				listener.error("[WeblogicDeploymentPlugin] - The artifact Name " +artifactName+ " is excluded from deployment (see exclusion list).");
-				throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, weblogicEnvironmentTargeted, fullArtifactFinalName));
+				throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, task, fullArtifactFinalName));
 			}
 			
 			//Recuperation du parametrage
@@ -119,7 +119,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			
 			if(weblogicEnvironmentTargeted == null){
 				listener.error("[WeblogicDeploymentPlugin] - WebLogic environment Name " +task.getWeblogicEnvironmentTargetedName()+ " not found in the list. Please check the configuration file.");
-				throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, weblogicEnvironmentTargeted, fullArtifactFinalName));
+				throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, task, fullArtifactFinalName));
 			}
 			listener.getLogger().println("[WeblogicDeploymentPlugin] - Deploying the artifact on the following target : (name="+task.getWeblogicEnvironmentTargetedName()+") (host=" + weblogicEnvironmentTargeted.getHost() + ") (port=" +weblogicEnvironmentTargeted.getPort()+ ")");
 			
@@ -168,12 +168,12 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
         } catch (Throwable e) {
         	e.printStackTrace(listener.getLogger());
         	listener.error("[WeblogicDeploymentPlugin] - Failed to deploy.");
-            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.FAILED, weblogicEnvironmentTargeted, null));
+            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.FAILED, task, fullArtifactFinalName));
         } finally {
         	IOUtils.closeQuietly(deploymentLogOut);
         }
 		
-		return new DeploymentTaskResult(WebLogicDeploymentStatus.SUCCEEDED, weblogicEnvironmentTargeted, fullArtifactFinalName);
+		return new DeploymentTaskResult(WebLogicDeploymentStatus.SUCCEEDED, task, fullArtifactFinalName);
 	}
 	
 	/**

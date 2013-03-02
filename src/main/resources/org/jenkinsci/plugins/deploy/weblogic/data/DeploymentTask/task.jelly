@@ -1,4 +1,9 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hudson/project" xmlns:util="jelly:util">
+	
+	<f:entry title="${%title.task.name}" field="taskName">
+		<f:textbox value="${it.taskName}"/>
+	</f:entry>
+	
 	<f:entry title="${%Environment}" field="weblogicEnvironmentTargetedName">
 		<select  class="setting-input" name="weblogicEnvironmentTargetedName">
 	       	<j:forEach var="inst" items="${descriptor.weblogicEnvironments}">
@@ -6,6 +11,7 @@
 	           </j:forEach>
 		</select>
 	</f:entry>
+	
 	<f:entry title="${%Name}" field="deploymentName">
 		<f:textbox value="${it.deploymentName}"/>
 	</f:entry>

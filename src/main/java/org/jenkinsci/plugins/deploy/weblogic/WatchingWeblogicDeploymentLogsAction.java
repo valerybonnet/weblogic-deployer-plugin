@@ -8,7 +8,9 @@ import hudson.model.AbstractBuild;
 
 import java.io.Serializable;
 
+import org.codehaus.plexus.util.StringUtils;
 import org.jenkinsci.plugins.deploy.weblogic.Messages;
+import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTaskResult;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicDeploymentStatus;
 import org.jenkinsci.plugins.deploy.weblogic.data.WeblogicEnvironment;
 import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
@@ -32,11 +34,16 @@ public class WatchingWeblogicDeploymentLogsAction implements Action, Serializabl
 	private static transient final String urlName = "deploymentLogs";
 	
 	@Exported(name="status")
+	@Deprecated
 	public WebLogicDeploymentStatus deploymentActionStatus;
 	
 	private AbstractBuild<?, ?> build;
 	
+	@Exported(name="result")
+	public DeploymentTaskResult result;
+	
 	@Exported(name="target")
+	@Deprecated
 	public WeblogicEnvironment target;
 	
 	private transient boolean isLogsAvailable = false;
@@ -53,13 +60,20 @@ public class WatchingWeblogicDeploymentLogsAction implements Action, Serializabl
 	 * @param deploymentActionStatus
 	 * @param b
 	 */
-	public WatchingWeblogicDeploymentLogsAction(WebLogicDeploymentStatus deploymentActionStatus, AbstractBuild<?, ?> b, WeblogicEnvironment target){
+	public WatchingWeblogicDeploymentLogsAction(DeploymentTaskResult result, AbstractBuild<?, ?> b){
 		this.build = b;
-		this.deploymentActionStatus = deploymentActionStatus;
-		this.target = target;
+//		this.deploymentActionStatus = deploymentActionStatus;
+//		this.target = target;
+		this.result = result;
+		
 		//lien vers les logs uniquement si pas d'execution
-		if(! WebLogicDeploymentStatus.ABORTED.equals(deploymentActionStatus) && ! WebLogicDeploymentStatus.DISABLED.equals(deploymentActionStatus)){
-			this.isLogsAvailable = true;
+		switch(result.getStatus()){
+			case ABORTED:
+			case DISABLED:
+				this.isLogsAvailable = false;
+				break;
+			default :
+				this.isLogsAvailable = true;
 		}
 	}
 	
@@ -92,7 +106,7 @@ public class WatchingWeblogicDeploymentLogsAction implements Action, Serializabl
 	 * @return
 	 */
 	public WebLogicDeploymentStatus getDeploymentActionStatus() {
-		return deploymentActionStatus;
+		return this.result.getStatus();
 	}
 	
 	/**
@@ -105,9 +119,26 @@ public class WatchingWeblogicDeploymentLogsAction implements Action, Serializabl
 
 	/**
 	 * @return the target
+	 * @deprecated
 	 */
 	public WeblogicEnvironment getTarget() {
 		return target;
+	}
+
+	/**
+	 * @return the task result label
+	 */
+	public String getActionLabel() {
+		String actionLabel = "";
+		if(StringUtils.isNotBlank(this.result.getResourceName())) {
+			actionLabel = this.result.getResourceName();
+		} else if(StringUtils.isNotBlank(this.result.getTask().getTaskName())) {
+			actionLabel = this.result.getTask().getTaskName();
+		} else {
+			actionLabel = this.result.getTask().getId();
+		}
+		
+		return StringUtils.defaultString(actionLabel,"").concat("#").concat(StringUtils.defaultString(this.result.getTask().getWeblogicEnvironmentTargetedName(),""));
 	}
 	
 }
