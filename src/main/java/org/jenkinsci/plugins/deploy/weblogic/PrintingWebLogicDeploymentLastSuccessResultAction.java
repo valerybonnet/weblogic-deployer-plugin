@@ -6,8 +6,9 @@ import hudson.model.AbstractProject;
 
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.jenkinsci.plugins.deploy.weblogic.action.DeploymentActionNotSucceededPredicate;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicDeployment;
-import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicDeploymentStatus;
 
 
 public class PrintingWebLogicDeploymentLastSuccessResultAction implements Action  {
@@ -30,11 +31,20 @@ public class PrintingWebLogicDeploymentLastSuccessResultAction implements Action
 		
 		List<AbstractBuild<?, ?>> builds = (List<AbstractBuild<?, ?>>) project.getBuilds();
 		for (AbstractBuild<?, ?> build : builds) {
-			WatchingWeblogicDeploymentLogsAction deploymentAction = build.getAction(WatchingWeblogicDeploymentLogsAction.class);
-			if(deploymentAction != null && WebLogicDeploymentStatus.SUCCEEDED.equals(deploymentAction.deploymentActionStatus)){
-				lastDeploymentSucessfull = new WebLogicDeployment(build.getNumber(), build.getTime(), deploymentAction.getTarget());
+			List<WatchingWeblogicDeploymentLogsAction> deploymentAction = build.getActions(WatchingWeblogicDeploymentLogsAction.class);
+			
+			WatchingWeblogicDeploymentLogsAction found = (WatchingWeblogicDeploymentLogsAction) CollectionUtils.find(deploymentAction, new DeploymentActionNotSucceededPredicate());
+			if(found == null){
+				lastDeploymentSucessfull = new WebLogicDeployment(build.getNumber(), build.getTime(), null);
 				break;
 			}
+//			for(WatchingWeblogicDeploymentLogsAction action : deploymentAction){
+//				// TODO : Comment gerer le last deployment sucessfull ?
+//				if(action != null && WebLogicDeploymentStatus.SUCCEEDED.equals(action.deploymentActionStatus)){
+//					lastDeploymentSucessfull = new WebLogicDeployment(build.getNumber(), build.getTime(), action.getTarget());
+//					break;
+//				}
+//			}
 		}
 	}
 	

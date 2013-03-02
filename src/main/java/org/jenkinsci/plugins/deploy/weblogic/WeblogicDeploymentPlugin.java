@@ -33,7 +33,6 @@ import javax.servlet.ServletException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.plexus.util.FileUtils;
@@ -46,6 +45,7 @@ import org.jenkinsci.plugins.deploy.weblogic.exception.DeploymentTaskException;
 import org.jenkinsci.plugins.deploy.weblogic.exception.RequiredJDKNotFoundException;
 import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
 import org.jenkinsci.plugins.deploy.weblogic.task.DeploymentTaskService;
+import org.jenkinsci.plugins.deploy.weblogic.task.TaskStatusUnSuccesfullPredicate;
 import org.jenkinsci.plugins.deploy.weblogic.util.DeployerClassPathUtils;
 import org.jenkinsci.plugins.deploy.weblogic.util.JdkUtils;
 import org.jenkinsci.plugins.deploy.weblogic.util.URLUtils;
@@ -757,20 +757,8 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	 */
 	private boolean exitPerformAction(AbstractBuild<?, ?> build, BuildListener listener, List<DeploymentTaskResult> results){
 		
-		Predicate atLeastOneFailure = new Predicate() {
-			
-			/*
-			 * (non-Javadoc)
-			 * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
-			 */
-			public boolean evaluate(Object arg0) {
-				DeploymentTaskResult elt = (DeploymentTaskResult)  arg0;
-				return ! WebLogicDeploymentStatus.SUCCEEDED.equals(elt.getStatus());
-			}
-		};
-		
 		// On test si au moins une des taches est KO
-		if(CollectionUtils.exists(results, atLeastOneFailure)){
+		if(CollectionUtils.exists(results, new TaskStatusUnSuccesfullPredicate())){
 			if(mustExitOnFailure){
 				build.setResult(Result.FAILURE);
 			} else {

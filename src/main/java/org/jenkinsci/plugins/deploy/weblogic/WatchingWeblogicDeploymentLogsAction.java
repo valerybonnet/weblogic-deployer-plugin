@@ -106,7 +106,7 @@ public class WatchingWeblogicDeploymentLogsAction implements Action, Serializabl
 	 * @return
 	 */
 	public WebLogicDeploymentStatus getDeploymentActionStatus() {
-		return this.result.getStatus();
+		return this.result != null ? this.result.getStatus() : this.deploymentActionStatus;
 	}
 	
 	/**
