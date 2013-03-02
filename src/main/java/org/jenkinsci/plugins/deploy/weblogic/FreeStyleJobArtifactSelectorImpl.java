@@ -75,5 +75,13 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
         
 		return selectedArtifact;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.jenkinsci.plugins.deploy.weblogic.ArtifactSelector#getName()
+	 */
+	public String getName() {
+		return "FreeStyleProject";
+	}
 
 }

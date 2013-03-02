@@ -1,35 +1,31 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hudson/project" xmlns:util="jelly:util">
 	<j:set var="weblogicEnvironments" value="${descriptor.weblogicEnvironments}" />
+	<j:set var="projectModel" value="${it.getClass().getName()}" />
 	<j:choose>
 		<j:when test="${! empty(weblogicEnvironments)}">
-			<f:entry title="${%Environment}" field="weblogicEnvironmentTargetedName">
-				<select  class="setting-input" name="weblogicEnvironmentTargetedName">
-		        	<j:forEach var="inst" items="${descriptor.weblogicEnvironments}">
-		            	<f:option selected="${inst.name == instance.weblogicEnvironmentTargetedName}" value="${inst.name}">${inst.name} (${inst.host}:${inst.port})</f:option>
-		            </j:forEach>
-				</select>
-			</f:entry>
-		  	<f:entry title="${%Name}" field="deploymentName">
-		  		<f:textbox/>
-		  	</f:entry>
-		  	
-          	<!-- En fonction du type de projet on ne saisit que le nom ou aussi le repertoire ou se produit la generation -->
-		  	<j:if test="${it.getClass().getName() == 'hudson.model.FreeStyleProject'}">
-			  	<f:entry title="${%BaseResourcesGeneratedDirectory}" field="baseResourcesGeneratedDirectory">
-			  		<f:textbox/>
-			  	</f:entry>		  	
-		  	</j:if>
-		  	<f:entry title="${%RegexBuiltResourceToDeploy}" field="builtResourceRegexToDeploy">
-		  		<f:textbox/>
-		  	</f:entry>
-		  	<f:entry title="${%DeploymentTargets}" field="deploymentTargets">
-		  		<f:textbox default="AdminServer"/>
-		  	</f:entry>
-		  	<f:entry title="${%WeblogicLibrary}" field="isLibrary">
-		  		<f:checkbox name="isLibrary" checked="${instance.isLibrary}" />
-		  	</f:entry>
-		  	<f:entry title="${%MustExitOnFailure}" field="mustExitOnFailure">
+			
+			<!-- Deployment tasks -->
+			<f:nested>
+				<f:entry title="${%title}">
+				<f:repeatable name="tasks" var="task" items="${instance.tasks}" add="${%label.add}" header="${descriptor.displayName}">
+	            	<table width="100%">
+	                	<st:include page="task.jelly" it="${task}" class="org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTask"/>
+	                	<f:entry title="">
+		                	<div align="right">
+		                  		<f:repeatableDeleteButton value="${%label.delete}"/>
+		                	</div>
+	                	</f:entry>
+	            	</table>
+	          	</f:repeatable>
+				</f:entry>
+			</f:nested>
+			
+			<f:entry title="${%MustExitOnFailure}" field="mustExitOnFailure">
 		  		<f:checkbox name="mustExitOnFailure" checked="${instance.mustExitOnFailure}" />
+		  	</f:entry>
+			
+			<f:entry title="${%ForceStopOnFirstFailure}" field="forceStopOnFirstFailure">
+		  		<f:checkbox name="forceStopOnFirstFailure" checked="${instance.forceStopOnFirstFailure}" />
 		  	</f:entry>
 			
 		  	<!-- liste des triggers definis -->

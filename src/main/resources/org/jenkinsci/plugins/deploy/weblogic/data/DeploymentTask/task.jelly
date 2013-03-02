@@ -1,0 +1,29 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hudson/project" xmlns:util="jelly:util">
+	<f:entry title="${%Environment}" field="weblogicEnvironmentTargetedName">
+		<select  class="setting-input" name="weblogicEnvironmentTargetedName">
+	       	<j:forEach var="inst" items="${descriptor.weblogicEnvironments}">
+	           	<f:option selected="${inst.name == it.weblogicEnvironmentTargetedName}" value="${inst.name}">${inst.name} (${inst.host}:${inst.port})</f:option>
+	           </j:forEach>
+		</select>
+	</f:entry>
+	<f:entry title="${%Name}" field="deploymentName">
+		<f:textbox value="${it.deploymentName}"/>
+	</f:entry>
+		  	
+    <!-- En fonction du type de projet on ne saisit que le nom ou aussi le repertoire ou se produit la generation -->
+	<j:if test="${projectModel == 'hudson.model.FreeStyleProject'}">
+	  	<f:entry title="${%BaseResourcesGeneratedDirectory}" field="baseResourcesGeneratedDirectory">
+	  		<f:textbox value="${it.baseResourcesGeneratedDirectory}"/>
+	  	</f:entry>		  	
+	</j:if>
+	<f:entry title="${%RegexBuiltResourceToDeploy}" field="builtResourceRegexToDeploy">
+		<f:textbox value="${it.builtResourceRegexToDeploy}"/>
+	</f:entry>
+	<f:entry title="${%DeploymentTargets}" field="deploymentTargets">
+		<f:textbox default="AdminServer" value="${it.deploymentTargets}"/>
+	</f:entry>
+	<f:entry title="${%WeblogicLibrary}" field="isLibrary">
+		<f:checkbox name="isLibrary" checked="${it.isLibrary}" />
+	</f:entry>
+	
+</j:jelly>

@@ -30,4 +30,9 @@ public interface ArtifactSelector {
 	 */
 	public FilePath selectArtifactRecorded(AbstractBuild<?, ?> build, BuildListener listener, String filteredResource, String baseDirectory) throws IOException, XmlPullParserException, InterruptedException;
 	
+	/**
+	 * Name of the selector
+	 * @return
+	 */
+	public String getName();
 }
