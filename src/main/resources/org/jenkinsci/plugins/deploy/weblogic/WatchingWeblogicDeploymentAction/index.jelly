@@ -10,6 +10,8 @@
    	<st:include it="${it.build}" page="sidepanel.jelly" />
 	<l:main-panel>
        	<h1>${%BuildSeeWeblogicDeploymentLogsAction.Title}</h1>
+		<div>Little Information...
+		</div>
 		<div>
         	<st:nbsp/>
         	<pre>${log}</pre>

@@ -9,7 +9,6 @@ import hudson.model.AbstractBuild;
 import java.io.Serializable;
 
 import org.codehaus.plexus.util.StringUtils;
-import org.jenkinsci.plugins.deploy.weblogic.Messages;
 import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTaskResult;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicDeploymentStatus;
 import org.jenkinsci.plugins.deploy.weblogic.data.WeblogicEnvironment;
@@ -22,7 +21,7 @@ import org.kohsuke.stapler.export.ExportedBean;
  *
  */
 @ExportedBean(defaultVisibility = 999)
-public class WatchingWeblogicDeploymentLogsAction implements Action, Serializable {
+public class WatchingWeblogicDeploymentAction implements Action, Serializable {
 	
 	/**
 	 * 
@@ -46,12 +45,10 @@ public class WatchingWeblogicDeploymentLogsAction implements Action, Serializabl
 	@Deprecated
 	public WeblogicEnvironment target;
 	
-	private transient boolean isLogsAvailable = false;
-	
 	/**
 	 * 
 	 */
-	public WatchingWeblogicDeploymentLogsAction(){
+	public WatchingWeblogicDeploymentAction(){
 		super();
 	}
 	
@@ -60,21 +57,11 @@ public class WatchingWeblogicDeploymentLogsAction implements Action, Serializabl
 	 * @param deploymentActionStatus
 	 * @param b
 	 */
-	public WatchingWeblogicDeploymentLogsAction(DeploymentTaskResult result, AbstractBuild<?, ?> b){
+	public WatchingWeblogicDeploymentAction(DeploymentTaskResult result, AbstractBuild<?, ?> b){
 		this.build = b;
 //		this.deploymentActionStatus = deploymentActionStatus;
 //		this.target = target;
 		this.result = result;
-		
-		//lien vers les logs uniquement si pas d'execution
-		switch(result.getStatus()){
-			case ABORTED:
-			case DISABLED:
-				this.isLogsAvailable = false;
-				break;
-			default :
-				this.isLogsAvailable = true;
-		}
 	}
 	
 	/*
@@ -82,7 +69,7 @@ public class WatchingWeblogicDeploymentLogsAction implements Action, Serializabl
 	 * @see hudson.model.Action#getDisplayName()
 	 */
 	public String getDisplayName() {
-		return this.isLogsAvailable ? Messages.WatchingWeblogicDeploymentLogsAction_DisplayName() : Messages.WatchingWeblogicDeploymentLogsAction_MissingLogs();
+		return Messages.WatchingWeblogicDeploymentLogsAction_DisplayName();
 	}
 
 	/*
@@ -98,7 +85,7 @@ public class WatchingWeblogicDeploymentLogsAction implements Action, Serializabl
 	 * @see hudson.model.Action#getUrlName()
 	 */
 	public String getUrlName() {
-		return this.isLogsAvailable ? urlName : "#";
+		return urlName;
 	}
 	
 	/**
@@ -124,12 +111,16 @@ public class WatchingWeblogicDeploymentLogsAction implements Action, Serializabl
 	public WeblogicEnvironment getTarget() {
 		return target;
 	}
-
+	
 	/**
 	 * @return the task result label
 	 */
 	public String getActionLabel() {
 		String actionLabel = "";
+		if(this.result == null) {
+			return actionLabel;
+		}
+		
 		if(StringUtils.isNotBlank(this.result.getResourceName())) {
 			actionLabel = this.result.getResourceName();
 		} else if(StringUtils.isNotBlank(this.result.getTask().getTaskName())) {

@@ -31,9 +31,9 @@ public class PrintingWebLogicDeploymentLastSuccessResultAction implements Action
 		
 		List<AbstractBuild<?, ?>> builds = (List<AbstractBuild<?, ?>>) project.getBuilds();
 		for (AbstractBuild<?, ?> build : builds) {
-			List<WatchingWeblogicDeploymentLogsAction> deploymentAction = build.getActions(WatchingWeblogicDeploymentLogsAction.class);
+			List<WatchingWeblogicDeploymentAction> deploymentAction = build.getActions(WatchingWeblogicDeploymentAction.class);
 			
-			WatchingWeblogicDeploymentLogsAction found = (WatchingWeblogicDeploymentLogsAction) CollectionUtils.find(deploymentAction, new DeploymentActionNotSucceededPredicate());
+			WatchingWeblogicDeploymentAction found = (WatchingWeblogicDeploymentAction) CollectionUtils.find(deploymentAction, new DeploymentActionNotSucceededPredicate());
 			if(found == null){
 				lastDeploymentSucessfull = new WebLogicDeployment(build.getNumber(), build.getTime(), null);
 				break;

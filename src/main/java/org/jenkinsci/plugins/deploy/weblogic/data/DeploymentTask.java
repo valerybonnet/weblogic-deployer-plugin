@@ -3,6 +3,8 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.data;
 
+import java.io.Serializable;
+
 import org.jenkinsci.plugins.deploy.weblogic.util.RandomGenerator;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -10,7 +12,12 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * @author Raphael
  *
  */
-public class DeploymentTask {
+public class DeploymentTask implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3924420945973321189L;
 
 	/**
 	 * Identify the task
@@ -58,7 +65,9 @@ public class DeploymentTask {
 	@DataBoundConstructor
 	public DeploymentTask(String id, String taskName, String weblogicEnvironmentTargetedName, String deploymentName, 
   		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory) {
-		this.id = id;
+		if(id != null){
+			this.id = id;
+		}
 		this.taskName = taskName;
 		this.weblogicEnvironmentTargetedName = weblogicEnvironmentTargetedName;
       this.deploymentName = deploymentName;
