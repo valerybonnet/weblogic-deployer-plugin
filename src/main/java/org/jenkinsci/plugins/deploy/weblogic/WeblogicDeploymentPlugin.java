@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -72,30 +73,6 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	private DeploymentTaskService deploymentTaskService;
 	
 	/**
-     * Identifies {@link WeblogicEnvironment} to be used.
-     * @deprecated
-     */
-	private String weblogicEnvironmentTargetedName;
-	
-	/**
-	 * Le nom de deploiement. Si null on n'utilisera le nom de l'artifact
-	 * @deprecated
-	 */
-	private String deploymentName;
-	
-	/**
-	 * Les targets de deploiement. Par defaut AdminServer
-	 * @deprecated
-	 */
-	private String deploymentTargets = "AdminServer";
-	
-	/**
-	 * L'artifact est une librairie
-	 * @deprecated
-	 */
-	private boolean isLibrary;
-	
-	/**
 	 * 
 	 */
 	private transient JDK usedJdk = null;
@@ -126,21 +103,6 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	private String deployedProjectsDependencies;
 	
 	/**
-	 * Regex permettant de filtrer la ressource Ã  deployer si plusieurs ressources 
-	 * correspondantes sont trouvÃ©es
-	 * @deprecated
-	 */
-	private String builtResourceRegexToDeploy;
-	
-	/**
-	 * Repertoire parent dans lequel la ressource à deployer peut etre localisée.
-	 * Utilise principalement pour les job non maven dans le cas où la ressource
-	 * à deployer ne se trouve pas dans le workspace
-	 * @deprecated
-	 */
-	private String baseResourcesGeneratedDirectory;
-	
-	/**
 	 * Deployment task list
 	 */
 	private List<DeploymentTask> tasks = new ArrayList<DeploymentTask>();
@@ -149,29 +111,24 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		super();
 	}
 	
-	// TODO A conserver pour la compatibilite ascendante
-//	@DataBoundConstructor
-//    public WeblogicDeploymentPlugin(String weblogicEnvironmentTargetedName, String deploymentName, 
-//    		String deploymentTargets, boolean isLibrary, boolean mustExitOnFailure, List<String> selectedDeploymentStrategyIds, 
-//    		String deployedProjectsDependencies, boolean isDeployingOnlyWhenUpdates, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory) {
-//        this.weblogicEnvironmentTargetedName = weblogicEnvironmentTargetedName;
-//        this.deploymentName = deploymentName;
-//        this.deploymentTargets = deploymentTargets;
-//        this.isLibrary = isLibrary;
-//        this.mustExitOnFailure = mustExitOnFailure;
-//        this.selectedDeploymentStrategyIds = selectedDeploymentStrategyIds;
-//        this.deployedProjectsDependencies = deployedProjectsDependencies;
-//        this.isDeployingOnlyWhenUpdates = isDeployingOnlyWhenUpdates;
-//        this.builtResourceRegexToDeploy = builtResourceRegexToDeploy;
-//        this.baseResourcesGeneratedDirectory = baseResourcesGeneratedDirectory;
-//    }
-
-
+	/**
+	 * 
+	 * @param tasks
+	 * @param mustExitOnFailure
+	 * @param selectedDeploymentStrategyIds
+	 * @param deployedProjectsDependencies
+	 * @param isDeployingOnlyWhenUpdates
+	 * @param forceStopOnFirstFailure
+	 * @since 2.0
+	 */
 	@DataBoundConstructor
     public WeblogicDeploymentPlugin(List<DeploymentTask> tasks, boolean mustExitOnFailure, List<String> selectedDeploymentStrategyIds, 
-    		String deployedProjectsDependencies, boolean isDeployingOnlyWhenUpdates, boolean forceStopOnFirstFailure) {
-        this.tasks = tasks;
-        this.mustExitOnFailure = mustExitOnFailure;
+    		String deployedProjectsDependencies, boolean isDeployingOnlyWhenUpdates, boolean forceStopOnFirstFailure,
+    		String weblogicEnvironmentTargetedName, String deploymentName, 
+    		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory) {
+        // ATTENTION : Appele au moment de la sauvegarde : On conserve la compatibilite ascendante
+		this.tasks = CollectionUtils.isNotEmpty(tasks) ? tasks : Arrays.asList(new DeploymentTask[]{new DeploymentTask(null, null, weblogicEnvironmentTargetedName, deploymentName, deploymentTargets, isLibrary, builtResourceRegexToDeploy, baseResourcesGeneratedDirectory)});
+		this.mustExitOnFailure = mustExitOnFailure;
         this.selectedDeploymentStrategyIds = selectedDeploymentStrategyIds;
         this.deployedProjectsDependencies = deployedProjectsDependencies;
         this.isDeployingOnlyWhenUpdates = isDeployingOnlyWhenUpdates;
@@ -179,42 +136,6 @@ public class WeblogicDeploymentPlugin extends Recorder {
 
     }
 
-	/**
-	 * 
-	 * @return
-	 * @deprecated
-	 */
-	public String getWeblogicEnvironmentTargetedName() {
-		return weblogicEnvironmentTargetedName;
-	}
-	
-	/**
-	 * 	
-	 * @return
-	 * @deprecated
-	 */
-	public String getDeploymentName() {
-		return deploymentName;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 * @deprecated
-	 */
-	public String getDeploymentTargets() {
-		return deploymentTargets;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 * @deprecated
-	 */
-	public boolean getIsLibrary() {
-		return isLibrary;
-	}
-	
 	/**
 	 * 
 	 * @return
@@ -249,30 +170,6 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	 */
 	public void setDeployingOnlyWhenUpdates(boolean isDeployingOnlyWhenUpdates) {
 		this.isDeployingOnlyWhenUpdates = isDeployingOnlyWhenUpdates;
-	}
-	
-	/**
-	 * @return the builtResourceRegexToDeploy
-	 * @deprecated
-	 */
-	public String getBuiltResourceRegexToDeploy() {
-		return builtResourceRegexToDeploy;
-	}
-
-	/**
-	 * @param builtResourceRegexToDeploy the builtResourceRegexToDeploy to set
-	 * @deprecated
-	 */
-	public void setBuiltResourceRegexToDeploy(String builtResourceRegexToDeploy) {
-		this.builtResourceRegexToDeploy = builtResourceRegexToDeploy;
-	}
-	
-	/**
-	 * @return the baseResourcesGeneratedDirectory
-	 * @deprecated
-	 */
-	public String getBaseResourcesGeneratedDirectory() {
-		return baseResourcesGeneratedDirectory;
 	}
 	
 	/**
@@ -373,9 +270,9 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			for(int i = 0; i<listeDependances.length; i++){
 				TopLevelItem item = Hudson.getInstance().getItem(listeDependances[i]);
 				if(item instanceof Job){
-					WatchingWeblogicDeploymentLogsAction deploymentAction = ((Job<?,?>) item).getLastBuild().getAction(WatchingWeblogicDeploymentLogsAction.class);
-					listener.getLogger().println("[WeblogicDeploymentPlugin] - satisfying dependencies project involved : " + item.getName()+ " deploymentAction : "+ deploymentAction.getDeploymentActionStatus());
-					if(deploymentAction != null && WebLogicDeploymentStatus.FAILED.equals(deploymentAction.getDeploymentActionStatus())){
+					WatchingWeblogicDeploymentAction deploymentAction = ((Job<?,?>) item).getLastBuild().getAction(WatchingWeblogicDeploymentAction.class);
+					listener.getLogger().println("[WeblogicDeploymentPlugin] - satisfying dependencies project involved : " + item.getName());
+					if(deploymentAction != null && CollectionUtils.exists(deploymentAction.getResults(), new TaskStatusUnSuccesfullPredicate())){
 						satisfiedDependenciesDeployments = false;
 					}
 				}
@@ -769,9 +666,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		}
 		
 		//Ajout de la build action
-		for(DeploymentTaskResult taskResult : results){
-			build.addAction(new WatchingWeblogicDeploymentLogsAction(taskResult, build));
-		}
+		build.addAction(new WatchingWeblogicDeploymentAction(results, build));
 		
 		listener.getLogger().println("[INFO] ------------------------------------------------------------------------");
 		listener.getLogger().println("[INFO] DEPLOYMENT "+build.getResult().toString());
