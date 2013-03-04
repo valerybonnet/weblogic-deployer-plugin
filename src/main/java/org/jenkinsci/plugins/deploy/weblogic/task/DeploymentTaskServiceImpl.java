@@ -61,7 +61,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 		// write out the log
         FileOutputStream deploymentLogOut;
 		try {
-			deploymentLogOut = new FileOutputStream(WeblogicDeploymentPluginLog.getDeploymentLogFile(build));
+			deploymentLogOut = new FileOutputStream(WeblogicDeploymentPluginLog.getDeploymentLogFile(build, task.getId()));
 		} catch (FileNotFoundException fnfe) {
 			listener.error("[WeblogicDeploymentPlugin] - Failed to find deployment log file : " + fnfe.getMessage());
             throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, task, null));

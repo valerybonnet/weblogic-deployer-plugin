@@ -1,24 +1,29 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
-    <a href="deploymentLogs">
-	    <t:summary icon="${it.iconFileName}">
-	        ${%DeploymentStatus} ${it.actionLabel}
-	        <j:choose>
-	    		<j:when test="${it.deploymentActionStatus.value == 4}">
-	    			<img src="${imagesURL}/48x48/blue.png"/> (SUCCEEDED)
-	    		</j:when>
-	    		<j:when test="${it.deploymentActionStatus.value == 3}">
-	    			<img src="${imagesURL}/48x48/red.png"/> (FAILED)
-	    		</j:when>
-	    		<j:when test="${it.deploymentActionStatus.value == 2}">
-	    			<img src="${imagesURL}/48x48/yellow.png"/> (ABORTED)
-	    		</j:when>
-	    		<j:when test="${it.deploymentActionStatus.value == 1}">
-	    			<img src="${imagesURL}/48x48/grey.png"/> (DISABLED)
-	    		</j:when>
-	    		<j:otherwise>
-	        		(UNKOWN)
-	        	</j:otherwise>
-	    	</j:choose>
-	    </t:summary>
-    </a>
+	<t:summary icon="${it.iconFileName}">
+		<a href="deployment">${%DeploymentStatus}</a><br/>
+	    <ul>
+	    <j:forEach var="res" items="${it.results}">
+		    <li>
+		     ${res.label}
+		    <j:choose>
+		    	<j:when test="${res.status.value == 4}">
+		    		<img src="${imagesURL}/24x24/blue.png" alt="SUCCEEDED" tooltip="SUCCEEDED"/>
+		    	</j:when>
+		    	<j:when test="${res.status.value == 3}">
+		    		<img src="${imagesURL}/24x24/red.png" alt="FAILED" tooltip="FAILED"/>
+		    	</j:when>
+		    	<j:when test="${res.status.value == 2}">
+		    		<img src="${imagesURL}/24x24/yellow.png" alt="ABORTED" tooltip="ABORTED"/>
+		    	</j:when>
+		    	<j:when test="${res.status.value == 1}">
+		    		<img src="${imagesURL}/24x24/grey.png" alt="DISABLED" tooltip="DISABLED"/>
+		    	</j:when>
+		    	<j:otherwise>
+		       		(UNKOWN)
+		       	</j:otherwise>
+		    </j:choose>
+		    </li>
+	    </j:forEach>
+	    </ul>
+	</t:summary>
 </j:jelly>

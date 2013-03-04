@@ -7,11 +7,9 @@ import hudson.model.Action;
 import hudson.model.AbstractBuild;
 
 import java.io.Serializable;
+import java.util.List;
 
-import org.codehaus.plexus.util.StringUtils;
 import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTaskResult;
-import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicDeploymentStatus;
-import org.jenkinsci.plugins.deploy.weblogic.data.WeblogicEnvironment;
 import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
@@ -30,20 +28,12 @@ public class WatchingWeblogicDeploymentAction implements Action, Serializable {
 
 	private static transient final String iconFileName = WebLogicDeploymentPluginConstantes.PLUGIN_RESOURCES_PATH + "/icons/48x48/BEA.jpg";
 	
-	private static transient final String urlName = "deploymentLogs";
-	
-	@Exported(name="status")
-	@Deprecated
-	public WebLogicDeploymentStatus deploymentActionStatus;
+	private static transient final String urlName = "deployment";
 	
 	private AbstractBuild<?, ?> build;
 	
-	@Exported(name="result")
-	public DeploymentTaskResult result;
-	
-	@Exported(name="target")
-	@Deprecated
-	public WeblogicEnvironment target;
+	@Exported(name="results")
+	public List<DeploymentTaskResult> results;
 	
 	/**
 	 * 
@@ -57,11 +47,9 @@ public class WatchingWeblogicDeploymentAction implements Action, Serializable {
 	 * @param deploymentActionStatus
 	 * @param b
 	 */
-	public WatchingWeblogicDeploymentAction(DeploymentTaskResult result, AbstractBuild<?, ?> b){
+	public WatchingWeblogicDeploymentAction(List<DeploymentTaskResult> results, AbstractBuild<?, ?> b){
 		this.build = b;
-//		this.deploymentActionStatus = deploymentActionStatus;
-//		this.target = target;
-		this.result = result;
+		this.results = results;
 	}
 	
 	/*
@@ -69,7 +57,7 @@ public class WatchingWeblogicDeploymentAction implements Action, Serializable {
 	 * @see hudson.model.Action#getDisplayName()
 	 */
 	public String getDisplayName() {
-		return Messages.WatchingWeblogicDeploymentLogsAction_DisplayName();
+		return Messages.WatchingWeblogicDeploymentAction_DisplayName();
 	}
 
 	/*
@@ -88,14 +76,14 @@ public class WatchingWeblogicDeploymentAction implements Action, Serializable {
 		return urlName;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public WebLogicDeploymentStatus getDeploymentActionStatus() {
-		return this.result != null ? this.result.getStatus() : this.deploymentActionStatus;
-	}
 	
+	/**
+	 * @return the results
+	 */
+	public List<DeploymentTaskResult> getResults() {
+		return results;
+	}
+
 	/**
 	 * 
 	 * @return
@@ -103,33 +91,7 @@ public class WatchingWeblogicDeploymentAction implements Action, Serializable {
 	public AbstractBuild<?, ?> getBuild() {
         return build;
     }
-
-	/**
-	 * @return the target
-	 * @deprecated
-	 */
-	public WeblogicEnvironment getTarget() {
-		return target;
-	}
 	
-	/**
-	 * @return the task result label
-	 */
-	public String getActionLabel() {
-		String actionLabel = "";
-		if(this.result == null) {
-			return actionLabel;
-		}
-		
-		if(StringUtils.isNotBlank(this.result.getResourceName())) {
-			actionLabel = this.result.getResourceName();
-		} else if(StringUtils.isNotBlank(this.result.getTask().getTaskName())) {
-			actionLabel = this.result.getTask().getTaskName();
-		} else {
-			actionLabel = this.result.getTask().getId();
-		}
-		
-		return StringUtils.defaultString(actionLabel,"").concat("#").concat(StringUtils.defaultString(this.result.getTask().getWeblogicEnvironmentTargetedName(),""));
-	}
+	
 	
 }
