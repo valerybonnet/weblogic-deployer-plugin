@@ -3,9 +3,11 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.data;
 
+import hudson.model.JDK;
+
 import java.io.Serializable;
 
-import org.jenkinsci.plugins.deploy.weblogic.util.RandomGenerator;
+import org.apache.commons.lang.RandomStringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -22,7 +24,7 @@ public class DeploymentTask implements Serializable {
 	/**
 	 * Identify the task
 	 */
-	private String id = RandomGenerator.generateAlphaNumericString(10);
+	private String id = RandomStringUtils.randomAlphanumeric(10);
 	
 	/**
      * Identifies {@link WeblogicEnvironment} to be used.
@@ -62,20 +64,26 @@ public class DeploymentTask implements Serializable {
 	 */
 	private String taskName;
 	
+	/**
+	 * The JDK to use
+	 */
+	private JDK jdk;
+	
 	@DataBoundConstructor
 	public DeploymentTask(String id, String taskName, String weblogicEnvironmentTargetedName, String deploymentName, 
-  		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory) {
-		if(id != null){
+  		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory, JDK jdk) {
+		if (id != null) {
 			this.id = id;
 		}
 		this.taskName = taskName;
 		this.weblogicEnvironmentTargetedName = weblogicEnvironmentTargetedName;
-      this.deploymentName = deploymentName;
-      this.deploymentTargets = deploymentTargets;
-      this.isLibrary = isLibrary;
-      this.builtResourceRegexToDeploy = builtResourceRegexToDeploy;
-      this.baseResourcesGeneratedDirectory = baseResourcesGeneratedDirectory;
-  }
+		this.deploymentName = deploymentName;
+		this.deploymentTargets = deploymentTargets;
+		this.isLibrary = isLibrary;
+		this.builtResourceRegexToDeploy = builtResourceRegexToDeploy;
+		this.baseResourcesGeneratedDirectory = baseResourcesGeneratedDirectory;
+		this.jdk = jdk;
+	}
 	
 	/**
 	 * 
@@ -150,6 +158,12 @@ public class DeploymentTask implements Serializable {
 	public String getTaskName() {
 		return taskName;
 	}
-	
+
+	/**
+	 * @return the jdk
+	 */
+	public JDK getJdk() {
+		return jdk;
+	}
 	
 }

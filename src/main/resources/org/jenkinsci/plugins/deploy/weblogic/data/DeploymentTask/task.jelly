@@ -1,5 +1,5 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hudson/project" xmlns:util="jelly:util">
-	
+
 	<f:entry title="${%title.task.name}" field="taskName">
 		<f:textbox value="${it.taskName}"/>
 	</f:entry>
@@ -32,4 +32,14 @@
 		<f:checkbox name="isLibrary" checked="${it.isLibrary}" />
 	</f:entry>
 	
+    <f:advanced>
+
+		<f:entry title="${%jdk.name}" field="jdkName">
+			<f:textbox value="${it.jdk.name}" onChange="completeJdkhome(this.value, 'jdkHome-${it.id}');"/>
+		</f:entry>
+		<f:entry title="JAVA_HOME" field="jdkHome">
+			<f:textbox id="jdkHome-${it.id}" value="${it.jdk.home}"/>
+		</f:entry>
+    </f:advanced>
+  
 </j:jelly>

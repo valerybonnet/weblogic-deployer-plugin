@@ -6,6 +6,7 @@ package org.jenkinsci.plugins.deploy.weblogic;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.Action;
+import hudson.model.AutoCompletionCandidates;
 import hudson.model.BuildListener;
 import hudson.model.Result;
 import hudson.model.TopLevelItem;
@@ -43,16 +44,16 @@ import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicDeploymentStatus;
 import org.jenkinsci.plugins.deploy.weblogic.data.WeblogicEnvironment;
 import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTask;
 import org.jenkinsci.plugins.deploy.weblogic.exception.DeploymentTaskException;
-import org.jenkinsci.plugins.deploy.weblogic.exception.RequiredJDKNotFoundException;
+import org.jenkinsci.plugins.deploy.weblogic.jdk.JdkToolService;
 import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
 import org.jenkinsci.plugins.deploy.weblogic.task.DeploymentTaskService;
 import org.jenkinsci.plugins.deploy.weblogic.task.TaskStatusUnSuccesfullPredicate;
 import org.jenkinsci.plugins.deploy.weblogic.util.DeployerClassPathUtils;
-import org.jenkinsci.plugins.deploy.weblogic.util.JdkUtils;
 import org.jenkinsci.plugins.deploy.weblogic.util.URLUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.bind.JavaScriptMethod;
 
 import com.google.inject.Inject;
 
@@ -72,10 +73,10 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	@Inject(optional=false)
 	private DeploymentTaskService deploymentTaskService;
 	
-	/**
-	 * 
-	 */
-	private transient JDK usedJdk = null;
+//	/**
+//	 * 
+//	 */
+//	private transient JDK usedJdk = null;
 	
 	/**
 	 * Le build doit se terminer en erreur. Configurable.
@@ -127,7 +128,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
     		String weblogicEnvironmentTargetedName, String deploymentName, 
     		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory) {
         // ATTENTION : Appele au moment de la sauvegarde : On conserve la compatibilite ascendante
-		this.tasks = CollectionUtils.isNotEmpty(tasks) ? tasks : Arrays.asList(new DeploymentTask[]{new DeploymentTask(null, null, weblogicEnvironmentTargetedName, deploymentName, deploymentTargets, isLibrary, builtResourceRegexToDeploy, baseResourcesGeneratedDirectory)});
+		this.tasks = CollectionUtils.isNotEmpty(tasks) ? tasks : Arrays.asList(new DeploymentTask[]{new DeploymentTask(null, null, weblogicEnvironmentTargetedName, deploymentName, deploymentTargets, isLibrary, builtResourceRegexToDeploy, baseResourcesGeneratedDirectory , null)});
 		this.mustExitOnFailure = mustExitOnFailure;
         this.selectedDeploymentStrategyIds = selectedDeploymentStrategyIds;
         this.deployedProjectsDependencies = deployedProjectsDependencies;
@@ -217,7 +218,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		// Parcours des tâches de deploiement
 		for(DeploymentTask task : getTasks()){
 			try {
-				results.add(this.deploymentTaskService.perform(task, usedJdk, build, listener, launcher));
+				results.add(this.deploymentTaskService.perform(task, getDescriptor().getJdkSelected(), build, listener, launcher));
 			} catch(DeploymentTaskException dte) {
 				results.add(dte.getResult());
 				if(getForceStopOnFirstFailure()){
@@ -289,16 +290,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			listener.getLogger().println("[WeblogicDeploymentPlugin] - build didn't finished successfully. The plugin execution is disabled.");
 			return false;
 		}
-				
-		// Recuperation du JDK
-		try {
-			usedJdk = JdkUtils.getSelectedJDK(getDescriptor().getJdkSelected(), listener.getLogger());
-		} catch (RequiredJDKNotFoundException rjnfe) {
-			listener.getLogger().println("[WeblogicDeploymentPlugin] - No JDK found. The plugin execution is disabled.");
-			return false;
-		}
-		String valueJdk = usedJdk != null ? "the JDK " +usedJdk.getHome()+ " will be used." : "no JDK retrieved.";
-		listener.getLogger().println("[WeblogicDeploymentPlugin] - " +valueJdk);
+
 		return true;		
 	}
 	
@@ -608,7 +600,33 @@ public class WeblogicDeploymentPlugin extends Recorder {
         	
         	return FormValidation.ok();
         }
+        
+        /**
+         * This method provides auto-completion items for the 'jdkName' field.
+         * Stapler finds this method via the naming convention.
+         *
+         * @param value
+         *      The text that the user entered.
+         */
+        public AutoCompletionCandidates doAutoCompleteJdkName(@QueryParameter String value) {
+            AutoCompletionCandidates c = new AutoCompletionCandidates();
+            for (JDK jdk : JdkToolService.getJdkToolAvailables()) {
+                if (jdk.getName().contains(value.toLowerCase())) {
+                	c.add(jdk.getName());
+                }
+            }
+            return c;
+        }
 
+        @JavaScriptMethod
+        public String completeJdkHome(String jdkName) {
+        	JDK jdk = JdkToolService.getJDKByName(jdkName);
+        	if(jdk != null){
+        		 return jdk.getHome();
+        	}
+        	return "";
+        }
+        
 		/*
 		 * (non-Javadoc)
 		 * @see hudson.tasks.BuildStepDescriptor#isApplicable(java.lang.Class)

@@ -33,7 +33,9 @@ import org.jenkinsci.plugins.deploy.weblogic.deployer.WebLogicCommand;
 import org.jenkinsci.plugins.deploy.weblogic.deployer.WebLogicDeployer;
 import org.jenkinsci.plugins.deploy.weblogic.deployer.WebLogicDeployerParameters;
 import org.jenkinsci.plugins.deploy.weblogic.exception.DeploymentTaskException;
+import org.jenkinsci.plugins.deploy.weblogic.exception.RequiredJDKNotFoundException;
 import org.jenkinsci.plugins.deploy.weblogic.util.FTPUtils;
+import org.jenkinsci.plugins.deploy.weblogic.util.JdkUtils;
 
 import com.google.inject.Inject;
 
@@ -56,7 +58,18 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 	 * (non-Javadoc)
 	 * @see org.jenkinsci.plugins.deploy.weblogic.task.DeploymentTaskService#perform(org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTask, hudson.model.JDK, hudson.model.AbstractBuild, hudson.model.BuildListener, hudson.Launcher)
 	 */
-	public DeploymentTaskResult perform(DeploymentTask task, JDK usedJdk, AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher) throws DeploymentTaskException {
+	public DeploymentTaskResult perform(DeploymentTask task, String globalJdk, AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher) throws DeploymentTaskException {
+		
+		// Recuperation du JDK
+		// The default JDK
+		JDK jdkToUse = null;
+		try {
+			jdkToUse = JdkUtils.getSelectedJDK(StringUtils.defaultIfEmpty(task.getJdk().getName(), globalJdk), listener.getLogger());
+		} catch (RequiredJDKNotFoundException rjnfe) {
+			listener.getLogger().println("[WeblogicDeploymentPlugin] - No JDK found. The plugin execution is disabled.");
+			throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, task, null));
+		}
+		listener.getLogger().println("[WeblogicDeploymentPlugin] - The JDK " +jdkToUse.getHome() + " will be used.");
 		
 		// write out the log
         FileOutputStream deploymentLogOut;
@@ -124,7 +137,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			listener.getLogger().println("[WeblogicDeploymentPlugin] - Deploying the artifact on the following target : (name="+task.getWeblogicEnvironmentTargetedName()+") (host=" + weblogicEnvironmentTargeted.getHost() + ") (port=" +weblogicEnvironmentTargeted.getPort()+ ")");
 			
 			//Execution commande undeploy
-			WebLogicDeployerParameters undeployWebLogicDeployerParameters = new WebLogicDeployerParameters(build, launcher, listener, usedJdk, task.getDeploymentName(), task.getIsLibrary(), task.getDeploymentTargets(), weblogicEnvironmentTargeted, artifactName, null, WebLogicCommand.UNDEPLOY, true, getDescriptor().getJavaOpts(), getDescriptor().getExtraClasspath());
+			WebLogicDeployerParameters undeployWebLogicDeployerParameters = new WebLogicDeployerParameters(build, launcher, listener, jdkToUse, task.getDeploymentName(), task.getIsLibrary(), task.getDeploymentTargets(), weblogicEnvironmentTargeted, artifactName, null, WebLogicCommand.UNDEPLOY, true, getDescriptor().getJavaOpts(), getDescriptor().getExtraClasspath());
 			String[] undeployCommand = WebLogicDeployer.getWebLogicCommandLine(undeployWebLogicDeployerParameters);
 	        
 	        deploymentLogOut.write("------------------------------------  ARTIFACT UNDEPLOYMENT ------------------------------------------------\r\n".getBytes());
@@ -153,7 +166,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 	        	sourceFile = archivedArtifact.getRemote();
 	        }
 	        
-	        WebLogicDeployerParameters deployWebLogicDeployerParameters = new WebLogicDeployerParameters(build,launcher,listener, usedJdk, task.getDeploymentName(), task.getIsLibrary(), task.getDeploymentTargets(), weblogicEnvironmentTargeted, artifactName, sourceFile, WebLogicCommand.DEPLOY, false,getDescriptor().getJavaOpts(),getDescriptor().getExtraClasspath());
+	        WebLogicDeployerParameters deployWebLogicDeployerParameters = new WebLogicDeployerParameters(build,launcher,listener, jdkToUse, task.getDeploymentName(), task.getIsLibrary(), task.getDeploymentTargets(), weblogicEnvironmentTargeted, artifactName, sourceFile, WebLogicCommand.DEPLOY, false,getDescriptor().getJavaOpts(),getDescriptor().getExtraClasspath());
 	        String[] deployCommand = WebLogicDeployer.getWebLogicCommandLine(deployWebLogicDeployerParameters);
 	        listener.getLogger().println("[WeblogicDeploymentPlugin] - DEPLOYING ARTIFACT...");
 	        deploymentLogOut.write("------------------------------------  ARTIFACT DEPLOYMENT ------------------------------------------------\r\n".getBytes());
