@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hudson/project" xmlns:util="jelly:util">
 
 	<f:entry title="${%title.task.name}" field="taskName">
@@ -33,13 +34,15 @@
 	</f:entry>
 	
     <f:advanced>
-    	<j:invokeStatic var="jdkHomeSelected" className="org.jenkinsci.plugins.deploy.weblogic.jdk.JdkToolService" method="getJDKHomeByName">
-		    <j:arg value="${descriptor.jdkSelected}" />
-		</j:invokeStatic>
-    
     	<f:entry title="JDK">
 			<f:entry title="${%jdk.name}" field="jdkName">
-				<f:textbox value="${it.jdk.name}" default="${descriptor.jdkSelected}" onChange="completeJdkhome(this.value, 'jdkHome-${it.id}');" />
+				<f:textbox value="${it.jdk.name}" default="${descriptor.jdkSelected}" 
+				onFocus="this.onChange();"
+				onChange="completeJdkhome(this.value, 'jdkHome-${it.id}');"
+				onKeyPress="this.onchange();" 
+				onPaste="this.onchange();" 
+				onInput="this.onchange();"
+				 />
 			</f:entry>
 			<f:entry title="JAVA_HOME" field="jdkHome">
 				<f:textbox  id="jdkHome-${it.id}" value="${it.jdk.home}" default="${jdkHomeSelected}"/>
