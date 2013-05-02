@@ -3,21 +3,19 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.data;
 
-import hudson.ExtensionPoint;
-import hudson.model.AbstractDescribableImpl;
 import hudson.model.JDK;
 
 import java.io.Serializable;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.jenkinsci.plugins.deploy.weblogic.task.DeploymentTaskDescriptor;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * @author Raphael
  *
  */
-public class DeploymentTask extends AbstractDescribableImpl<DeploymentTask> implements ExtensionPoint, Serializable {
+public class DeploymentTask implements Serializable {
 
 	/**
 	 * 
@@ -100,16 +98,9 @@ public class DeploymentTask extends AbstractDescribableImpl<DeploymentTask> impl
 		this.isLibrary = isLibrary;
 		this.builtResourceRegexToDeploy = builtResourceRegexToDeploy;
 		this.baseResourcesGeneratedDirectory = baseResourcesGeneratedDirectory;
-		this.jdk = new JDK(jdkName, jdkHome);
-	}
-	
-	
-	/*
-	 * (non-Javadoc)
-	 * @see hudson.model.AbstractDescribableImpl#getDescriptor()
-	 */
-	public DeploymentTaskDescriptor getDescriptor() {
-		return (DeploymentTaskDescriptor)super.getDescriptor();
+		if(StringUtils.isNotBlank(jdkName)){
+			this.jdk = new JDK(jdkName, jdkHome);
+		}
 	}
 	
 	/**

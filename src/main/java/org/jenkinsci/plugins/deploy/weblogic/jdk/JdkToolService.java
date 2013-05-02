@@ -8,14 +8,13 @@ import hudson.model.JDK;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
+
+import jenkins.model.Jenkins;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jenkinsci.plugins.deploy.weblogic.util.JdkUtils;
-
-import jenkins.model.Jenkins;
 
 /**
  * @author Raphael
@@ -50,6 +49,16 @@ public class JdkToolService {
 		for(JDK jdk : getJdkToolAvailables()) {
 			if(name.equalsIgnoreCase(jdk.getName())){
 				out = jdk;
+			}
+		}
+		return out;
+	}
+	
+	public static String getJDKHomeByName(String name) {
+		String out = null;
+		for(JDK jdk : getJdkToolAvailables()) {
+			if(name.equalsIgnoreCase(jdk.getName())){
+				out = jdk.getHome();
 			}
 		}
 		return out;

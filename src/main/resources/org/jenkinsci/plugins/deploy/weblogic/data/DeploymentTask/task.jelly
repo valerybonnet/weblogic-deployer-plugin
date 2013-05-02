@@ -33,12 +33,16 @@
 	</f:entry>
 	
     <f:advanced>
+    	<j:invokeStatic var="jdkHomeSelected" className="org.jenkinsci.plugins.deploy.weblogic.jdk.JdkToolService" method="getJDKHomeByName">
+		    <j:arg value="${descriptor.jdkSelected}" />
+		</j:invokeStatic>
+    
     	<f:entry title="JDK">
 			<f:entry title="${%jdk.name}" field="jdkName">
-				<f:textbox value="${it.jdk.name}" default="${descriptor.jdkSelected}" onChange="completeJdkhome(this.value, 'jdkHome-${it.id}');"/>
+				<f:textbox value="${it.jdk.name}" default="${descriptor.jdkSelected}" onChange="completeJdkhome(this.value, 'jdkHome-${it.id}');" onMouseOut="completeJdkhome(this.value, 'jdkHome-${it.id}');" />
 			</f:entry>
 			<f:entry title="JAVA_HOME" field="jdkHome">
-				<f:textbox  id="jdkHome-${it.id}" value="${it.jdk.home}"/>
+				<f:textbox  id="jdkHome-${it.id}" value="${it.jdk.home}" default="${jdkHomeSelected}"/>
 			</f:entry>
 		</f:entry>
     </f:advanced>

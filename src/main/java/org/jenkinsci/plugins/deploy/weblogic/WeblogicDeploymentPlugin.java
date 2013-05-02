@@ -629,6 +629,22 @@ public class WeblogicDeploymentPlugin extends Recorder {
         	return "";
         }
         
+        /**
+         * 
+         * @param value
+         * @return
+         * @throws IOException
+         * @throws ServletException
+         */
+        public FormValidation doCheckJdkName(@QueryParameter String value) throws IOException, ServletException {
+        	
+        	if(value.length() == 0){
+        		return FormValidation.error("The name is mandatory");
+        	}
+        	
+        	return FormValidation.ok();
+        }
+        
 		/*
 		 * (non-Javadoc)
 		 * @see hudson.tasks.BuildStepDescriptor#isApplicable(java.lang.Class)
