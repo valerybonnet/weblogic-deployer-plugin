@@ -134,9 +134,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
         this.deployedProjectsDependencies = deployedProjectsDependencies;
         this.isDeployingOnlyWhenUpdates = isDeployingOnlyWhenUpdates;
         this.forceStopOnFirstFailure = forceStopOnFirstFailure;
-		System.out.println("DBC Plug");
 		// TODO Si on veut faire du controle
-
     }
 
 	/**

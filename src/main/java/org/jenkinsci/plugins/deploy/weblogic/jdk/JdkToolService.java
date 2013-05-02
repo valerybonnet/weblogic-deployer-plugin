@@ -3,18 +3,24 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.jdk;
 
+import hudson.Launcher;
+import hudson.model.Hudson;
 import hudson.model.JDK;
+import hudson.model.TaskListener;
+import hudson.util.StreamTaskListener;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import jenkins.model.Jenkins;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.jenkinsci.plugins.deploy.weblogic.util.JdkUtils;
 
 /**
  * @author Raphael
@@ -22,7 +28,11 @@ import org.jenkinsci.plugins.deploy.weblogic.util.JdkUtils;
  */
 public class JdkToolService {
 
-	Map<String, JDK> jdkAvailables = new HashMap<String, JDK>();
+public static final String EXTERNAL_ENV_JDK = "environment";
+	
+	public static final String SYSTEM_JDK = "system";
+	
+	public static final String JAVA_VERSION_COMMAND_VERSION_LINE_REGEX = ".*\\r*\\n*(java version )(\")(.+)(\").*\\r*\\n*.*\\r*\\n*.*\\r*\\n*";
 	
 	/**
 	 * 
@@ -33,11 +43,11 @@ public class JdkToolService {
 		
 		//Ajout de la java home system
 		if (StringUtils.isNotBlank(SystemUtils.JAVA_HOME)){
-			jdkList.add(new JDK(JdkUtils.SYSTEM_JDK, System.getProperty("java.home")));
+			jdkList.add(new JDK(SYSTEM_JDK, System.getProperty("java.home")));
 		}
 		//Ajout de la java home avec lequel est demarre Jenkins
 		if(StringUtils.isNotBlank(System.getenv("JAVA_HOME"))){
-			jdkList.add(new JDK(JdkUtils.EXTERNAL_ENV_JDK, System.getenv("JAVA_HOME")));
+			jdkList.add(new JDK(EXTERNAL_ENV_JDK, System.getenv("JAVA_HOME")));
 		}
 		// Ajout de tous les jdk declares dans Jenkins
 		jdkList.addAll(Jenkins.getInstance().getJDKs());
@@ -62,5 +72,42 @@ public class JdkToolService {
 			}
 		}
 		return out;
+	}
+	
+	public static boolean checkJdkVersion(JDK jdk, PrintStream logger){
+		
+		if(jdk == null || ! jdk.getExists()){
+			return false;
+		}
+		
+		try {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			TaskListener listener = new StreamTaskListener(out);
+			Launcher launcher = Hudson.getInstance().createLauncher(listener);
+			String cmd = jdk.getBinDir().getAbsolutePath().concat("/java");
+			int result = launcher.launch().cmds(cmd,"-version").stdout(out).join();
+//			L'executable n'existe pas
+			if(result  != 0){
+				logger.println("[WeblogicDeploymentPlugin] - Unable to detect JDK version");
+				return false;
+			}
+			
+			Pattern pattern = Pattern.compile(JAVA_VERSION_COMMAND_VERSION_LINE_REGEX);
+			Matcher matcher = pattern.matcher(out.toString());
+			if(matcher.matches()){
+				logger.println("[WeblogicDeploymentPlugin] - Pay attention of Jdk version {selected version is "+matcher.group(3)+"} compatibility with Weblogic Deployer API (see Oracle documentation).");
+			}
+			
+		} catch (IOException e) {
+            return false;
+        } catch (InterruptedException e) {
+            return false;
+        } catch(IllegalStateException ise){
+        	return false;
+        } catch(IndexOutOfBoundsException ioobe) {
+        	return false;
+        }
+		
+		return true;
 	}
 }
