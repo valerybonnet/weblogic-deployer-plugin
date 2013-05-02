@@ -643,6 +643,25 @@ public class WeblogicDeploymentPlugin extends Recorder {
         	return FormValidation.ok();
         }
         
+        /**
+         * 
+         * @param value
+         * @return
+         * @throws IOException
+         * @throws ServletException
+         */
+        public FormValidation doCheckJdkHome(@QueryParameter String value) throws IOException, ServletException {
+        	
+        	if(value.length() == 0){
+        		return FormValidation.error("The path home is mandatory");
+        	}
+        	
+        	if(! FileUtils.fileExists(value)) {
+        		return FormValidation.error("The file " + value + " does not exists.");
+        	}
+        	
+        	return FormValidation.ok();
+        }
 		/*
 		 * (non-Javadoc)
 		 * @see hudson.tasks.BuildStepDescriptor#isApplicable(java.lang.Class)

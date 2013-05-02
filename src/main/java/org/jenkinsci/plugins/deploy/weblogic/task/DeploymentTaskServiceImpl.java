@@ -64,8 +64,12 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 		// The default JDK
 		JDK selectedJdk = null;
 		try {
-			String jobJdkName = task.getJdk() != null ? task.getJdk().getName() : null;
-			selectedJdk = JdkToolService.getJDKByName(StringUtils.defaultIfEmpty(jobJdkName, globalJdk));
+			
+			if(task.getJdk() != null){
+				selectedJdk = task.getJdk(); 
+			} else {
+				selectedJdk = JdkToolService.getJDKByName(globalJdk);
+			}
 			
 			// Check exists
 			if(selectedJdk == null || ! selectedJdk.getExists()){
