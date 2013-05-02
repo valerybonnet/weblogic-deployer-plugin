@@ -6,7 +6,11 @@
 	<script>
       function completeJdkhome(jdkName, jdkHomeId) {
       	desc.completeJdkHome(jdkName, function(t) {
-          document.getElementById(jdkHomeId).value = t.responseObject();
+      	  if(! document.getElementById(jdkHomeId).value){
+          	document.getElementById(jdkHomeId).value = t.responseObject();
+          } else if (t.responseObject()){
+            document.getElementById(jdkHomeId).value = t.responseObject();
+          }
         });
       }
     </script>
