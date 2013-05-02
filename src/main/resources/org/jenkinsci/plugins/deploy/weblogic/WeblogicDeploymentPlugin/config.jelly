@@ -2,10 +2,10 @@
 	<j:set var="weblogicEnvironments" value="${descriptor.weblogicEnvironments}" />
 	<j:set var="projectModel" value="${it.getClass().getName()}" />
 	
-	<st:bind var="instance" value="${descriptor}"/>
+	<st:bind var="desc" value="${descriptor}"/>
 	<script>
       function completeJdkhome(jdkName, jdkHomeId) {
-      	instance.completeJdkHome(jdkName, function(t) {
+      	desc.completeJdkHome(jdkName, function(t) {
           document.getElementById(jdkHomeId).value = t.responseObject();
         });
       }

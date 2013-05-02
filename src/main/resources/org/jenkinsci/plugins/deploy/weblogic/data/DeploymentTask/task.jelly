@@ -33,12 +33,13 @@
 	</f:entry>
 	
     <f:advanced>
-
-		<f:entry title="${%jdk.name}" field="jdkName">
-			<f:textbox value="${it.jdk.name}" onChange="completeJdkhome(this.value, 'jdkHome-${it.id}');"/>
-		</f:entry>
-		<f:entry title="JAVA_HOME" field="jdkHome">
-			<f:textbox id="jdkHome-${it.id}" value="${it.jdk.home}"/>
+    	<f:entry title="JDK">
+			<f:entry title="${%jdk.name}" field="jdkName">
+				<f:textbox value="${it.jdk.name}" />
+			</f:entry>
+			<f:entry title="JAVA_HOME" field="jdkHome">
+				<f:textbox  value="${it.jdk.home}"/>
+			</f:entry>
 		</f:entry>
     </f:advanced>
   

@@ -3,18 +3,21 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.data;
 
+import hudson.ExtensionPoint;
+import hudson.model.AbstractDescribableImpl;
 import hudson.model.JDK;
 
 import java.io.Serializable;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.jenkinsci.plugins.deploy.weblogic.task.DeploymentTaskDescriptor;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * @author Raphael
  *
  */
-public class DeploymentTask implements Serializable {
+public class DeploymentTask extends AbstractDescribableImpl<DeploymentTask> implements ExtensionPoint, Serializable {
 
 	/**
 	 * 
@@ -24,7 +27,7 @@ public class DeploymentTask implements Serializable {
 	/**
 	 * Identify the task
 	 */
-	private String id = RandomStringUtils.randomAlphanumeric(10);
+	private String id;
 	
 	/**
      * Identifies {@link WeblogicEnvironment} to be used.
@@ -47,8 +50,8 @@ public class DeploymentTask implements Serializable {
 	private boolean isLibrary;
 	
 	/**
-	 * Regex permettant de filtrer la ressource à deployer si plusieurs ressources 
-	 * correspondantes sont trouvées
+	 * Regex permettant de filtrer la ressource a deployer si plusieurs ressources 
+	 * correspondantes sont trouvees
 	 */
 	private String builtResourceRegexToDeploy;
 	
@@ -69,10 +72,25 @@ public class DeploymentTask implements Serializable {
 	 */
 	private JDK jdk;
 	
+	/**
+	 * Invoque lors uniquement lors de la sauvegarde des donn�es
+	 * @param id
+	 * @param taskName
+	 * @param weblogicEnvironmentTargetedName
+	 * @param deploymentName
+	 * @param deploymentTargets
+	 * @param isLibrary
+	 * @param builtResourceRegexToDeploy
+	 * @param baseResourcesGeneratedDirectory
+	 * @param jdkTool
+	 * @param nestedObject
+	 */
 	@DataBoundConstructor
 	public DeploymentTask(String id, String taskName, String weblogicEnvironmentTargetedName, String deploymentName, 
-  		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory, JDK jdk) {
-		if (id != null) {
+  		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory, String jdkName, String jdkHome) {
+		if (id == null) {
+			this.id = RandomStringUtils.randomAlphanumeric(10);
+		} else {
 			this.id = id;
 		}
 		this.taskName = taskName;
@@ -82,7 +100,16 @@ public class DeploymentTask implements Serializable {
 		this.isLibrary = isLibrary;
 		this.builtResourceRegexToDeploy = builtResourceRegexToDeploy;
 		this.baseResourcesGeneratedDirectory = baseResourcesGeneratedDirectory;
-		this.jdk = jdk;
+		this.jdk = new JDK(jdkName, jdkHome);
+	}
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see hudson.model.AbstractDescribableImpl#getDescriptor()
+	 */
+	public DeploymentTaskDescriptor getDescriptor() {
+		return (DeploymentTaskDescriptor)super.getDescriptor();
 	}
 	
 	/**

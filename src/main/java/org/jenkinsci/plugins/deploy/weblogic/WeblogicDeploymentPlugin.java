@@ -113,7 +113,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	}
 	
 	/**
-	 * 
+	 * Invoque lors de la mise a jour des configurations des projets ayant active le plugin et de la mise a jour globale
 	 * @param tasks
 	 * @param mustExitOnFailure
 	 * @param selectedDeploymentStrategyIds
@@ -128,12 +128,14 @@ public class WeblogicDeploymentPlugin extends Recorder {
     		String weblogicEnvironmentTargetedName, String deploymentName, 
     		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory) {
         // ATTENTION : Appele au moment de la sauvegarde : On conserve la compatibilite ascendante
-		this.tasks = CollectionUtils.isNotEmpty(tasks) ? tasks : Arrays.asList(new DeploymentTask[]{new DeploymentTask(null, null, weblogicEnvironmentTargetedName, deploymentName, deploymentTargets, isLibrary, builtResourceRegexToDeploy, baseResourcesGeneratedDirectory , null)});
+		this.tasks = CollectionUtils.isNotEmpty(tasks) ? tasks : Arrays.asList(new DeploymentTask[]{new DeploymentTask(null, null, weblogicEnvironmentTargetedName, deploymentName, deploymentTargets, isLibrary, builtResourceRegexToDeploy, baseResourcesGeneratedDirectory , null, null)});
 		this.mustExitOnFailure = mustExitOnFailure;
         this.selectedDeploymentStrategyIds = selectedDeploymentStrategyIds;
         this.deployedProjectsDependencies = deployedProjectsDependencies;
         this.isDeployingOnlyWhenUpdates = isDeployingOnlyWhenUpdates;
         this.forceStopOnFirstFailure = forceStopOnFirstFailure;
+		System.out.println("DBC Plug");
+		// TODO Si on veut faire du controle
 
     }
 
