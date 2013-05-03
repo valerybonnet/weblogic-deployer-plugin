@@ -48,6 +48,17 @@
 				<f:textbox  id="jdkHome-${it.id}" value="${it.jdk.home}" default="${jdkHomeSelected}"/>
 			</f:entry>
 		</f:entry>
+		<f:entry title="${%wl.configuration}">
+			<f:entry title="${%wl.configuration.stage.mode}" field="stageMode">
+				<select  class="setting-input" name="stageMode">
+			       	<j:forEach var="elt" items="${it.getPropertyType('stageMode').enumConstants}">
+				    	<f:option value="${elt.name()}" selected="${elt==instance['stageMode']}">
+				        	<d:invokeBody />
+				    	</f:option>
+				    </j:forEach>
+				</select>
+			</f:entry>
+		</f:entry>
     </f:advanced>
   
 </j:jelly>

@@ -70,6 +70,8 @@ public class DeploymentTask implements Serializable {
 	 */
 	private JDK jdk;
 	
+	private WebLogicStageMode stageMode;
+	
 	/**
 	 * Invoque lors uniquement lors de la sauvegarde des données
 	 * @param id
@@ -85,7 +87,7 @@ public class DeploymentTask implements Serializable {
 	 */
 	@DataBoundConstructor
 	public DeploymentTask(String id, String taskName, String weblogicEnvironmentTargetedName, String deploymentName, 
-  		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory, String jdkName, String jdkHome) {
+  		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory, String jdkName, String jdkHome, WebLogicStageMode stageMode) {
 		if (id == null) {
 			this.id = RandomStringUtils.randomAlphanumeric(10);
 		} else {
@@ -101,6 +103,7 @@ public class DeploymentTask implements Serializable {
 		if(StringUtils.isNotBlank(jdkName)){
 			this.jdk = new JDK(jdkName, jdkHome);
 		}
+		this.stageMode = stageMode;
 	}
 	
 	/**
@@ -182,6 +185,13 @@ public class DeploymentTask implements Serializable {
 	 */
 	public JDK getJdk() {
 		return jdk;
+	}
+
+	/**
+	 * @return the stageMode
+	 */
+	public WebLogicStageMode getStageMode() {
+		return stageMode;
 	}
 	
 }

@@ -5,6 +5,7 @@ package org.jenkinsci.plugins.deploy.weblogic;
 
 import hudson.Extension;
 import hudson.Launcher;
+import hudson.init.Initializer;
 import hudson.model.Action;
 import hudson.model.AutoCompletionCandidates;
 import hudson.model.BuildListener;
@@ -112,6 +113,11 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		super();
 	}
 	
+	@Initializer
+	public static void load(){
+		JdkToolService.loadJdkToolAvailables();
+	}
+	
 	/**
 	 * Invoque lors de la mise a jour des configurations des projets ayant active le plugin et de la mise a jour globale
 	 * @param tasks
@@ -128,7 +134,10 @@ public class WeblogicDeploymentPlugin extends Recorder {
     		String weblogicEnvironmentTargetedName, String deploymentName, 
     		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory) {
         // ATTENTION : Appele au moment de la sauvegarde : On conserve la compatibilite ascendante
-		this.tasks = CollectionUtils.isNotEmpty(tasks) ? tasks : Arrays.asList(new DeploymentTask[]{new DeploymentTask(null, null, weblogicEnvironmentTargetedName, deploymentName, deploymentTargets, isLibrary, builtResourceRegexToDeploy, baseResourcesGeneratedDirectory , null, null)});
+		this.tasks = CollectionUtils.isNotEmpty(tasks) ? tasks : Arrays.asList(new DeploymentTask[]{
+				new DeploymentTask(null, null, weblogicEnvironmentTargetedName, deploymentName, deploymentTargets, isLibrary,
+						builtResourceRegexToDeploy, baseResourcesGeneratedDirectory , null, null, null)
+				});
 		this.mustExitOnFailure = mustExitOnFailure;
         this.selectedDeploymentStrategyIds = selectedDeploymentStrategyIds;
         this.deployedProjectsDependencies = deployedProjectsDependencies;

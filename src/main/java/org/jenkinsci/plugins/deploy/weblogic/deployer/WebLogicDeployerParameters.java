@@ -3,6 +3,7 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.deployer;
 
+import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicStageMode;
 import org.jenkinsci.plugins.deploy.weblogic.data.WeblogicEnvironment;
 
 import hudson.Launcher;
@@ -46,6 +47,8 @@ public class WebLogicDeployerParameters {
 	
 	private String classpath;
 	
+	private WebLogicStageMode stageMode;
+	
 	public WebLogicDeployerParameters(){}
 	
 	/**
@@ -67,7 +70,8 @@ public class WebLogicDeployerParameters {
 			Launcher launcher, BuildListener listener, JDK usedJdk,
 			String deploymentName, boolean isLibrary, String deploymentTargets,
 			WeblogicEnvironment environment, String artifactName, String source,
-			WebLogicCommand command, boolean silentMode,String javaOpts, String classpath) {
+			WebLogicCommand command, boolean silentMode,String javaOpts, String classpath,
+			WebLogicStageMode stageMode) {
 		super();
 		this.build = build;
 		this.launcher = launcher;
@@ -83,6 +87,7 @@ public class WebLogicDeployerParameters {
 		this.silentMode = silentMode;
 		this.javaOpts = javaOpts;
 		this.classpath = classpath;
+		this.stageMode = stageMode;
 	}
 
 	/**
@@ -279,6 +284,20 @@ public class WebLogicDeployerParameters {
 	 */
 	public void setClasspath(String classpath) {
 		this.classpath = classpath;
+	}
+
+	/**
+	 * @return the stageMode
+	 */
+	public WebLogicStageMode getStageMode() {
+		return stageMode;
+	}
+
+	/**
+	 * @param stageMode the stageMode to set
+	 */
+	public void setStageMode(WebLogicStageMode stageMode) {
+		this.stageMode = stageMode;
 	}
 	
 }
