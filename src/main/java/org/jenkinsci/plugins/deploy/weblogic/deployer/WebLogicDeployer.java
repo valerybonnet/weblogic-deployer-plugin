@@ -7,6 +7,7 @@ import hudson.model.Run.RunnerAbortedException;
 import hudson.util.ArgumentListBuilder;
 
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicStageMode;
 import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
 
 /**
@@ -26,7 +27,7 @@ public class WebLogicDeployer {
         
 		//jdk
 		if(parameter.getUsedJdk() == null) {
-            parameter.getListener().error("[HudsonWeblogicDeploymentPlugin] - No JDK selected to deploy artifact.");
+            parameter.getListener().error("[WeblogicDeploymentPlugin] - No JDK selected to deploy artifact.");
             throw new RunnerAbortedException();
 		}
         args.add(parameter.getUsedJdk().getBinDir().getAbsolutePath().concat("/java"));
@@ -43,7 +44,7 @@ public class WebLogicDeployer {
         
         // remoting.jar
         if(StringUtils.isBlank(parameter.getClasspath())){
-        	parameter.getListener().error("[HudsonWeblogicDeploymentPlugin] - Classpath is not set. Please configure correctly the plugin.");
+        	parameter.getListener().error("[WeblogicDeploymentPlugin] - Classpath is not set. Please configure correctly the plugin.");
             throw new RunnerAbortedException();
         }
         String remotingJar = parameter.getClasspath();
@@ -55,9 +56,15 @@ public class WebLogicDeployer {
         
         //Cas d'une application stage uniquement au deploiement
         if(! WebLogicCommand.UNDEPLOY.equals(parameter.getCommand()) && !parameter.isLibrary()){
-        	// TODO stage provoque la generation du config....
-        	args.add("-stage");
-//        	args.add("-nostage");
+        	
+        	// Job level configuration
+            if(! WebLogicStageMode.bydefault.equals(parameter.getStageMode())){
+            	args.add("-"+parameter.getStageMode().name());
+            } else {
+            	// TODO stage provoque la generation du config....
+            	args.add("-stage");
+//            	args.add("-nostage");
+            }
         }
         
         args.add("-remote");

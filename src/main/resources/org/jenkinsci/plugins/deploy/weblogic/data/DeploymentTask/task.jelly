@@ -56,9 +56,6 @@
 				    </j:forEach>
 				</select>
 			</f:entry>
-			<!--<f:entry title="${%wl.configuration.nostage.mode.path}" field="noStageModePath">
-				<f:textbox  value="${it.noStageModePath}"/>
-			</f:entry>-->
 		</f:entry>
     </f:advanced>
   
