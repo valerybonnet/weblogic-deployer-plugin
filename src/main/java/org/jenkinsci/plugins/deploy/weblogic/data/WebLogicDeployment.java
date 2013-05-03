@@ -16,7 +16,7 @@ public class WebLogicDeployment implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1253012135022313012L;
-
+	
 	private int buildNumber;
 	
 	private Date executionDate;
