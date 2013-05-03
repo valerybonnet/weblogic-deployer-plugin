@@ -3,6 +3,7 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.data;
 
+import hudson.model.AbstractDescribableImpl;
 import hudson.model.JDK;
 
 import java.io.Serializable;
@@ -15,7 +16,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * @author Raphael
  *
  */
-public class DeploymentTask implements Serializable {
+public class DeploymentTask  extends AbstractDescribableImpl<DeploymentTask> implements Serializable {
 
 	/**
 	 * 
@@ -106,6 +107,16 @@ public class DeploymentTask implements Serializable {
 		this.stageMode = stageMode;
 	}
 	
+	
+	
+	/* (non-Javadoc)
+	 * @see hudson.model.AbstractDescribableImpl#getDescriptor()
+	 */
+	@Override
+	public DeploymentTaskDescriptor getDescriptor() {
+		return (DeploymentTaskDescriptor) super.getDescriptor();
+	}
+
 	/**
 	 * 
 	 * @return

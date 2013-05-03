@@ -9,7 +9,7 @@
 		<select  class="setting-input" name="weblogicEnvironmentTargetedName">
 	       	<j:forEach var="inst" items="${descriptor.weblogicEnvironments}">
 	           	<f:option selected="${inst.name == it.weblogicEnvironmentTargetedName}" value="${inst.name}">${inst.name} (${inst.host}:${inst.port})</f:option>
-	           </j:forEach>
+	        </j:forEach>
 		</select>
 	</f:entry>
 	
@@ -51,10 +51,8 @@
 		<f:entry title="${%wl.configuration}">
 			<f:entry title="${%wl.configuration.stage.mode}" field="stageMode">
 				<select  class="setting-input" name="stageMode">
-			       	<j:forEach var="elt" items="${it.getPropertyType('stageMode').enumConstants}">
-				    	<f:option value="${elt.name()}" selected="${elt==instance['stageMode']}">
-				        	<d:invokeBody />
-				    	</f:option>
+			       	<j:forEach var="inst" items="${it.descriptor.weblogicStageModes}">
+				    	<f:option value="${inst.name()}" selected="${inst.name() == it.stageMode.name()}" >${inst.name()}</f:option>
 				    </j:forEach>
 				</select>
 			</f:entry>
