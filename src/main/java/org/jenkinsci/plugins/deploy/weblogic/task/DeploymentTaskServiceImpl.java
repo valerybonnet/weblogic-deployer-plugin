@@ -65,7 +65,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 		JDK selectedJdk = null;
 		try {
 			
-			if(task.getJdk() != null){
+			if(task.getJdk() != null && task.getJdk().getExists()){
 				selectedJdk = task.getJdk(); 
 			} else {
 				selectedJdk = JdkToolService.getJDKByName(globalJdk);
