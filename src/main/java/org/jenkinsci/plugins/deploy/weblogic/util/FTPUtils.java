@@ -29,10 +29,8 @@ public class FTPUtils {
     	
 		try {
         	int reply;
-//        	log.println("[HudsonWeblogicDeploymentPlugin] - REMOTE HOST CONNECTING...");
         	ftpClient.setConnectTimeout(20000); // set timeout to 20s
         	ftpClient.connect(transfertConfiguration.getHost());
-//        	log.println("[HudsonWeblogicDeploymentPlugin] - REMOTE HOST CONNECTED.");
         	
         	reply = ftpClient.getReplyCode();
         	
@@ -47,8 +45,6 @@ public class FTPUtils {
                 throw new TransfertFileException("Failed to login to FTP");
             }
             
-//            log.println("[HudsonWeblogicDeploymentPlugin] - FTP AUTHENTICATION SUCCESSFULL. TRANSFERT BEGINNING...");
-            
             if(!ftpClient.setFileType(FTP.BINARY_FILE_TYPE)) {
         		throw new TransfertFileException("Unable to set the file type to BINARY");
         	}
@@ -58,10 +54,8 @@ public class FTPUtils {
 
             // store local file to remote server
             if(! ftpClient.storeFile(transfertConfiguration.getRemoteFilePath(), localFileToTransfert)) {
-//            	log.println("[HudsonWeblogicDeploymentPlugin] - Unable to transfert file " +transfertConfiguration.getLocalFilePath()+ " to " + transfertConfiguration.getRemoteFilePath());
             	throw new TransfertFileException("Unable to transfert file " +transfertConfiguration.getLocalFilePath()+ " on " + transfertConfiguration.getHost());
             }
-//            log.println("[HudsonWeblogicDeploymentPlugin] - FTP SERVER DISCONNECTED.");
         	ftpClient.disconnect();
     	} catch (Exception e) {
     		throw new TransfertFileException("Failed to download file completely", e);
