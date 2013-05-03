@@ -4,9 +4,9 @@
 package org.jenkinsci.plugins.deploy.weblogic.jdk;
 
 import hudson.Launcher;
+import hudson.model.TaskListener;
 import hudson.model.Hudson;
 import hudson.model.JDK;
-import hudson.model.TaskListener;
 import hudson.util.StreamTaskListener;
 
 import java.io.ByteArrayOutputStream;
@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 import jenkins.model.Jenkins;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 
@@ -34,24 +35,33 @@ public static final String EXTERNAL_ENV_JDK = "environment";
 	
 	public static final String JAVA_VERSION_COMMAND_VERSION_LINE_REGEX = ".*\\r*\\n*(java version )(\")(.+)(\").*\\r*\\n*.*\\r*\\n*.*\\r*\\n*";
 	
+	
+	static List<JDK> jdkToolAvailables = new ArrayList<JDK>();
+	
+	public static void loadJdkToolAvailables() {
+
+		//Ajout de la java home system
+		if (StringUtils.isNotBlank(SystemUtils.JAVA_HOME)){
+			jdkToolAvailables.add(new JDK(SYSTEM_JDK, System.getProperty("java.home")));
+		}
+		//Ajout de la java home avec lequel est demarre Jenkins
+		if(StringUtils.isNotBlank(System.getenv("JAVA_HOME"))){
+			jdkToolAvailables.add(new JDK(EXTERNAL_ENV_JDK, System.getenv("JAVA_HOME")));
+		}
+		// Ajout de tous les jdk declares dans Jenkins
+		jdkToolAvailables.addAll(Jenkins.getInstance().getJDKs());
+		
+	}
+	
 	/**
 	 * 
 	 * @return
 	 */
 	public static List<JDK> getJdkToolAvailables() {
-		List<JDK> jdkList = new ArrayList<JDK>();
-		
-		//Ajout de la java home system
-		if (StringUtils.isNotBlank(SystemUtils.JAVA_HOME)){
-			jdkList.add(new JDK(SYSTEM_JDK, System.getProperty("java.home")));
+		if(CollectionUtils.isEmpty(jdkToolAvailables)){
+			loadJdkToolAvailables();
 		}
-		//Ajout de la java home avec lequel est demarre Jenkins
-		if(StringUtils.isNotBlank(System.getenv("JAVA_HOME"))){
-			jdkList.add(new JDK(EXTERNAL_ENV_JDK, System.getenv("JAVA_HOME")));
-		}
-		// Ajout de tous les jdk declares dans Jenkins
-		jdkList.addAll(Jenkins.getInstance().getJDKs());
-		return jdkList;
+		return jdkToolAvailables;
 	}
 	
 	public static JDK getJDKByName(String name) {
