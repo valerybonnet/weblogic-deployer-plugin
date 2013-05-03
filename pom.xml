@@ -4,8 +4,8 @@
 
 	<parent>
 	    <groupId>org.jenkins-ci.plugins</groupId>
-	    <artifactId>plugin</artifactId>
-	    <version>1.489</version>
+  		<artifactId>plugin</artifactId>
+  		<version>1.514</version>
   	</parent>
 
 	<artifactId>weblogic-deployer-plugin</artifactId>
