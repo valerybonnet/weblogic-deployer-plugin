@@ -8,8 +8,10 @@ package org.jenkinsci.plugins.deploy.weblogic.data;
  *
  */
 public enum WebLogicStageMode {
-
+	
+	bydefault,
 	stage,
 	nostage,
-	externalstage;
+	external_stage;
+
 }
