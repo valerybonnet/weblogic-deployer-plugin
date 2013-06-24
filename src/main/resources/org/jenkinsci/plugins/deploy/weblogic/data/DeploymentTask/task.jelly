@@ -51,9 +51,9 @@
 		<f:entry title="${%wl.configuration}">
 			<f:entry title="${%wl.configuration.stage.mode}" field="stageMode">
 				<select  class="setting-input" name="stageMode">
-			       	<j:forEach var="inst" items="${it.descriptor.weblogicStageModes}">
-				    	<f:option value="${inst.name()}" selected="${inst.name() == it.stageMode.name()}" >${inst.name()}</f:option>
-				    </j:forEach>
+				   	<j:forEach var="inst" items="${descriptor.weblogicStageModes}">
+			    		<f:option value="${inst.name()}" selected="${inst.name() == it.stageMode.name()}" >${inst.name()}</f:option>
+			    	</j:forEach>
 				</select>
 			</f:entry>
 		</f:entry>

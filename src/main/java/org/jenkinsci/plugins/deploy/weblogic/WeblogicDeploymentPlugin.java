@@ -42,6 +42,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.jenkinsci.plugins.deploy.weblogic.configuration.WeblogicDeploymentConfiguration;
 import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTaskResult;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicDeploymentStatus;
+import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicStageMode;
 import org.jenkinsci.plugins.deploy.weblogic.data.WeblogicEnvironment;
 import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTask;
 import org.jenkinsci.plugins.deploy.weblogic.exception.DeploymentTaskException;
@@ -485,6 +486,13 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			this.jdkSelected = jdkSelected;
 		}
 
+		/**
+		 * @return the weblogicStageMode
+		 */
+		public WebLogicStageMode[] getWeblogicStageModes() {
+			return WebLogicStageMode.values();
+		}
+		
 		/*
 		 * (non-Javadoc)
 		 * @see hudson.model.Descriptor#configure(org.kohsuke.stapler.StaplerRequest, net.sf.json.JSONObject)
