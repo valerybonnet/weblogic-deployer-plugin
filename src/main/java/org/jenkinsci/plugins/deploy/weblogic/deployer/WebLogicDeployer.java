@@ -7,6 +7,7 @@ import hudson.model.Run.RunnerAbortedException;
 import hudson.util.ArgumentListBuilder;
 
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicAuthenticationMode;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicStageMode;
 import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
 
@@ -96,13 +97,25 @@ public class WebLogicDeployer {
         args.add(parameter.getDeploymentTargets());
         args.add("-adminurl");
         args.add("t3://" +parameter.getEnvironment().getHost()+":"+parameter.getEnvironment().getPort());
-        args.add("-user");
-        args.add(parameter.getEnvironment().getLogin());
-        args.add("-password");
-        args.add(parameter.getEnvironment().getPassword());
+        
+        // Authentication by keystore can be possible
+        switch(parameter.getEnvironment().getAuthMode() != null ? parameter.getEnvironment().getAuthMode() : WebLogicAuthenticationMode.BY_LOGIN){
+        	case BY_KEY:
+        		args.add("-userconfigfile");
+                args.add(parameter.getEnvironment().getUserconfigfile());
+                args.add("-userkeyfile");
+                args.add(parameter.getEnvironment().getUserkeyfile());
+        		break;
+        	default :
+        		args.add("-user");
+                args.add(parameter.getEnvironment().getLogin());
+                args.add("-password");
+                args.add(parameter.getEnvironment().getPassword());
+        		break;
+        }
         
         args.add("-"+parameter.getCommand().getValue());
-        
+		
         if(parameter.isLibrary()) {
         	args.add("-library");
         }

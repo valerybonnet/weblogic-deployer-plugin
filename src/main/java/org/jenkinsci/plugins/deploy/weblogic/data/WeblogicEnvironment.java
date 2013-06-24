@@ -66,6 +66,21 @@ public class WeblogicEnvironment implements Serializable {
 	private String remoteDir;
 	
 	/**
+	 * 
+	 */
+	private String userconfigfile;
+	
+	/**
+	 * 
+	 */
+	private String userkeyfile;
+	
+	/**
+	 * 
+	 */
+	private WebLogicAuthenticationMode authMode;
+	
+	/**
 	 * 	
 	 * @param name
 	 * @param host
@@ -107,8 +122,38 @@ public class WeblogicEnvironment implements Serializable {
 		this.ftpPassowrd = ftpPassowrd;
 		this.remoteDir = remoteDir;
 	}
-
-
+	
+	/**
+	 * @param name
+	 * @param host
+	 * @param port
+	 * @param login
+	 * @param password
+	 * @param ftpHost
+	 * @param ftpUser
+	 * @param ftpPassowrd
+	 * @param remoteDir
+	 * @param userconfigfile
+	 * @param userkeyfile
+	 * @param authMode
+	 */
+	public WeblogicEnvironment(String name, String host, String port,
+			String login, String password, String ftpHost, String ftpUser,
+			String ftpPassowrd, String remoteDir, String userconfigfile,
+			String userkeyfile, WebLogicAuthenticationMode authMode) {
+		this.name = name;
+		this.host = host;
+		this.port = port;
+		this.login = login;
+		this.password = password;
+		this.ftpHost = ftpHost;
+		this.ftpUser = ftpUser;
+		this.ftpPassowrd = ftpPassowrd;
+		this.remoteDir = remoteDir;
+		this.userconfigfile = userconfigfile;
+		this.userkeyfile = userkeyfile;
+		this.authMode = authMode;
+	}
 
 	/**
 	 * 
@@ -184,6 +229,30 @@ public class WeblogicEnvironment implements Serializable {
 
 	public void setRemoteDir(String remoteDir) {
 		this.remoteDir = remoteDir;
+	}
+
+	public String getUserconfigfile() {
+		return userconfigfile;
+	}
+
+	public void setUserconfigfile(String userconfigfile) {
+		this.userconfigfile = userconfigfile;
+	}
+
+	public String getUserkeyfile() {
+		return userkeyfile;
+	}
+
+	public void setUserkeyfile(String userkeyfile) {
+		this.userkeyfile = userkeyfile;
+	}
+
+	public WebLogicAuthenticationMode getAuthMode() {
+		return authMode;
+	}
+
+	public void setAuthMode(WebLogicAuthenticationMode authMode) {
+		this.authMode = authMode;
 	}
 	
 }
