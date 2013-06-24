@@ -9,6 +9,7 @@ import org.jenkinsci.plugins.deploy.weblogic.task.DeploymentTaskService;
 import org.jenkinsci.plugins.deploy.weblogic.task.DeploymentTaskServiceImpl;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 
 /**
  * @author Raphael
@@ -23,6 +24,7 @@ public class WeblogicPluginGuiceModuleImpl extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(DeploymentTaskService.class).to(DeploymentTaskServiceImpl.class);
+		//.in(Singleton.class)
 	}
 
 }
