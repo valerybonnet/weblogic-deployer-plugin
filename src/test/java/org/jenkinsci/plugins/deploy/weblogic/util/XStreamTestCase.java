@@ -8,6 +8,8 @@ import hudson.model.Hudson;
 import java.io.File;
 import java.io.FileInputStream;
 
+import jenkins.model.Jenkins;
+
 import junit.framework.Assert;
 
 import org.jenkinsci.plugins.deploy.weblogic.configuration.WeblogicDeploymentConfiguration;
@@ -21,14 +23,17 @@ import org.junit.Test;
  */
 public class XStreamTestCase {
 
+	
+	
+	
 	  /**
 	   * 
 	   */
 	  @Test public void testObjectConvert() {
 		  	WeblogicDeploymentConfiguration a = new WeblogicDeploymentConfiguration(new WeblogicEnvironment("sdg","sdg","sdg","sdg","sg"), new WeblogicEnvironment("sdg2","sdg2","sdg2","sdg2","sg2"));
-			String xml = Hudson.XSTREAM.toXML(a);
+			String xml = Jenkins.XSTREAM2.toXML(a);
 	    	System.out.println(xml + "\n"); // for debugging
-	    	WeblogicDeploymentConfiguration actual = (WeblogicDeploymentConfiguration) Hudson.XSTREAM.fromXML(xml);
+	    	WeblogicDeploymentConfiguration actual = (WeblogicDeploymentConfiguration) Jenkins.XSTREAM2.fromXML(xml);
 	    	Assert.assertEquals(2, actual.getWeblogicEnvironments().length);
 	  }
 	  
@@ -37,7 +42,7 @@ public class XStreamTestCase {
 	   * @throws Exception
 	   */
 	  @Test public void testFileConfigurationMarsahlling() throws Exception {
-		  	WeblogicDeploymentConfiguration actual = (WeblogicDeploymentConfiguration) Hudson.XSTREAM.fromXML(new FileInputStream(new File(System.getProperty("user.dir")+"/src/test/resources/default.xml")));
+		  	WeblogicDeploymentConfiguration actual = (WeblogicDeploymentConfiguration) Jenkins.XSTREAM2.fromXML(new FileInputStream(new File(System.getProperty("user.dir")+"/src/test/resources/default.xml")));
 		  	Assert.assertEquals(6, actual.getWeblogicEnvironments().length);
 	  }
 }
