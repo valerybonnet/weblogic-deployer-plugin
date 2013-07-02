@@ -22,6 +22,9 @@ xsi:schemaLocation="http://org.hudsonci.plugins.deploy.weblogic/WeblogicDeployme
 			<host>host3</host>
 			<port>52200</port>
 			<login>weblogic</login>
+			<authMode>BY_KEY</authMode>
+			<userconfigfile>/path/to/config.file</userconfigfile>
+			<userkeyfile>/path/to/key.file</userkeyfile>
 			<password>weblogic</password>
 		</weblogic-target>
 		<weblogic-target>

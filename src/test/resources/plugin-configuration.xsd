@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-elementFormDefault="qualified" xmlns="http://org.hudsonci.plugins.deploy.weblogic/WeblogicDeploymentPlugin" 
-targetNamespace="http://org.hudsonci.plugins.deploy.weblogic/WeblogicDeploymentPlugin">
+elementFormDefault="qualified" xmlns="http://org.jenkinsci.plugins/WeblogicDeploymentPlugin" 
+targetNamespace="http://org.jenkinsci.plugins/WeblogicDeploymentPlugin" xmlns:wdp="http://org.jenkinsci.plugins/WeblogicDeploymentPlugin">
 	
 	<xs:element name="config">
 		<xs:complexType>
@@ -18,16 +18,27 @@ targetNamespace="http://org.hudsonci.plugins.deploy.weblogic/WeblogicDeploymentP
 	</xs:complexType>
 	
 	<xs:complexType name="type_target">
-		<xs:sequence>
+		<xs:all>
 			<xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
 			<xs:element name="host" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
 			<xs:element name="port" type="xs:int" minOccurs="1" maxOccurs="1" nillable="false"/>
 			<xs:element name="login" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="password" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="userconfigfile" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="userkeyfile" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="authMode" type="wdp:authMode"  minOccurs="0" maxOccurs="1" />
 			<xs:element name="ftpHost" type="xs:string" minOccurs="0" maxOccurs="1"/>
 			<xs:element name="ftpUser" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
 			<xs:element name="ftpPassowrd" type="xs:string" minOccurs="0" maxOccurs="1"/>
 			<xs:element name="remoteDir" type="xs:string" minOccurs="0" maxOccurs="1"/>
-		</xs:sequence>
+		</xs:all>
 	</xs:complexType>
+	
+	<xs:simpleType name="authMode">
+		<xs:restriction base="xs:string">
+	    	<xs:enumeration value="BY_LOGIN"/>
+	    	<xs:enumeration value="BY_KEY"/>
+	  	</xs:restriction>
+	</xs:simpleType>
+	
 </xs:schema>
