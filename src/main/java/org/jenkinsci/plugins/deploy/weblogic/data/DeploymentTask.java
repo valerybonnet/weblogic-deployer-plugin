@@ -74,6 +74,11 @@ public class DeploymentTask  extends AbstractDescribableImpl<DeploymentTask> imp
 	private WebLogicStageMode stageMode;
 	
 	/**
+	 * The command line to execute
+	 */
+	private String commandLine;
+	
+	/**
 	 * Invoque lors uniquement lors de la sauvegarde des données
 	 * @param id
 	 * @param taskName
@@ -88,7 +93,9 @@ public class DeploymentTask  extends AbstractDescribableImpl<DeploymentTask> imp
 	 */
 	@DataBoundConstructor
 	public DeploymentTask(String id, String taskName, String weblogicEnvironmentTargetedName, String deploymentName, 
-  		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory, String jdkName, String jdkHome, WebLogicStageMode stageMode) {
+  		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory, String jdkName, String jdkHome, 
+  		WebLogicStageMode stageMode,
+  		String commandLine) {
 		if (id == null) {
 			this.id = RandomStringUtils.randomAlphanumeric(10);
 		} else {
@@ -105,6 +112,7 @@ public class DeploymentTask  extends AbstractDescribableImpl<DeploymentTask> imp
 			this.jdk = new JDK(jdkName, jdkHome);
 		}
 		this.stageMode = stageMode;
+		this.commandLine = commandLine;
 	}
 	
 	
@@ -204,5 +212,14 @@ public class DeploymentTask  extends AbstractDescribableImpl<DeploymentTask> imp
 	public WebLogicStageMode getStageMode() {
 		return stageMode;
 	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getCommandLine() {
+		return commandLine;
+	}
+	
 	
 }

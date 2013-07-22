@@ -25,6 +25,7 @@ import hudson.util.FormValidation;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.ServletException;
+
+import jenkins.model.Jenkins;
 
 import net.sf.json.JSONObject;
 
@@ -137,7 +140,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
         // ATTENTION : Appele au moment de la sauvegarde : On conserve la compatibilite ascendante
 		this.tasks = CollectionUtils.isNotEmpty(tasks) ? tasks : Arrays.asList(new DeploymentTask[]{
 				new DeploymentTask(null, null, weblogicEnvironmentTargetedName, deploymentName, deploymentTargets, isLibrary,
-						builtResourceRegexToDeploy, baseResourcesGeneratedDirectory , null, null, null)
+						builtResourceRegexToDeploy, baseResourcesGeneratedDirectory , null, null, null, null)
 				});
 		this.mustExitOnFailure = mustExitOnFailure;
         this.selectedDeploymentStrategyIds = selectedDeploymentStrategyIds;
@@ -222,7 +225,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 
 		// En attendant plus propre
 		if(this.deploymentTaskService == null){
-			this.deploymentTaskService = Hudson.getInstance().getInjector().getInstance(DeploymentTaskService.class);
+			this.deploymentTaskService = Jenkins.getInstance().getInjector().getInstance(DeploymentTaskService.class);
 		}
 		
 		// Parcours des tâches de deploiement
@@ -539,9 +542,19 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		        if(configurationFilePath.startsWith(URLUtils.HTTP_PROTOCOL_PREFIX)){
 		        	URI uri = new URI(configurationFilePath);
 		        	URL url = uri.toURL();
-		        	weblogicDeploymentConfiguration = (WeblogicDeploymentConfiguration) Hudson.XSTREAM.fromXML(url.openStream());
+		        	InputStream configurationFileInputStream =  null;
+		        	try {
+		        		configurationFileInputStream =  url.openStream();
+		        		weblogicDeploymentConfiguration = (WeblogicDeploymentConfiguration) Jenkins.XSTREAM2.fromXML(configurationFileInputStream);
+		        	} catch(IOException ioe) {
+		        		throw ioe;
+		        	} finally {
+		        		if(configurationFileInputStream != null) {
+		        			configurationFileInputStream.close();
+		        		}
+		        	}
 		        } else if (FileUtils.fileExists(configurationFilePath)) {
-		        	weblogicDeploymentConfiguration = (WeblogicDeploymentConfiguration) Hudson.XSTREAM.fromXML(new FileInputStream(FileUtils.getFile(configurationFilePath)));
+		        	weblogicDeploymentConfiguration = (WeblogicDeploymentConfiguration) Jenkins.XSTREAM2.fromXML(new FileInputStream(FileUtils.getFile(configurationFilePath)));
 		        }
 		        
 		        if(weblogicDeploymentConfiguration != null && ! ArrayUtils.isEmpty(weblogicDeploymentConfiguration.getWeblogicEnvironments())){

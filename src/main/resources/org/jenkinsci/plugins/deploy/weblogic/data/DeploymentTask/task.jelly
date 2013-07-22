@@ -57,6 +57,11 @@
 				</select>
 			</f:entry>
 		</f:entry>
+		<f:entry title="${%wl.deployment.command}">
+			<f:entry title="${%wl.deployement.command.ligne}" field="commandLine">
+				<f:textarea value="${it.commandLine}"/>
+			</f:entry>
+		</f:entry>
     </f:advanced>
   
 </j:jelly>

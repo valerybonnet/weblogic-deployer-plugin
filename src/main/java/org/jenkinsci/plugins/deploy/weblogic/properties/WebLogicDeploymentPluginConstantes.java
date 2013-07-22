@@ -21,4 +21,9 @@ public class WebLogicDeploymentPluginConstantes {
 	public static transient final String WL_WEBLOGIC_LIBRARY_NAME = "weblogic.jar";
 	
 	public static transient final String WL_WEBLOGIC_API_DEPLOYER_MAIN_CLASS = "weblogic.Deployer";
+	
+	public static final String WL_DEPLOYMENT_CMD_LINE_SEPARATOR = ";";
+	
+	public static final String COMMAND_LINE_TOKEN = "\\{([^}]+)\\}";
+	
 }

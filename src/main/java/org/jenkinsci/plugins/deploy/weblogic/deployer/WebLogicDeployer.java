@@ -6,6 +6,10 @@ package org.jenkinsci.plugins.deploy.weblogic.deployer;
 import hudson.model.Run.RunnerAbortedException;
 import hudson.util.ArgumentListBuilder;
 
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicAuthenticationMode;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicStageMode;
@@ -26,32 +30,8 @@ public class WebLogicDeployer {
 	public static final String[] getWebLogicCommandLine(WebLogicDeployerParameters parameter) {
 		ArgumentListBuilder args = new ArgumentListBuilder();
         
-		//jdk
-		if(parameter.getUsedJdk() == null) {
-            parameter.getListener().error("[WeblogicDeploymentPlugin] - No JDK selected to deploy artifact.");
-            throw new RunnerAbortedException();
-		}
-        args.add(parameter.getUsedJdk().getBinDir().getAbsolutePath().concat("/java"));
-        
-		//java options specifique
-        if(StringUtils.isNotBlank(parameter.getJavaOpts())){
-        	//On parse l'ensemble des options et on les rajoute des le args[]
-        	String[] javaOptions = StringUtils.split(parameter.getJavaOpts(), ' ');
-        	args.add(javaOptions);
-        }
+		processJavaLauncher(parameter, args);
 		
-        //gestion du classpath
-        args.add("-cp");
-        
-        // remoting.jar
-        if(StringUtils.isBlank(parameter.getClasspath())){
-        	parameter.getListener().error("[WeblogicDeploymentPlugin] - Classpath is not set. Please configure correctly the plugin.");
-            throw new RunnerAbortedException();
-        }
-        String remotingJar = parameter.getClasspath();
-        args.add(remotingJar);
-        args.add(WebLogicDeploymentPluginConstantes.WL_WEBLOGIC_API_DEPLOYER_MAIN_CLASS);
-        
         // mode debug force
         args.add("-debug");
         
@@ -123,4 +103,56 @@ public class WebLogicDeployer {
         return args.toCommandArray();
 	}
 
+	/**
+	 * 
+	 * @param parameters
+	 * @param commandLine
+	 * @return
+	 */
+	public static final String[] getWebLogicCommandLine(WebLogicDeployerParameters parameters, String commandLine) {
+		
+		ArgumentListBuilder args = new ArgumentListBuilder();
+		
+		processJavaLauncher(parameters, args);
+		
+		for(String param : StringUtils.split(commandLine, ' ')){
+			args.add(param);
+		}
+		
+		return args.toCommandArray();
+	}
+	
+	/**
+	 * 
+	 * @param parameter
+	 * @param args
+	 */
+	private static void processJavaLauncher(WebLogicDeployerParameters parameter, ArgumentListBuilder args) {
+		//jdk
+		if(parameter.getUsedJdk() == null) {
+			parameter.getListener().error("[WeblogicDeploymentPlugin] - No JDK selected to deploy artifact.");
+		    throw new RunnerAbortedException();
+		}
+		args.add(parameter.getUsedJdk().getBinDir().getAbsolutePath().concat("/java"));
+		        
+		//java options specifique
+		if(StringUtils.isNotBlank(parameter.getJavaOpts())){
+			//On parse l'ensemble des options et on les rajoute des le args[]
+		    String[] javaOptions = StringUtils.split(parameter.getJavaOpts(), ' ');
+		    args.add(javaOptions);
+		}
+				
+		//gestion du classpath
+		args.add("-cp");
+		        
+		// remoting.jar
+		if(StringUtils.isBlank(parameter.getClasspath())){
+			parameter.getListener().error("[WeblogicDeploymentPlugin] - Classpath is not set. Please configure correctly the plugin.");
+			throw new RunnerAbortedException();
+		}
+		String remotingJar = parameter.getClasspath();
+		args.add(remotingJar);
+		args.add(WebLogicDeploymentPluginConstantes.WL_WEBLOGIC_API_DEPLOYER_MAIN_CLASS);
+		        
+	}
 }

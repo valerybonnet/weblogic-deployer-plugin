@@ -51,6 +51,27 @@ public class WebLogicDeployerParameters {
 	
 	public WebLogicDeployerParameters(){}
 	
+	
+	/**
+	 * @param build
+	 * @param launcher
+	 * @param listener
+	 * @param usedJdk
+	 * @param javaOpts
+	 * @param classpath
+	 */
+	public WebLogicDeployerParameters(AbstractBuild<?, ?> build,
+			Launcher launcher, BuildListener listener, JDK usedJdk,
+			String javaOpts, String classpath) {
+		this.build = build;
+		this.launcher = launcher;
+		this.listener = listener;
+		this.usedJdk = usedJdk;
+		this.javaOpts = javaOpts;
+		this.classpath = classpath;
+	}
+
+
 	/**
 	 * 	
 	 * @param build
