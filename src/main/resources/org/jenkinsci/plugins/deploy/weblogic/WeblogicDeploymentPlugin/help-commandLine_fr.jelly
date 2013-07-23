@@ -1,0 +1,30 @@
+<div>
+Allow you to replace default deployment weblogic tasks (undeploy/deploy) by the following command lines.<br/>
+By default the plugin execute 2 tasks : <br/>
+java weblogic.Deployer -debug -remote -verbose -name 'toto.war' -source ./myapp.ear -targets AdminServer -adminurl http://localhost:7001 -user weblogic -password weblogic -undeploy<br/>
+java weblogic.Deployer -debug -stage -remote -verbose -upload -name 'toto.war' -source ./myapp.ear -targets AdminServer -adminurl http://localhost:7001 -user weblogic -password weblogic -deploy<br/>
+<br/>
+If you set some command lines, the default execution flow will be overriden by these ones. <br/>
+E.g :<br/> 
+-adminurl http://{wl.host}:{wl.port} -user {wl.login} -password {wl.password} -debug -remote -verbose -name {wl.deployment_name} -source {wl.source} -targets {wl.targets} -cancel;<br/>
+-adminurl http://{wl.host}:{wl.port} -user {wl.login} -password {wl.password} -name {wl.deployment_name} -source {wl.source} -targets {wl.targets} -distribute<br/>
+<br/>
+<br/>
+Note : java cannot be specified. The plugin will use those one which is defined in job configuration or in global configuration.<br/>
+Each command line have to be ended by the ';' separator<br/>
+<br/>
+You can use global scope variables are specific variables<br/>
+<ul>
+<li>{wl.deployment_name}</li>
+<li>{wl.source}</li>
+<li>{wl.targets}</li>
+<li>{wl.host}</li>
+<li>{wl.port}</li>
+<li>{wl.login}</li>
+<li>{wl.password}</li>
+<li>{wl.user_configfile}</li>
+<li>{wl.user_keyfile}</li>
+</ul>
+
+
+</div>
