@@ -10,7 +10,8 @@
 
 	<artifactId>weblogic-deployer-plugin</artifactId>
 	<name>Deploy WebLogic Plugin</name>
-	<version>2.4-SNAPSHOT</version>
+	<version>2.4</version>
+	<!-- <packaging>jpi</packaging> -->
 	<packaging>hpi</packaging>
 
 	<url>http://wiki.jenkins-ci.org/display/JENKINS/WebLogic+Deployer+Plugin</url>
