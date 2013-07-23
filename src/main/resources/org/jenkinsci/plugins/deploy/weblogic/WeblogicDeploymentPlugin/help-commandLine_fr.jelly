@@ -1,29 +1,29 @@
 <div>
-Allow you to replace default deployment weblogic tasks (undeploy/deploy) by the following command lines.<br/>
-By default the plugin execute 2 tasks : <br/>
+Permet de remplacer l'execution des tâches de deploiement (undeploy/deploy) par l'execution des lignes de commandes definies.<br/>
+Par defaut le plugin execution 2 commandes : <br/>
 java weblogic.Deployer -debug -remote -verbose -name 'toto.war' -source ./myapp.ear -targets AdminServer -adminurl http://localhost:7001 -user weblogic -password weblogic -undeploy<br/>
 java weblogic.Deployer -debug -stage -remote -verbose -upload -name 'toto.war' -source ./myapp.ear -targets AdminServer -adminurl http://localhost:7001 -user weblogic -password weblogic -deploy<br/>
 <br/>
-If you set some command lines, the default execution flow will be overriden by these ones. <br/>
+Si vous definissez l''ensemble des commandes suivantes, celles-ci remplaceront les 2 précédentes. <br/>
 E.g :<br/> 
 -adminurl http://{wl.host}:{wl.port} -user {wl.login} -password {wl.password} -debug -remote -verbose -name {wl.deployment_name} -source {wl.source} -targets {wl.targets} -cancel;<br/>
 -adminurl http://{wl.host}:{wl.port} -user {wl.login} -password {wl.password} -name {wl.deployment_name} -source {wl.source} -targets {wl.targets} -distribute<br/>
 <br/>
 <br/>
-Note : java cannot be specified. The plugin will use those one which is defined in job configuration or in global configuration.<br/>
-Each command line have to be ended by the ';' separator<br/>
+Note : java ne peut être sp&eacute;cifi&eacute;. Le plugin utilisera celui définit dans la configuration locale ou globale.<br/>
+Chaque ligne de commande doit terminer par ';'<br/>
 <br/>
-You can use global scope variables are specific variables<br/>
+Vous pouvez utiliser les variables du plugin<br/>
 <ul>
-<li>{wl.deployment_name}</li>
-<li>{wl.source}</li>
-<li>{wl.targets}</li>
-<li>{wl.host}</li>
-<li>{wl.port}</li>
-<li>{wl.login}</li>
-<li>{wl.password}</li>
-<li>{wl.user_configfile}</li>
-<li>{wl.user_keyfile}</li>
+<li>{wl.deployment_name} : correspond au param&egrave;tre 'Nom'</li>
+<li>{wl.source} : correspond &agrave; la ressource &agrave; deployer </li>
+<li>{wl.targets} : correspond au param&egrave;tres target</li>
+<li>{wl.host} : correspond &agrave; la partie host du param&egrave;tre 'Environnement'</li>
+<li>{wl.port} : correspond &agrave; la partie port du param&egrave;tre 'Environnement'</li>
+<li>{wl.login} : correspond au login permettant d'acc&eacute;der au host</li>
+<li>{wl.password} : correspond au mot de passe permettant d'acc&eacute;der au host</li>
+<li>{wl.user_configfile} : correspond au fichier de configuration utilis&eacute; par le Deployer (authentification par cle)</li>
+<li>{wl.user_keyfile} : correspond &agrave; la cl&eacute; permettant l''authentification aupr&egrave;s de l'AdminServer</li>
 </ul>
 
 

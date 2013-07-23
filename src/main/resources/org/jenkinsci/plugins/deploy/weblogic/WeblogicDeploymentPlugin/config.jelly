@@ -54,10 +54,11 @@
 					<!-- valeur par defaut -->
 					<f:option value="unknown">${%NoSpecified}</f:option>
 					<!-- liste des causes referencees-->
-					<f:option value="hudson.model.Cause\\$LegacyCodeCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.model.Cause\\$LegacyCodeCause')}">${%LegacyCodeCause}</f:option>
-					<f:option value="hudson.model.Cause\\$UserCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.model.Cause\\$UserCause')}">${%UserCause}</f:option>
-					<f:option value="hudson.model.Cause\\$RemoteCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.model.Cause\\$RemoteCause')}">${%RemoteCause}</f:option>
-		    		<f:option value="hudson.model.Cause\\$UpstreamCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.model.Cause\\$UpstreamCause')}">${%UpstreamCause}</f:option>
+					<f:option value="hudson.model.Cause\\$LegacyCodeCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.model.Cause\\$LegacyCodeCause')}">${%Cause.LegacyCodeCause}</f:option>
+					<f:option value="hudson.model.Cause\\$UserCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.model.Cause\\$UserCause')}">${%Cause.UserCause}</f:option>
+					<f:option value="hudson.model.Cause\\$UserIdCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.model.Cause\\$UserIdCause')}">${%Cause.UserIdCause}</f:option>
+					<f:option value="hudson.model.Cause\\$RemoteCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.model.Cause\\$RemoteCause')}">${%Cause.RemoteCause}</f:option>
+		    		<f:option value="hudson.model.Cause\\$UpstreamCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.model.Cause\\$UpstreamCause')}">${%Cause.UpstreamCause}</f:option>
 		    		<!-- liste des triggers referencees-->
 		    		<j:forEach var="inst" items="${triggers}">
 		    			<f:option value="${inst.id}" selected="${instance.selectedDeploymentStrategyIds.contains(inst.id)}">${inst.displayName}</f:option>

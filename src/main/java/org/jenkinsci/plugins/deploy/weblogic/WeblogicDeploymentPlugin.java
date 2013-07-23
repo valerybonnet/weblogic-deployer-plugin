@@ -45,6 +45,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.jenkinsci.plugins.deploy.weblogic.configuration.WeblogicDeploymentConfiguration;
 import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTaskResult;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicDeploymentStatus;
+import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicPreRequisteStatus;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicStageMode;
 import org.jenkinsci.plugins.deploy.weblogic.data.WeblogicEnvironment;
 import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTask;
@@ -77,11 +78,6 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	
 	@Inject(optional=false)
 	private DeploymentTaskService deploymentTaskService;
-	
-//	/**
-//	 * 
-//	 */
-//	private transient JDK usedJdk = null;
 	
 	/**
 	 * Le build doit se terminer en erreur. Configurable.
@@ -218,8 +214,9 @@ public class WeblogicDeploymentPlugin extends Recorder {
         
         //Pre-requis ko , arret du traitement
         List<DeploymentTaskResult> results = new ArrayList<DeploymentTaskResult>();
-        if(! checkPreRequisites( build, launcher, listener)){
-        	results.add(new DeploymentTaskResult(WebLogicDeploymentStatus.DISABLED, null, null));
+        WebLogicPreRequisteStatus check = checkPreRequisites( build, launcher, listener);
+        if(check != WebLogicPreRequisteStatus.OK){
+        	results.add(new DeploymentTaskResult(check, WebLogicDeploymentStatus.DISABLED, null, null));
         	return exitPerformAction(build, listener, results);
         }
 
@@ -250,12 +247,12 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	 * @param listener
 	 * @return
 	 */
-	private boolean checkPreRequisites(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener){
+	private WebLogicPreRequisteStatus checkPreRequisites(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener){
 		
 		//Verification desactivation plugin
 		if(getDescriptor().isPluginDisabled()){
 			listener.getLogger().println("[WeblogicDeploymentPlugin] - The plugin execution is disabled.");
-			return false;
+			return WebLogicPreRequisteStatus.PLUGIN_DISABLED;
 		}
 				
 		//Verification coherence du (des) declencheur(s)
@@ -267,13 +264,13 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		
 		if(isSpecifiedDeploymentStrategyValue && !hasAtLeastOneBuildCauseChecked(build, selectedDeploymentStrategyIds)){
 			listener.getLogger().println("[WeblogicDeploymentPlugin] - Not properly build causes expected (configured=" +StringUtils.join(selectedDeploymentStrategyIds,';')+ ") (currents=" +StringUtils.join(build.getCauses(),';')+ ") : The plugin execution is disabled.");
-			return false;
+			return WebLogicPreRequisteStatus.OTHER_TRIGGER_CAUSE;
 		}
 		
 		//Verification strategie relative a la gestion des sources (systematique (par defaut) / uniquement sur modification(actif) )
 		if(isDeployingOnlyWhenUpdates && build.getChangeSet().isEmptySet()) {
 			listener.getLogger().println("[WeblogicDeploymentPlugin] - No changes : The plugin execution is disabled.");
-			return false;
+			return WebLogicPreRequisteStatus.NO_CHANGES;
 		}
 		
 		
@@ -294,17 +291,17 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			
 			if(!satisfiedDependenciesDeployments){
 				listener.getLogger().println("[WeblogicDeploymentPlugin] - Not satisfied project dependencies deployment : The plugin execution is disabled.");
-				return false;
+				return WebLogicPreRequisteStatus.UNSATISFIED_DEPENDENCIES;
 			}
 		}
 				
 		// Verification build SUCCESS
 		if (build.getResult().isWorseThan(Result.SUCCESS)) {
 			listener.getLogger().println("[WeblogicDeploymentPlugin] - build didn't finished successfully. The plugin execution is disabled.");
-			return false;
+			return WebLogicPreRequisteStatus.BUILD_FAILED;
 		}
 
-		return true;		
+		return WebLogicPreRequisteStatus.OK;		
 	}
 	
 	/*

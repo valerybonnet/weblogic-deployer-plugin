@@ -13,17 +13,17 @@ E.g :<br/>
 Note : java cannot be specified. The plugin will use those one which is defined in job configuration or in global configuration.<br/>
 Each command line have to be ended by the ';' separator<br/>
 <br/>
-You can use global scope variables are specific variables<br/>
+You can use plugin variables<br/>
 <ul>
-<li>{wl.deployment_name}</li>
-<li>{wl.source}</li>
-<li>{wl.targets}</li>
-<li>{wl.host}</li>
-<li>{wl.port}</li>
-<li>{wl.login}</li>
-<li>{wl.password}</li>
-<li>{wl.user_configfile}</li>
-<li>{wl.user_keyfile}</li>
+<li>{wl.deployment_name} : the 'Name' parameter value</li>
+<li>{wl.source} :  the resource to deploy (figured out by the plugin)</li>
+<li>{wl.targets} : the 'Targets' parameter value</li>
+<li>{wl.host} : the host part of the 'Environment' parameter</li>
+<li>{wl.port} : the port part of the 'Environment' parameter</li>
+<li>{wl.login} : the login to authenticate to the server (provided by the configuration file)</li>
+<li>{wl.password} : the password to authenticate to the server (provided by the configuration file)</li>
+<li>{wl.user_configfile} : the Deployer configuration file (defined in the configuration file)</li>
+<li>{wl.user_keyfile} : the private key to authenticate (provided by the configuration file)</li>
 </ul>
 
 

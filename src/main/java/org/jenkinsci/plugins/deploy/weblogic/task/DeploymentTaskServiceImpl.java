@@ -31,6 +31,7 @@ import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTask;
 import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTaskResult;
 import org.jenkinsci.plugins.deploy.weblogic.data.TransfertConfiguration;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicDeploymentStatus;
+import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicPreRequisteStatus;
 import org.jenkinsci.plugins.deploy.weblogic.data.WeblogicEnvironment;
 import org.jenkinsci.plugins.deploy.weblogic.deployer.WebLogicCommand;
 import org.jenkinsci.plugins.deploy.weblogic.deployer.WebLogicDeployer;
@@ -90,7 +91,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			
 		} catch (RequiredJDKNotFoundException rjnfe) {
 			listener.getLogger().println("[WeblogicDeploymentPlugin] - No JDK found. The plugin execution is disabled.");
-			throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, task, null));
+			throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, task, null));
 		}
 		listener.getLogger().println("[WeblogicDeploymentPlugin] - The JDK " +selectedJdk.getHome() + " will be used.");
 		
@@ -100,7 +101,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			deploymentLogOut = new FileOutputStream(WeblogicDeploymentPluginLog.getDeploymentLogFile(build, task.getId()));
 		} catch (FileNotFoundException fnfe) {
 			listener.error("[WeblogicDeploymentPlugin] - Failed to find deployment log file : " + fnfe.getMessage());
-            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, task, null));
+            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, task, null));
 		}
 		
 		// Identification de la ressource a deployer
@@ -134,7 +135,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 		} catch (Throwable e) {
             listener.error("[WeblogicDeploymentPlugin] - Failed to get artifact from archive directory : " + e.getMessage());
             IOUtils.closeQuietly(deploymentLogOut);
-            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, task, null));
+            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, task, null));
         }
 		
 		//Deploiement
@@ -147,7 +148,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			Matcher matcher = pattern.matcher(artifactName);
 			if(matcher.matches()){
 				listener.error("[WeblogicDeploymentPlugin] - The artifact Name " +artifactName+ " is excluded from deployment (see exclusion list).");
-				throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, task, fullArtifactFinalName));
+				throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, task, fullArtifactFinalName));
 			}
 			
 			//Recuperation du parametrage
@@ -155,7 +156,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			
 			if(weblogicEnvironmentTargeted == null){
 				listener.error("[WeblogicDeploymentPlugin] - WebLogic environment Name " +task.getWeblogicEnvironmentTargetedName()+ " not found in the list. Please check the configuration file.");
-				throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.ABORTED, task, fullArtifactFinalName));
+				throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, task, fullArtifactFinalName));
 			}
 			listener.getLogger().println("[WeblogicDeploymentPlugin] - Deploying the artifact on the following target : (name="+task.getWeblogicEnvironmentTargetedName()+") (host=" + weblogicEnvironmentTargeted.getHost() + ") (port=" +weblogicEnvironmentTargeted.getPort()+ ")");
 			
@@ -175,12 +176,12 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
         } catch (Throwable e) {
         	e.printStackTrace(listener.getLogger());
         	listener.error("[WeblogicDeploymentPlugin] - Failed to deploy.");
-            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicDeploymentStatus.FAILED, task, fullArtifactFinalName));
+            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.FAILED, task, fullArtifactFinalName));
         } finally {
         	IOUtils.closeQuietly(deploymentLogOut);
         }
 		
-		return new DeploymentTaskResult(WebLogicDeploymentStatus.SUCCEEDED, task, fullArtifactFinalName);
+		return new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.SUCCEEDED, task, fullArtifactFinalName);
 	}
 	
 	/**
@@ -294,15 +295,24 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 				getDescriptor().getJavaOpts(), getDescriptor().getExtraClasspath(), task.getStageMode());
 		
 		
-		deploymentLogOut.write("------------------------------------  ARTIFACT DEPLOYMENT ------------------------------------------------\r\n".getBytes());
-        String[] commandLines = StringUtils.split(task.getCommandLine(), WebLogicDeploymentPluginConstantes.WL_DEPLOYMENT_CMD_LINE_SEPARATOR);
+		String[] commandLines = StringUtils.split(task.getCommandLine(), WebLogicDeploymentPluginConstantes.WL_DEPLOYMENT_CMD_LINE_SEPARATOR);
 		
         for(String command: commandLines) {
-        	String newCommand = replaceTokens(command, executionDeployerParameters);
+        	
+        	if(StringUtils.isBlank(command)){
+        		continue;
+        	}
+        	
+        	String newCommand = replaceTokens(StringUtils.trim(command), executionDeployerParameters);
         	String[] executionCommand = WebLogicDeployer.getWebLogicCommandLine(executionDeployerParameters, newCommand);
-			listener.getLogger().println("[WeblogicDeploymentPlugin] - EXECUTING TASKS...");
+        	deploymentLogOut.write("------------------------------------  TASK EXECUTION ------------------------------------------------\r\n".getBytes());
+            listener.getLogger().println("[WeblogicDeploymentPlugin] - EXECUTING TASK ...");
 	        final Proc executionProc = launcher.launch().cmds(executionCommand).stdout(deploymentLogOut).start();
-	        executionProc.join();
+	        int exitStatus = executionProc.join();
+	        if(exitStatus != 0){
+	        	listener.error("[WeblogicDeploymentPlugin] - Command " +StringUtils.join(executionCommand, '|')+" completed abnormally (exit code = "+exitStatus+")");
+	        	throw new RuntimeException("Command " +StringUtils.join(executionCommand, '|')+" completed abnormally (exit code = "+exitStatus+")");
+	        }
         }
         listener.getLogger().println("[WeblogicDeploymentPlugin] - ARTIFACT DEPLOYED SUCCESSFULLY.");
 	}

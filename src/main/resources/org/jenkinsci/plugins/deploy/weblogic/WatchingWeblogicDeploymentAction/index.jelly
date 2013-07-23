@@ -9,36 +9,66 @@
 	<l:main-panel>
        	<h1>${%BuildSeeWeblogicDeploymentLogsAction.Title}</h1>
 		<j:forEach var="result" items="${it.results}">
-			<util:loadText var="log" file="${it.build.rootDir}/deploymentLog_${result.task.id}.txt" encoding="UTF-8"/>
-			<hr/>
-			<div><b>Time</b> : ${it.build.time}</div><br/> 
-			<div><b>Resource</b> : ${result.resourceName}</div><br/>
-			<div><b>Machine</b> : ${result.task.weblogicEnvironmentTargetedName}</div><br/>
-			<div><b>Targets</b> : ${result.task.deploymentTargets}</div><br/>
-			<div><b>Status</b> : 
 			<j:choose>
-		    	<j:when test="${result.status.value == 4}">
-		    		<img src="${imagesURL}/48x48/blue.png" alt="SUCCEEDED" tooltip="SUCCEEDED"/>
-		    	</j:when>
-		    	<j:when test="${result.status.value == 3}">
-		    		<img src="${imagesURL}/48x48/red.png" alt="FAILED" tooltip="FAILED"/>
-		    	</j:when>
-		    	<j:when test="${result.status.value == 2}">
-		    		<img src="${imagesURL}/48x48/yellow.png" alt="ABORTED" tooltip="ABORTED"/>
-		    	</j:when>
-		    	<j:when test="${result.status.value == 1}">
-		    		<img src="${imagesURL}/48x48/grey.png" alt="DISABLED" tooltip="DISABLED"/>
+		    	<j:when test="${result.label == 'PLUGIN_EXECUTION_CHECK_FAILED'}">
+		    		${%NoDeploymentPerformed} : 
+		    		<j:choose>
+				    	<j:when test="${result.check == 'PLUGIN_DISABLED'}">
+				    		${%WebLogicPreRequisteStatus.PLUGIN_DISABLED}
+				    	</j:when>
+				    	<j:when test="${result.check == 'OTHER_TRIGGER_CAUSE'}">
+				    		${%WebLogicPreRequisteStatus.OTHER_TRIGGER_CAUSE}
+				    	</j:when>
+				    	<j:when test="${result.check == 'NO_CHANGES'}">
+				    		${%WebLogicPreRequisteStatus.NO_CHANGES}
+				    	</j:when>
+				    	<j:when test="${result.check == 'UNSATISFIED_DEPENDENCIES'}">
+				    		${%WebLogicPreRequisteStatus.UNSATISFIED_DEPENDENCIES}
+				    	</j:when>
+				    	<j:when test="${result.check == 'BUILD_FAILED'}">
+				    		${%WebLogicPreRequisteStatus.BUILD_FAILED}
+				    	</j:when>
+				    	<j:otherwise>
+				       		${%WebLogicPreRequisteStatus.UNKNOWN}
+				       	</j:otherwise>
+				    </j:choose>
 		    	</j:when>
 		    	<j:otherwise>
-		       		(UNKOWN)
-		       	</j:otherwise>
+		    		<hr/>
+					<div><b>Time</b> : ${it.build.time}</div><br/> 
+					<div><b>Resource</b> : ${result.resourceName}</div><br/>
+					<div><b>Machine</b> : ${result.task.weblogicEnvironmentTargetedName}</div><br/>
+					<div><b>Targets</b> : ${result.task.deploymentTargets}</div><br/>
+					<div><b>Status</b> : 
+					<j:choose>
+				    	<j:when test="${result.status.value == 4}">
+				    		<img src="${imagesURL}/48x48/blue.png" alt="SUCCEEDED" tooltip="SUCCEEDED"/>
+				    	</j:when>
+				    	<j:when test="${result.status.value == 3}">
+				    		<img src="${imagesURL}/48x48/red.png" alt="FAILED" tooltip="FAILED"/>
+				    	</j:when>
+				    	<j:when test="${result.status.value == 2}">
+				    		<img src="${imagesURL}/48x48/yellow.png" alt="ABORTED" tooltip="ABORTED"/>
+				    	</j:when>
+				    	<j:when test="${result.status.value == 1}">
+				    		<img src="${imagesURL}/48x48/grey.png" alt="DISABLED" tooltip="DISABLED"/>
+				    	</j:when>
+				    	<j:otherwise>
+				       		(UNKOWN)
+				       	</j:otherwise>
+				    </j:choose>
+				    </div>
+					<hr/>
+					
+					<util:available file="${it.build.rootDir}/deploymentLog_${result.task.id}.txt">	
+						<util:loadText var="log" file="${it.build.rootDir}/deploymentLog_${result.task.id}.txt" encoding="UTF-8"/>
+						<div style="background-color:#F6F6F6">
+				        	<st:nbsp/>
+				        	<pre>${log}</pre>
+				      	</div>
+			      	</util:available>
+		    	</j:otherwise>
 		    </j:choose>
-		    </div>
-			<hr/>
-			<div style="background-color:#F6F6F6">
-	        	<st:nbsp/>
-	        	<pre>${log}</pre>
-	      	</div>
       	</j:forEach>       	
 	</l:main-panel>
   	</l:layout>

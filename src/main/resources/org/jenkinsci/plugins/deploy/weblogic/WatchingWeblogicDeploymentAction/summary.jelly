@@ -2,27 +2,54 @@
 	<t:summary icon="${it.iconFileName}">
 		<a href="deployment">${%DeploymentStatus}</a><br/>
 	    <ul>
-	    <j:forEach var="res" items="${it.results}">
-		    <li>
-		     ${res.label}
+	    <j:forEach var="result" items="${it.results}">
 		    <j:choose>
-		    	<j:when test="${res.status.value == 4}">
-		    		<img src="${imagesURL}/24x24/blue.png" alt="SUCCEEDED" tooltip="SUCCEEDED"/>
-		    	</j:when>
-		    	<j:when test="${res.status.value == 3}">
-		    		<img src="${imagesURL}/24x24/red.png" alt="FAILED" tooltip="FAILED"/>
-		    	</j:when>
-		    	<j:when test="${res.status.value == 2}">
-		    		<img src="${imagesURL}/24x24/yellow.png" alt="ABORTED" tooltip="ABORTED"/>
-		    	</j:when>
-		    	<j:when test="${res.status.value == 1}">
-		    		<img src="${imagesURL}/24x24/grey.png" alt="DISABLED" tooltip="DISABLED"/>
+		    	<j:when test="${result.label == 'PLUGIN_EXECUTION_CHECK_FAILED'}">
+		    		${%NoDeploymentPerformed} : 
+		    		<j:choose>
+				    	<j:when test="${result.check == 'PLUGIN_DISABLED'}">
+				    		${%WebLogicPreRequisteStatus.PLUGIN_DISABLED}
+				    	</j:when>
+				    	<j:when test="${result.check == 'OTHER_TRIGGER_CAUSE'}">
+				    		${%WebLogicPreRequisteStatus.OTHER_TRIGGER_CAUSE}
+				    	</j:when>
+				    	<j:when test="${result.check == 'NO_CHANGES'}">
+				    		${%WebLogicPreRequisteStatus.NO_CHANGES}
+				    	</j:when>
+				    	<j:when test="${result.check == 'UNSATISFIED_DEPENDENCIES'}">
+				    		${%WebLogicPreRequisteStatus.UNSATISFIED_DEPENDENCIES}
+				    	</j:when>
+				    	<j:when test="${result.check == 'BUILD_FAILED'}">
+				    		${%WebLogicPreRequisteStatus.BUILD_FAILED}
+				    	</j:when>
+				    	<j:otherwise>
+				    		${%WebLogicPreRequisteStatus.UNKNOWN}
+				       	</j:otherwise>
+				    </j:choose>
 		    	</j:when>
 		    	<j:otherwise>
-		       		(UNKOWN)
-		       	</j:otherwise>
+		    		<li>
+				     ${result.label}
+				    <j:choose>
+				    	<j:when test="${result.status.value == 4}">
+				    		<img src="${imagesURL}/24x24/blue.png" alt="SUCCEEDED" tooltip="SUCCEEDED"/>
+				    	</j:when>
+				    	<j:when test="${result.status.value == 3}">
+				    		<img src="${imagesURL}/24x24/red.png" alt="FAILED" tooltip="FAILED"/>
+				    	</j:when>
+				    	<j:when test="${result.status.value == 2}">
+				    		<img src="${imagesURL}/24x24/yellow.png" alt="ABORTED" tooltip="ABORTED"/>
+				    	</j:when>
+				    	<j:when test="${result.status.value == 1}">
+				    		<img src="${imagesURL}/24x24/grey.png" alt="DISABLED" tooltip="DISABLED"/>
+				    	</j:when>
+				    	<j:otherwise>
+				       		(UNKOWN)
+				       	</j:otherwise>
+				    </j:choose>
+				    </li>
+		    	</j:otherwise>
 		    </j:choose>
-		    </li>
 	    </j:forEach>
 	    </ul>
 	</t:summary>
