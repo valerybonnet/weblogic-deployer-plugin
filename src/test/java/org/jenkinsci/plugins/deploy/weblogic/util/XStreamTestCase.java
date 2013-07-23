@@ -3,13 +3,10 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.util;
 
-import hudson.model.Hudson;
-
 import java.io.File;
 import java.io.FileInputStream;
 
 import jenkins.model.Jenkins;
-
 import junit.framework.Assert;
 
 import org.jenkinsci.plugins.deploy.weblogic.configuration.WeblogicDeploymentConfiguration;
