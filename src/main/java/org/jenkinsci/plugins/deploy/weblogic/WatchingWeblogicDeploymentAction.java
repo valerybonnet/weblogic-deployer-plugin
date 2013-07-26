@@ -26,7 +26,7 @@ public class WatchingWeblogicDeploymentAction implements Action, Serializable {
 	 */
 	private static final long serialVersionUID = -5479554061667005120L;
 
-	private static transient final String iconFileName = WebLogicDeploymentPluginConstantes.PLUGIN_RESOURCES_PATH + "/icons/48x48/BEA.jpg";
+	private static transient final String iconFileName = WebLogicDeploymentPluginConstantes.PLUGIN_RESOURCES_PATH + "/icons/48x48/BEA.png";
 	
 	private static transient final String urlName = "deployment";
 	
