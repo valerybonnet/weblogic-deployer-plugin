@@ -170,7 +170,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 						selectedJdk, artifactName, deploymentLogOut, archivedArtifact, fullArtifactFinalName);
 			} else {
 				// Execution commande specifique
-				customize(task, build, listener, launcher, weblogicEnvironmentTargeted, selectedJdk, artifactName, deploymentLogOut);
+				customize(task, build, listener, launcher, weblogicEnvironmentTargeted, selectedJdk, artifactName, deploymentLogOut, archivedArtifact, fullArtifactFinalName);
 			}
 			
         } catch (Throwable e) {
@@ -287,11 +287,34 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 	 */
 	private void customize(DeploymentTask task, AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher, 
 			WeblogicEnvironment weblogicEnvironmentTargeted,
-			JDK selectedJdk, String artifactName, OutputStream deploymentLogOut) throws IOException, InterruptedException {
+			JDK selectedJdk, String artifactName, OutputStream deploymentLogOut,
+			FilePath archivedArtifact, String fullArtifactFinalName) throws IOException, InterruptedException {
+		
+		String sourceFile = null;
+		String remoteFilePath = null;
+		
+		//Transfert FTP pour les librairies (contrainte weblogic)
+        if(task.getIsLibrary()){
+        	//Par defaut si ftp n'est pas renseigne on prend le host
+        	String ftpHost = StringUtils.isBlank(weblogicEnvironmentTargeted.getFtpHost()) ? weblogicEnvironmentTargeted.getHost() : weblogicEnvironmentTargeted.getFtpHost();
+        	// path to remote resource
+            remoteFilePath = weblogicEnvironmentTargeted.getRemoteDir() + "/" + fullArtifactFinalName;
+            String localFilePath = archivedArtifact.getRemote();
+            listener.getLogger().println("[WeblogicDeploymentPlugin] - TRANSFERING LIBRARY : (local=" +fullArtifactFinalName+ ") (remote=" + remoteFilePath + ") to (ftp=" +ftpHost + "@" +weblogicEnvironmentTargeted.getFtpUser()+ ") ...");
+            FTPUtils.transfertFile(new TransfertConfiguration(ftpHost, weblogicEnvironmentTargeted.getFtpUser(), weblogicEnvironmentTargeted.getFtpPassowrd(), localFilePath, remoteFilePath),listener.getLogger());
+        	listener.getLogger().println("[WeblogicDeploymentPlugin] - LIBRARY TRANSFERED SUCCESSFULLY.");
+        }
+        
+		//source file correspond au remote file pour les librairies
+        if(task.getIsLibrary()){
+        	sourceFile = remoteFilePath;
+        } else {
+        	sourceFile = archivedArtifact.getRemote();
+        }
 		
 		WebLogicDeployerParameters executionDeployerParameters = new WebLogicDeployerParameters(
 				build, launcher, listener, selectedJdk, task.getDeploymentName(), task.getIsLibrary(), task.getDeploymentTargets(),
-				weblogicEnvironmentTargeted, artifactName, null, null, true,
+				weblogicEnvironmentTargeted, artifactName, sourceFile, null, true,
 				getDescriptor().getJavaOpts(), getDescriptor().getExtraClasspath(), task.getStageMode());
 		
 		
