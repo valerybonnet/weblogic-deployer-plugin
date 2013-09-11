@@ -43,6 +43,9 @@ public class WebLogicDeployerTokenResolverImpl implements WebLogicDeployerTokenR
 		if(WebLogicDeployerTokenResolver.WL_DEPLOYMENT_CMD_USER_KEYFILE_TOKEN.equalsIgnoreCase(key)){
 			return parameters.getEnvironment().getUserkeyfile();
 		}
+		if(WebLogicDeployerTokenResolver.WL_DEPLOYMENT_CMD_DEPLOYMENT_PLAN_TOKEN.equalsIgnoreCase(key)){
+			return parameters.getDeploymentPlan();
+		}
 		return null;
 	}
 
