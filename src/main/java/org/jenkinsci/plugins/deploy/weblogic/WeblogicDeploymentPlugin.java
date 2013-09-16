@@ -35,7 +35,6 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import jenkins.model.Jenkins;
-
 import net.sf.json.JSONObject;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -53,6 +52,7 @@ import org.jenkinsci.plugins.deploy.weblogic.exception.DeploymentTaskException;
 import org.jenkinsci.plugins.deploy.weblogic.jdk.JdkToolService;
 import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
 import org.jenkinsci.plugins.deploy.weblogic.task.DeploymentTaskService;
+import org.jenkinsci.plugins.deploy.weblogic.task.PreRequisiteStatusUnSuccesfullPredicate;
 import org.jenkinsci.plugins.deploy.weblogic.task.TaskStatusUnSuccesfullPredicate;
 import org.jenkinsci.plugins.deploy.weblogic.util.DeployerClassPathUtils;
 import org.jenkinsci.plugins.deploy.weblogic.util.URLUtils;
@@ -226,7 +226,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			this.deploymentTaskService = Jenkins.getInstance().getInjector().getInstance(DeploymentTaskService.class);
 		}
 		
-		// Parcours des tâches de deploiement
+		// Parcours des tï¿½ches de deploiement
 		for(DeploymentTask task : getTasks()){
 			try {
 				results.add(this.deploymentTaskService.perform(task, getDescriptor().getJdkSelected(), build, listener, launcher));
@@ -360,7 +360,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			super(WeblogicDeploymentPlugin.class);
 			
 			//on charge les annotations XStream
-			Hudson.XSTREAM.processAnnotations(
+			Jenkins.XSTREAM2.processAnnotations(
 	        		new Class[]{org.jenkinsci.plugins.deploy.weblogic.configuration.WeblogicDeploymentConfiguration.class, org.jenkinsci.plugins.deploy.weblogic.data.WeblogicEnvironment.class});
 			
 			//charge les donnees de configuration du plugin dans l'instance
@@ -734,6 +734,10 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	 * @return
 	 */
 	private boolean exitPerformAction(AbstractBuild<?, ?> build, BuildListener listener, List<DeploymentTaskResult> results){
+		
+		if(CollectionUtils.exists(results, new PreRequisiteStatusUnSuccesfullPredicate())) {
+			build.setResult(Result.UNSTABLE);
+		} else 
 		
 		// On test si au moins une des taches est KO
 		if(CollectionUtils.exists(results, new TaskStatusUnSuccesfullPredicate())){
