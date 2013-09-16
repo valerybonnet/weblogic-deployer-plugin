@@ -36,6 +36,7 @@
 		<f:checkbox name="isLibrary" checked="${it.isLibrary}" />
 	</f:entry>
 	
+	
     <f:advanced>
     	<f:entry title="JDK">
 			<f:entry title="${%jdk.name}" field="jdkName">
