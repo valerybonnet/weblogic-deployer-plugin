@@ -34,30 +34,29 @@ public class DeploymentTask  extends AbstractDescribableImpl<DeploymentTask> imp
 	private String weblogicEnvironmentTargetedName;
 	
 	/**
-	 * Le nom de deploiement. Si null on n'utilisera le nom de l'artifact
+	 * The deployment name. If null the artifact name will be used
 	 */
 	private String deploymentName;
 	
 	/**
-	 * Les targets de deploiement. Par defaut AdminServer
+	 * Deployments target. By default AdminServer
 	 */
 	private String deploymentTargets = "AdminServer";
 	
 	/**
-	 * L'artifact est une librairie
+	 * The artifact has to deploy as a library
 	 */
 	private boolean isLibrary;
 	
 	/**
-	 * Regex permettant de filtrer la ressource a deployer si plusieurs ressources 
-	 * correspondantes sont trouvees
+	 * The regular expression applied to filter the resource to deploy if
+	 * more than one resource is found.
 	 */
 	private String builtResourceRegexToDeploy;
 	
 	/**
-	 * Repertoire parent dans lequel la ressource à deployer peut etre localisée.
-	 * Utilise principalement pour les job non maven dans le cas où la ressource
-	 * à deployer ne se trouve pas dans le workspace
+	 * Root directory containing the resource to deploy.
+	 * Used for freestyle project when the resource is not located under the workspace
 	 */
 	private String baseResourcesGeneratedDirectory;
 	
@@ -84,7 +83,7 @@ public class DeploymentTask  extends AbstractDescribableImpl<DeploymentTask> imp
 	private final String deploymentPlan;
 
 	/**
-	 * Invoque lors uniquement lors de la sauvegarde des données
+	 * Invoke only during data backup
 	 * @param id
 	 * @param taskName
 	 * @param weblogicEnvironmentTargetedName
