@@ -50,6 +50,7 @@ public class WebLogicDeployerParameters {
 	private WebLogicStageMode stageMode;
 	
 	private String deploymentPlan;
+	
 	public WebLogicDeployerParameters(){}
 	
 	
