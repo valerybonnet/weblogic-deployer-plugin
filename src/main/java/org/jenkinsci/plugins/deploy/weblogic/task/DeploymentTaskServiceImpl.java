@@ -3,6 +3,7 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.task;
 
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -16,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -229,14 +231,14 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
         		build,launcher,listener, selectedJdk, task.getDeploymentName(), task.getIsLibrary(), task.getDeploymentTargets(),
         		weblogicEnvironmentTargeted, artifactName, sourceFile, WebLogicCommand.DEPLOY, false,
         		getDescriptor().getJavaOpts(),getDescriptor().getExtraClasspath(), task.getStageMode(), task.getDeploymentPlan());
-        String[] deployCommand = WebLogicDeployer.getWebLogicCommandLine(deployWebLogicDeployerParameters);
+        String[] deployCommand = WebLogicDeployer.getWebLogicCommandLine(deployWebLogicDeployerParameters, getEnvVars(build, listener));
         listener.getLogger().println("[WeblogicDeploymentPlugin] - DEPLOYING ARTIFACT...");
         deploymentLogOut.write("------------------------------------  ARTIFACT DEPLOYMENT ------------------------------------------------\r\n".getBytes());
-        final Proc deploymentProc = launcher.launch().cmds(deployCommand).stdout(deploymentLogOut).start();
+        final Proc deploymentProc = launcher.launch().cmds(deployCommand).envs(getEnvVars(build, listener)).stdout(deploymentLogOut).start();
         int exitStatus = deploymentProc.join();
         if(exitStatus != 0){
-        	listener.error("[WeblogicDeploymentPlugin] - Command " +StringUtils.join(deployCommand, '|')+" completed abnormally (exit code = "+exitStatus+")");
-        	throw new RuntimeException("Command " +StringUtils.join(deployCommand, '|')+" completed abnormally (exit code = "+exitStatus+")");
+//        	listener.error("[WeblogicDeploymentPlugin] - Command " +StringUtils.join(deployCommand, '|')+" completed abnormally (exit code = "+exitStatus+")");
+        	throw new RuntimeException("task completed abnormally (exit code = "+exitStatus+")");
         }
         listener.getLogger().println("[WeblogicDeploymentPlugin] - ARTIFACT DEPLOYED SUCCESSFULLY.");
 	}
@@ -262,11 +264,11 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 				build, launcher, listener, selectedJdk, task.getDeploymentName(), task.getIsLibrary(), task.getDeploymentTargets(),
 				weblogicEnvironmentTargeted, artifactName, null, WebLogicCommand.UNDEPLOY, true,
 				getDescriptor().getJavaOpts(), getDescriptor().getExtraClasspath(), task.getStageMode(), null);
-		String[] undeployCommand = WebLogicDeployer.getWebLogicCommandLine(undeployWebLogicDeployerParameters);
+		String[] undeployCommand = WebLogicDeployer.getWebLogicCommandLine(undeployWebLogicDeployerParameters, getEnvVars(build, listener));
         
         deploymentLogOut.write("------------------------------------  ARTIFACT UNDEPLOYMENT ------------------------------------------------\r\n".getBytes());
         listener.getLogger().println("[WeblogicDeploymentPlugin] - UNDEPLOYING ARTIFACT...");
-        final Proc undeploymentProc = launcher.launch().cmds(undeployCommand).stdout(deploymentLogOut).start();
+        final Proc undeploymentProc = launcher.launch().cmds(undeployCommand).envs(getEnvVars(build, listener)).stdout(deploymentLogOut).start();
         undeploymentProc.join();
         listener.getLogger().println("[WeblogicDeploymentPlugin] - ARTIFACT UNDEPLOYED SUCCESSFULLY.");
 	}
@@ -326,17 +328,40 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
         	}
         	
         	String newCommand = replaceTokens(StringUtils.trim(command), executionDeployerParameters);
-        	String[] executionCommand = WebLogicDeployer.getWebLogicCommandLine(executionDeployerParameters, newCommand);
+        	String[] executionCommand = WebLogicDeployer.getWebLogicCommandLine(executionDeployerParameters, newCommand, getEnvVars(build, listener));
+        	
         	deploymentLogOut.write("------------------------------------  TASK EXECUTION ------------------------------------------------\r\n".getBytes());
             listener.getLogger().println("[WeblogicDeploymentPlugin] - EXECUTING TASK ...");
-	        final Proc executionProc = launcher.launch().cmds(executionCommand).stdout(deploymentLogOut).start();
+            // FilePath ws = build.getWorkspace();
+            //launcher.launch().cmds(cmd).envs(envVars).stdout(listener).pwd(ws).join();
+	        final Proc executionProc = launcher.launch().cmds(executionCommand).envs(getEnvVars(build, listener)).stdout(deploymentLogOut).start();
 	        int exitStatus = executionProc.join();
 	        if(exitStatus != 0){
-	        	listener.error("[WeblogicDeploymentPlugin] - Command " +StringUtils.join(executionCommand, '|')+" completed abnormally (exit code = "+exitStatus+")");
-	        	throw new RuntimeException("Command " +StringUtils.join(executionCommand, '|')+" completed abnormally (exit code = "+exitStatus+")");
+//	        	listener.error("[WeblogicDeploymentPlugin] - Command " +StringUtils.join(executionCommand, '|')+" completed abnormally (exit code = "+exitStatus+")");
+	        	throw new RuntimeException("task completed abnormally (exit code = "+exitStatus+")");
 	        }
         }
         listener.getLogger().println("[WeblogicDeploymentPlugin] - ARTIFACT DEPLOYED SUCCESSFULLY.");
+	}
+	
+	/**
+	 * 
+	 * @param build
+	 * @param listener
+	 * @return
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	private EnvVars getEnvVars(AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
+		// Added envVars
+    	EnvVars envVars = build.getEnvironment(listener);
+    	// on Windows environment variables are converted to all upper case,
+    	// but no such conversions are done on Unix, so to make this cross-platform,
+    	// convert variables to all upper cases.
+    	for(Map.Entry<String,String> e : build.getBuildVariables().entrySet()) {
+    		envVars.put(e.getKey(),e.getValue());
+    	}
+    	return envVars;
 	}
 	
 	/**
@@ -382,9 +407,6 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 		if(key.startsWith(WebLogicDeployerTokenResolver.WL_DEPLOYMENT_CMD_TOKEN_PREF)){
 			return tokenResolver.resolveKey(key, parameters);
 		}
-		
-		// Variables autres : a lister et gerer
-		// TODO
 		
 		return result;
 	}

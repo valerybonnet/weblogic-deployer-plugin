@@ -3,8 +3,12 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.deployer;
 
+import hudson.EnvVars;
 import hudson.model.Run.RunnerAbortedException;
 import hudson.util.ArgumentListBuilder;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicAuthenticationMode;
@@ -17,13 +21,14 @@ import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPlugin
  */
 public class WebLogicDeployer {
 
+	private static final Pattern ENV_VAR_PATTERN = Pattern.compile("\\$\\{?([\\S&&[^}]]*)\\}?");
 	
 	/**
 	 * 
 	 * @param parameter
 	 * @return
 	 */
-	public static final String[] getWebLogicCommandLine(WebLogicDeployerParameters parameter) {
+	public static final String[] getWebLogicCommandLine(WebLogicDeployerParameters parameter, EnvVars envars) {
 		ArgumentListBuilder args = new ArgumentListBuilder();
         
 		processJavaLauncher(parameter, args);
@@ -58,6 +63,7 @@ public class WebLogicDeployer {
         }
         
         args.add("-name");
+        // TODO Ajouter gestion var env
         String targetedDeploymentName = StringUtils.isNotBlank(parameter.getDeploymentName()) ? parameter.getDeploymentName() : parameter.getArtifactName();
         if(StringUtils.isBlank(targetedDeploymentName)){
         	// TODO
@@ -70,9 +76,9 @@ public class WebLogicDeployer {
         }
 
         args.add("-targets");
-        args.add(parameter.getDeploymentTargets());
+        args.add(resolveEnvVar(parameter.getDeploymentTargets(), envars));
         args.add("-adminurl");
-        args.add("t3://" +parameter.getEnvironment().getHost()+":"+parameter.getEnvironment().getPort());
+        args.add("t3://" +resolveEnvVar(parameter.getEnvironment().getHost(), envars)+":"+resolveEnvVar(parameter.getEnvironment().getPort(), envars));
         
         // Authentication by keystore can be possible
         switch(parameter.getEnvironment().getAuthMode() != null ? parameter.getEnvironment().getAuthMode() : WebLogicAuthenticationMode.BY_LOGIN){
@@ -110,14 +116,14 @@ public class WebLogicDeployer {
 	 * @param commandLine
 	 * @return
 	 */
-	public static final String[] getWebLogicCommandLine(WebLogicDeployerParameters parameters, String commandLine) {
+	public static final String[] getWebLogicCommandLine(WebLogicDeployerParameters parameters, String commandLine, EnvVars envars) {
 		
 		ArgumentListBuilder args = new ArgumentListBuilder();
 		
 		processJavaLauncher(parameters, args);
 		
 		for(String param : StringUtils.split(commandLine, ' ')){
-			args.add(param);
+			args.add(resolveEnvVar(param, envars));
 		}
 		
 		return args.toCommandArray();
@@ -156,4 +162,22 @@ public class WebLogicDeployer {
 		args.add(WebLogicDeploymentPluginConstantes.WL_WEBLOGIC_API_DEPLOYER_MAIN_CLASS);
 		        
 	}
+	
+	/**
+	 * 
+	 * @param label
+	 * @param envars
+	 * @return
+	 */
+	private static String resolveEnvVar(String label, EnvVars envars) {
+		String key = "";
+		Matcher matcher = ENV_VAR_PATTERN.matcher(label);
+		if(matcher.matches()){
+			key = matcher.group(1);
+		}
+			
+		return envars.get(key, label);
+		
+	}
+	
 }
