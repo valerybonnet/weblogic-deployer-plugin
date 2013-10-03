@@ -7,13 +7,11 @@ import hudson.EnvVars;
 import hudson.model.Run.RunnerAbortedException;
 import hudson.util.ArgumentListBuilder;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicAuthenticationMode;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicStageMode;
 import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
+import org.jenkinsci.plugins.deploy.weblogic.util.ParameterValueResolver;
 
 /**
  * @author rchaumie
@@ -21,8 +19,6 @@ import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPlugin
  */
 public class WebLogicDeployer {
 
-	private static final Pattern ENV_VAR_PATTERN = Pattern.compile("\\$\\{?([\\S&&[^}]]*)\\}?");
-	
 	/**
 	 * 
 	 * @param parameter
@@ -76,9 +72,9 @@ public class WebLogicDeployer {
         }
 
         args.add("-targets");
-        args.add(resolveEnvVar(parameter.getDeploymentTargets(), envars));
+        args.add(ParameterValueResolver.resolveEnvVar(parameter.getDeploymentTargets(), envars));
         args.add("-adminurl");
-        args.add("t3://" +resolveEnvVar(parameter.getEnvironment().getHost(), envars)+":"+resolveEnvVar(parameter.getEnvironment().getPort(), envars));
+        args.add("t3://" +ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getHost(), envars)+":"+ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getPort(), envars));
         
         // Authentication by keystore can be possible
         switch(parameter.getEnvironment().getAuthMode() != null ? parameter.getEnvironment().getAuthMode() : WebLogicAuthenticationMode.BY_LOGIN){
@@ -90,9 +86,9 @@ public class WebLogicDeployer {
         		break;
         	default :
         		args.add("-user");
-                args.add(parameter.getEnvironment().getLogin());
+                args.add(ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getLogin(), envars));
                 args.add("-password");
-                args.add(parameter.getEnvironment().getPassword());
+                args.add(ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getPassword(), envars));
         		break;
         }
         
@@ -123,7 +119,7 @@ public class WebLogicDeployer {
 		processJavaLauncher(parameters, args);
 		
 		for(String param : StringUtils.split(commandLine, ' ')){
-			args.add(resolveEnvVar(param, envars));
+			args.add(ParameterValueResolver.resolveEnvVar(param, envars));
 		}
 		
 		return args.toCommandArray();
@@ -161,23 +157,6 @@ public class WebLogicDeployer {
 		args.add(remotingJar);
 		args.add(WebLogicDeploymentPluginConstantes.WL_WEBLOGIC_API_DEPLOYER_MAIN_CLASS);
 		        
-	}
-	
-	/**
-	 * 
-	 * @param label
-	 * @param envars
-	 * @return
-	 */
-	private static String resolveEnvVar(String label, EnvVars envars) {
-		String key = "";
-		Matcher matcher = ENV_VAR_PATTERN.matcher(label);
-		if(matcher.matches()){
-			key = matcher.group(1);
-		}
-			
-		return envars.get(key, label);
-		
 	}
 	
 }

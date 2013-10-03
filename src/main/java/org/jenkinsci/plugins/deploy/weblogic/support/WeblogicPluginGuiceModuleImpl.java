@@ -25,9 +25,8 @@ public class WeblogicPluginGuiceModuleImpl extends AbstractModule {
 	 */
 	@Override
 	protected void configure() {
-		bind(DeploymentTaskService.class).to(DeploymentTaskServiceImpl.class);
-		bind(WebLogicDeployerTokenResolver.class).to(WebLogicDeployerTokenResolverImpl.class);
-		//.in(Singleton.class)
+		bind(DeploymentTaskService.class).to(DeploymentTaskServiceImpl.class).in(Singleton.class);
+		bind(WebLogicDeployerTokenResolver.class).to(WebLogicDeployerTokenResolverImpl.class).in(Singleton.class);
 	}
 
 }

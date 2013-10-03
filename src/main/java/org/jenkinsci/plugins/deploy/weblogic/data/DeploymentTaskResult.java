@@ -83,13 +83,6 @@ public class DeploymentTaskResult {
 	}
 
 	/**
-	 * @param task the task to set
-	 */
-	public void setTask(DeploymentTask task) {
-		this.task = task;
-	}
-
-	/**
 	 * @return the resourceName
 	 */
 	public String getResourceName() {

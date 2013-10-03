@@ -43,6 +43,7 @@ import org.jenkinsci.plugins.deploy.weblogic.exception.RequiredJDKNotFoundExcept
 import org.jenkinsci.plugins.deploy.weblogic.jdk.JdkToolService;
 import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
 import org.jenkinsci.plugins.deploy.weblogic.util.FTPUtils;
+import org.jenkinsci.plugins.deploy.weblogic.util.ParameterValueResolver;
 
 import com.google.inject.Inject;
 
@@ -70,6 +71,16 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 	 */
 	public DeploymentTaskResult perform(DeploymentTask task, String globalJdk, AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher) throws DeploymentTaskException {
 		
+		//Recuperation des variables
+		EnvVars envVars = null;
+		try {
+			envVars = getEnvVars(build, listener);
+		} catch (IOException e1) {
+			// Nothing to do
+		} catch (InterruptedException e1) {
+			// Nothing to do
+		}
+		
 		// Recuperation du JDK
 		// The default JDK
 		JDK selectedJdk = null;
@@ -92,7 +103,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			
 		} catch (RequiredJDKNotFoundException rjnfe) {
 			listener.getLogger().println("[WeblogicDeploymentPlugin] - No JDK found. The plugin execution is disabled.");
-			throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, task, null));
+			throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, convertParameters(task, envVars), null));
 		}
 		listener.getLogger().println("[WeblogicDeploymentPlugin] - The JDK " +selectedJdk.getHome() + " will be used.");
 		
@@ -102,7 +113,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			deploymentLogOut = new FileOutputStream(WeblogicDeploymentPluginLog.getDeploymentLogFile(build, task.getId()));
 		} catch (FileNotFoundException fnfe) {
 			listener.error("[WeblogicDeploymentPlugin] - Failed to find deployment log file : " + fnfe.getMessage());
-            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, task, null));
+            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, convertParameters(task, envVars), null));
 		}
 		
 		// Identification de la ressource a deployer
@@ -136,7 +147,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 		} catch (Throwable e) {
             listener.error("[WeblogicDeploymentPlugin] - Failed to get artifact from archive directory : " + e.getMessage());
             IOUtils.closeQuietly(deploymentLogOut);
-            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, task, null));
+            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, convertParameters(task, envVars), null));
         }
 		
 		//Deploiement
@@ -149,7 +160,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			Matcher matcher = pattern.matcher(artifactName);
 			if(matcher.matches()){
 				listener.error("[WeblogicDeploymentPlugin] - The artifact Name " +artifactName+ " is excluded from deployment (see exclusion list).");
-				throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, task, fullArtifactFinalName));
+				throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, convertParameters(task, envVars), fullArtifactFinalName));
 			}
 			
 			//Recuperation du parametrage
@@ -157,32 +168,32 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			
 			if(weblogicEnvironmentTargeted == null){
 				listener.error("[WeblogicDeploymentPlugin] - WebLogic environment Name " +task.getWeblogicEnvironmentTargetedName()+ " not found in the list. Please check the configuration file.");
-				throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, task, fullArtifactFinalName));
+				throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, convertParameters(task, envVars), fullArtifactFinalName));
 			}
 			listener.getLogger().println("[WeblogicDeploymentPlugin] - Deploying the artifact on the following target : (name="+task.getWeblogicEnvironmentTargetedName()+") (host=" + weblogicEnvironmentTargeted.getHost() + ") (port=" +weblogicEnvironmentTargeted.getPort()+ ")");
 			
 			
 			if(StringUtils.isBlank(task.getCommandLine())){
 				// undeploy task
-				undeploy(task, build, listener, launcher, weblogicEnvironmentTargeted, selectedJdk, artifactName, deploymentLogOut);
+				undeploy(task, build, listener, launcher, weblogicEnvironmentTargeted, selectedJdk, artifactName, deploymentLogOut, envVars);
 		        
 		        //Execution commande deploy
 				deploy(task, build, listener, launcher, weblogicEnvironmentTargeted, 
-						selectedJdk, artifactName, deploymentLogOut, archivedArtifact, fullArtifactFinalName);
+						selectedJdk, artifactName, deploymentLogOut, archivedArtifact, fullArtifactFinalName, envVars);
 			} else {
 				// Execution commande specifique
-				customize(task, build, listener, launcher, weblogicEnvironmentTargeted, selectedJdk, artifactName, deploymentLogOut, archivedArtifact, fullArtifactFinalName);
+				customize(task, build, listener, launcher, weblogicEnvironmentTargeted, selectedJdk, artifactName, deploymentLogOut, archivedArtifact, fullArtifactFinalName, envVars);
 			}
 			
         } catch (Throwable e) {
         	e.printStackTrace(listener.getLogger());
         	listener.error("[WeblogicDeploymentPlugin] - Failed to deploy.");
-            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.FAILED, task, fullArtifactFinalName));
+            throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.FAILED, convertParameters(task, envVars), fullArtifactFinalName));
         } finally {
         	IOUtils.closeQuietly(deploymentLogOut);
         }
 		
-		return new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.SUCCEEDED, task, fullArtifactFinalName);
+		return new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.SUCCEEDED, convertParameters(task, envVars), fullArtifactFinalName);
 	}
 	
 	/**
@@ -203,7 +214,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 	 */
 	private void deploy(DeploymentTask task, AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher, 
 			WeblogicEnvironment weblogicEnvironmentTargeted, JDK selectedJdk, String artifactName, OutputStream deploymentLogOut,
-			FilePath archivedArtifact, String fullArtifactFinalName)  throws IOException, InterruptedException {
+			FilePath archivedArtifact, String fullArtifactFinalName, EnvVars envVars)  throws IOException, InterruptedException {
 		
 		String sourceFile = null;
 		String remoteFilePath = null;
@@ -231,10 +242,10 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
         		build,launcher,listener, selectedJdk, task.getDeploymentName(), task.getIsLibrary(), task.getDeploymentTargets(),
         		weblogicEnvironmentTargeted, artifactName, sourceFile, WebLogicCommand.DEPLOY, false,
         		getDescriptor().getJavaOpts(),getDescriptor().getExtraClasspath(), task.getStageMode(), task.getDeploymentPlan());
-        String[] deployCommand = WebLogicDeployer.getWebLogicCommandLine(deployWebLogicDeployerParameters, getEnvVars(build, listener));
+        String[] deployCommand = WebLogicDeployer.getWebLogicCommandLine(deployWebLogicDeployerParameters, envVars);
         listener.getLogger().println("[WeblogicDeploymentPlugin] - DEPLOYING ARTIFACT...");
         deploymentLogOut.write("------------------------------------  ARTIFACT DEPLOYMENT ------------------------------------------------\r\n".getBytes());
-        final Proc deploymentProc = launcher.launch().cmds(deployCommand).envs(getEnvVars(build, listener)).stdout(deploymentLogOut).start();
+        final Proc deploymentProc = launcher.launch().cmds(deployCommand).envs(envVars).stdout(deploymentLogOut).start();
         int exitStatus = deploymentProc.join();
         if(exitStatus != 0){
 //        	listener.error("[WeblogicDeploymentPlugin] - Command " +StringUtils.join(deployCommand, '|')+" completed abnormally (exit code = "+exitStatus+")");
@@ -258,17 +269,17 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 	 */
 	private void undeploy(DeploymentTask task, AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher, 
 			WeblogicEnvironment weblogicEnvironmentTargeted,
-			JDK selectedJdk, String artifactName, OutputStream deploymentLogOut) throws IOException, InterruptedException {
+			JDK selectedJdk, String artifactName, OutputStream deploymentLogOut, EnvVars envVars) throws IOException, InterruptedException {
 		//Execution commande undeploy
 		WebLogicDeployerParameters undeployWebLogicDeployerParameters = new WebLogicDeployerParameters(
 				build, launcher, listener, selectedJdk, task.getDeploymentName(), task.getIsLibrary(), task.getDeploymentTargets(),
 				weblogicEnvironmentTargeted, artifactName, null, WebLogicCommand.UNDEPLOY, true,
 				getDescriptor().getJavaOpts(), getDescriptor().getExtraClasspath(), task.getStageMode(), null);
-		String[] undeployCommand = WebLogicDeployer.getWebLogicCommandLine(undeployWebLogicDeployerParameters, getEnvVars(build, listener));
+		String[] undeployCommand = WebLogicDeployer.getWebLogicCommandLine(undeployWebLogicDeployerParameters, envVars);
         
         deploymentLogOut.write("------------------------------------  ARTIFACT UNDEPLOYMENT ------------------------------------------------\r\n".getBytes());
         listener.getLogger().println("[WeblogicDeploymentPlugin] - UNDEPLOYING ARTIFACT...");
-        final Proc undeploymentProc = launcher.launch().cmds(undeployCommand).envs(getEnvVars(build, listener)).stdout(deploymentLogOut).start();
+        final Proc undeploymentProc = launcher.launch().cmds(undeployCommand).envs(envVars).stdout(deploymentLogOut).start();
         undeploymentProc.join();
         listener.getLogger().println("[WeblogicDeploymentPlugin] - ARTIFACT UNDEPLOYED SUCCESSFULLY.");
 	}
@@ -289,7 +300,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 	private void customize(DeploymentTask task, AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher, 
 			WeblogicEnvironment weblogicEnvironmentTargeted,
 			JDK selectedJdk, String artifactName, OutputStream deploymentLogOut,
-			FilePath archivedArtifact, String fullArtifactFinalName) throws IOException, InterruptedException {
+			FilePath archivedArtifact, String fullArtifactFinalName, EnvVars envVars) throws IOException, InterruptedException {
 		
 		String sourceFile = null;
 		String remoteFilePath = null;
@@ -328,13 +339,13 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
         	}
         	
         	String newCommand = replaceTokens(StringUtils.trim(command), executionDeployerParameters);
-        	String[] executionCommand = WebLogicDeployer.getWebLogicCommandLine(executionDeployerParameters, newCommand, getEnvVars(build, listener));
+        	String[] executionCommand = WebLogicDeployer.getWebLogicCommandLine(executionDeployerParameters, newCommand, envVars);
         	
         	deploymentLogOut.write("------------------------------------  TASK EXECUTION ------------------------------------------------\r\n".getBytes());
             listener.getLogger().println("[WeblogicDeploymentPlugin] - EXECUTING TASK ...");
             // FilePath ws = build.getWorkspace();
             //launcher.launch().cmds(cmd).envs(envVars).stdout(listener).pwd(ws).join();
-	        final Proc executionProc = launcher.launch().cmds(executionCommand).envs(getEnvVars(build, listener)).stdout(deploymentLogOut).start();
+	        final Proc executionProc = launcher.launch().cmds(executionCommand).envs(envVars).stdout(deploymentLogOut).start();
 	        int exitStatus = executionProc.join();
 	        if(exitStatus != 0){
 //	        	listener.error("[WeblogicDeploymentPlugin] - Command " +StringUtils.join(executionCommand, '|')+" completed abnormally (exit code = "+exitStatus+")");
@@ -342,6 +353,22 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 	        }
         }
         listener.getLogger().println("[WeblogicDeploymentPlugin] - ARTIFACT DEPLOYED SUCCESSFULLY.");
+	}
+
+	/**
+	 * 
+	 * @param task
+	 * @param envVars
+	 */
+	private DeploymentTask convertParameters(DeploymentTask task, EnvVars envVars) {
+		DeploymentTask taskHistoryHistory = new DeploymentTask(task);
+		taskHistoryHistory.setDeploymentTargets(ParameterValueResolver.resolveEnvVar(task.getDeploymentTargets(), envVars));
+//		task.getWeblogicEnvironmentTargetedName();
+//		ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getHost(), envars);
+//		ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getPort(), envars);
+//		ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getLogin(), envars));
+//		ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getPassword(), envars);
+		return taskHistoryHistory;
 	}
 	
 	/**

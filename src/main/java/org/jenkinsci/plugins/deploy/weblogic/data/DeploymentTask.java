@@ -121,6 +121,21 @@ public class DeploymentTask  extends AbstractDescribableImpl<DeploymentTask> imp
       	this.deploymentPlan = deploymentPlan;
 	}
 	
+	public DeploymentTask(DeploymentTask deploymentTask) {
+		this.id = deploymentTask.getId();
+		this.taskName = deploymentTask.getTaskName();
+		this.weblogicEnvironmentTargetedName = deploymentTask.getWeblogicEnvironmentTargetedName();
+		this.deploymentName = deploymentTask.getDeploymentName();
+		this.deploymentTargets = deploymentTask.getDeploymentTargets();
+		this.isLibrary = deploymentTask.getIsLibrary();
+		this.builtResourceRegexToDeploy = deploymentTask.getBuiltResourceRegexToDeploy();
+		this.baseResourcesGeneratedDirectory = deploymentTask.getBaseResourcesGeneratedDirectory();
+		this.jdk = deploymentTask.getJdk();
+		this.stageMode = deploymentTask.getStageMode();
+		this.commandLine = deploymentTask.getCommandLine();
+	  	this.deploymentPlan = deploymentTask.getDeploymentPlan();		
+	}
+	
 	
 	
 	/* (non-Javadoc)
@@ -233,4 +248,15 @@ public class DeploymentTask  extends AbstractDescribableImpl<DeploymentTask> imp
 	public String getDeploymentPlan() {
 		return deploymentPlan;
 	}
+
+
+	/**
+	 * 
+	 * @param deploymentTargets
+	 */
+	public void setDeploymentTargets(String deploymentTargets) {
+		this.deploymentTargets = deploymentTargets;
+	}
+	
+	
 }
