@@ -46,9 +46,9 @@
 		  	</f:entry>
 			
 		  	<!-- liste des triggers definis -->
-		  	<j:invokeStatic var="triggers" className="hudson.triggers.Trigger" method="for_">
+		  	<%-- <j:invokeStatic var="triggers" className="hudson.triggers.Trigger" method="for_">
 		    	<j:arg value="${it}" type="hudson.model.Item" />
-		  	</j:invokeStatic>
+		  	</j:invokeStatic> --%>
 			<f:entry title="${%DeploymentStrategy}" field="selectedDeploymentStrategyIds">
 		  		<select class="setting-input" multiple="multiple" size="3" name="selectedDeploymentStrategyIds">    		
 					<!-- valeur par defaut -->
@@ -59,10 +59,12 @@
 					<f:option value="hudson.model.Cause\\$UserIdCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.model.Cause\\$UserIdCause')}">${%Cause.UserIdCause}</f:option>
 					<f:option value="hudson.model.Cause\\$RemoteCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.model.Cause\\$RemoteCause')}">${%Cause.RemoteCause}</f:option>
 		    		<f:option value="hudson.model.Cause\\$UpstreamCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.model.Cause\\$UpstreamCause')}">${%Cause.UpstreamCause}</f:option>
-		    		<!-- liste des triggers referencees-->
+		    		<f:option value="org.jenkinsci.plugins.deploy.weblogic.trigger.DeploymentTrigger\\$DeploymentTriggerCause" selected="${instance.selectedDeploymentStrategyIds.contains('org.jenkinsci.plugins.deploy.weblogic.trigger.DeploymentTrigger\\$DeploymentTriggerCause')}">${%Cause.DeploymentTriggerCause}</f:option>
+		    		<f:option value="hudson.triggers.SCMTrigger\\$SCMTriggerCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.triggers.SCMTrigger\\$SCMTriggerCause')}">${%Cause.SCMTriggerCause}</f:option>
+					<%-- <!-- liste des triggers referencees-->
 		    		<j:forEach var="inst" items="${triggers}">
 		    			<f:option value="${inst.id}" selected="${instance.selectedDeploymentStrategyIds.contains(inst.id)}">${inst.displayName}</f:option>
-		        	</j:forEach>
+		        	</j:forEach> --%>
 				</select>
 			</f:entry>
 			

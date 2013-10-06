@@ -7,6 +7,7 @@ import static hudson.Util.fixNull;
 import hudson.Extension;
 import hudson.model.BuildableItem;
 import hudson.model.Item;
+import hudson.model.Cause;
 import hudson.scheduler.CronTabList;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
@@ -37,6 +38,14 @@ public class DeploymentTrigger extends Trigger<BuildableItem> {
 		return (DeploymentTriggerDescriptor) super.getDescriptor();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see hudson.triggers.Trigger#run()
+	 */
+	@Override
+    public void run() {
+        job.scheduleBuild(0, new DeploymentTriggerCause());
+    }
 	
     /*
      * 
@@ -76,6 +85,23 @@ public class DeploymentTrigger extends Trigger<BuildableItem> {
             } catch (ANTLRException e) {
                 return FormValidation.error(e.getMessage());
             }
+        }
+    }
+    
+    public static class DeploymentTriggerCause extends Cause {
+        @Override
+        public String getShortDescription() {
+            return Messages.DeploymentTrigger_DeploymentTriggerCause_ShortDescription(); 
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof DeploymentTriggerCause;
+        }
+
+        @Override
+        public int hashCode() {
+            return 6;
         }
     }
 }
