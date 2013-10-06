@@ -24,6 +24,7 @@ You can use plugin variables<br/>
 <li>{wl.password} : the password to authenticate to the server (provided by the configuration file)</li>
 <li>{wl.user_configfile} : the Deployer configuration file (defined in the configuration file)</li>
 <li>{wl.user_keyfile} : the private key to authenticate (provided by the configuration file)</li>
+<li>{wl.deployment_plan} : the file of 'Deployment plan' parameter</li>
 </ul>
 
 
