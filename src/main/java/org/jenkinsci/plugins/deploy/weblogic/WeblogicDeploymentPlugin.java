@@ -739,7 +739,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			build.setResult(Result.UNSTABLE);
 		} else 
 		
-		// On test si au moins une des taches est KO
+		// On teste si au moins une des taches est KO
 		if(CollectionUtils.exists(results, new TaskStatusUnSuccesfullPredicate())){
 			if(mustExitOnFailure){
 				build.setResult(Result.FAILURE);
