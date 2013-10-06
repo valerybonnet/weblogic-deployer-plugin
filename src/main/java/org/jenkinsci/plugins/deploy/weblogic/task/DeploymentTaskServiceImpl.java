@@ -361,14 +361,14 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 	 * @param envVars
 	 */
 	private DeploymentTask convertParameters(DeploymentTask task, EnvVars envVars) {
-		DeploymentTask taskHistoryHistory = new DeploymentTask(task);
-		taskHistoryHistory.setDeploymentTargets(ParameterValueResolver.resolveEnvVar(task.getDeploymentTargets(), envVars));
+		DeploymentTask taskHistory = new DeploymentTask(task);
+		taskHistory.setDeploymentTargets(ParameterValueResolver.resolveEnvVar(task.getDeploymentTargets(), envVars));
 //		task.getWeblogicEnvironmentTargetedName();
 //		ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getHost(), envars);
 //		ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getPort(), envars);
 //		ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getLogin(), envars));
 //		ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getPassword(), envars);
-		return taskHistoryHistory;
+		return taskHistory;
 	}
 	
 	/**
