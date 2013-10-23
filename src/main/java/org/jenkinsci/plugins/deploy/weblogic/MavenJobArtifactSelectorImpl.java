@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -50,21 +49,12 @@ public class MavenJobArtifactSelectorImpl implements ArtifactSelector {
         	listener.getLogger().println("[WeblogicDeploymentPlugin] - "+mar.getBuild().getArtifacts().size()+ " artifacts recorded in "+mar.getBuild().getArtifactsDir());
             for(Artifact artifact : mar.getBuild().getArtifacts()){
             	//Si une expression reguliere est fournie on filtre en priorite sur la regex
-//            	if(StringUtils.isNotEmpty(filteredResource)) {
-            		if(Pattern.matches(patternToUse, artifact.getFileName())){
-            			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact recorded "+artifact.getFileName()+" is eligible.");
-            		    artifactsRecorded.add(artifact);
-            		} else {
-            			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact "+artifact.getFileName()+" doesn't match "+filteredResource);
-            		}
-//            	} else {
-//	            	//On ne conserve que les jar,ear et war
-//	            	Matcher matcher = ARTIFACT_DEPLOYABLE_PATTERN.matcher(artifact.getFileName());
-//	        		while (matcher.find()) {
-//	        			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact recorded "+artifact.getFileName()+" is eligible.");
-//	        		    artifactsRecorded.add(artifact);
-//	        		}
-//            	}
+            	if(Pattern.matches(patternToUse, artifact.getFileName())){
+            		listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact recorded "+artifact.getFileName()+" is eligible.");
+            	    artifactsRecorded.add(artifact);
+            	} else {
+            		listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact "+artifact.getFileName()+" doesn't match "+filteredResource);
+            	}
             }
         }
         
