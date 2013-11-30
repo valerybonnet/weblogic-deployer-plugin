@@ -31,6 +31,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
@@ -38,6 +40,7 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.plexus.util.FileUtils;
@@ -49,6 +52,7 @@ import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicStageMode;
 import org.jenkinsci.plugins.deploy.weblogic.data.WeblogicEnvironment;
 import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTask;
 import org.jenkinsci.plugins.deploy.weblogic.exception.DeploymentTaskException;
+import org.jenkinsci.plugins.deploy.weblogic.exception.LoadingFileException;
 import org.jenkinsci.plugins.deploy.weblogic.jdk.JdkToolService;
 import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
 import org.jenkinsci.plugins.deploy.weblogic.task.DeploymentTaskService;
@@ -76,7 +80,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	
 	public static transient final String DEFAULT_JAVA_OPTIONS_DEPLOYER = "-Xms256M -Xmx256M";
 	
-	@Inject(optional=false)
+	@Inject
 	private DeploymentTaskService deploymentTaskService;
 	
 	/**
@@ -325,6 +329,8 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	@Extension
 	public static final class WeblogicDeploymentPluginDescriptor extends BuildStepDescriptor<Publisher> {
 		
+		private transient final Logger logger = Logger.getLogger(getClass().getName());
+		
 		public static transient final String PLUGIN_XSD_SCHEMA_CONFIG_FILE_PATH = WebLogicDeploymentPluginConstantes.PLUGIN_RESOURCES_PATH + "/defaultConfig/plugin-configuration.xsd";
 		
 		private String configurationFilePath;
@@ -529,6 +535,8 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		 * Charge les environnements weblogic declares dans le fichier de conf
 		 */
 		private void loadWeblogicEnvironments(){
+			InputStream configurationFileInputStream =  null;
+			
 			try {
 		        
 				WeblogicDeploymentConfiguration weblogicDeploymentConfiguration =null;
@@ -540,28 +548,25 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		        if(configurationFilePath.startsWith(URLUtils.HTTP_PROTOCOL_PREFIX)){
 		        	URI uri = new URI(configurationFilePath);
 		        	URL url = uri.toURL();
-		        	InputStream configurationFileInputStream =  null;
-		        	try {
-		        		configurationFileInputStream =  url.openStream();
-		        		weblogicDeploymentConfiguration = (WeblogicDeploymentConfiguration) Jenkins.XSTREAM2.fromXML(configurationFileInputStream);
-		        	} catch(IOException ioe) {
-		        		throw ioe;
-		        	} finally {
-		        		if(configurationFileInputStream != null) {
-		        			configurationFileInputStream.close();
-		        		}
-		        	}
+		        	configurationFileInputStream =  url.openStream();
 		        } else if (FileUtils.fileExists(configurationFilePath)) {
-		        	weblogicDeploymentConfiguration = (WeblogicDeploymentConfiguration) Jenkins.XSTREAM2.fromXML(new FileInputStream(FileUtils.getFile(configurationFilePath)));
+		        	configurationFileInputStream = new FileInputStream(FileUtils.getFile(configurationFilePath));
+		        } else {
+		        	throw new LoadingFileException("The file content doesn't exists");
 		        }
+		        
+		        weblogicDeploymentConfiguration = (WeblogicDeploymentConfiguration) Jenkins.XSTREAM2.fromXML(configurationFileInputStream);
 		        
 		        if(weblogicDeploymentConfiguration != null && ! ArrayUtils.isEmpty(weblogicDeploymentConfiguration.getWeblogicEnvironments())){
 		        	weblogicEnvironments = weblogicDeploymentConfiguration.getWeblogicEnvironments();
 		        }
-		        
-	        } catch(Exception e){
-	        	e.printStackTrace();
-	        }
+		    
+			} catch(Exception e){
+	        	logger.log(Level.SEVERE, e.getMessage(), e);
+	        	throw new RuntimeException("Unable to load file", e);
+	        } finally {
+        		IOUtils.closeQuietly(configurationFileInputStream);
+        	}
 		}
 
 		/**

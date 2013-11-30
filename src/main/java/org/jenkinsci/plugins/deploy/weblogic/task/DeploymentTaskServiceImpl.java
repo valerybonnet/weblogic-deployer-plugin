@@ -8,9 +8,11 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Proc;
+import hudson.maven.AbstractMavenProject;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.FreeStyleProject;
 import hudson.model.JDK;
 
 import java.io.FileNotFoundException;
@@ -26,14 +28,14 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.deploy.weblogic.ArtifactSelector;
 import org.jenkinsci.plugins.deploy.weblogic.FreeStyleJobArtifactSelectorImpl;
 import org.jenkinsci.plugins.deploy.weblogic.MavenJobArtifactSelectorImpl;
-import org.jenkinsci.plugins.deploy.weblogic.WeblogicDeploymentPlugin.WeblogicDeploymentPluginDescriptor;
 import org.jenkinsci.plugins.deploy.weblogic.WeblogicDeploymentPluginLog;
-import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTask;
+import org.jenkinsci.plugins.deploy.weblogic.WeblogicDeploymentPlugin.WeblogicDeploymentPluginDescriptor;
 import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTaskResult;
 import org.jenkinsci.plugins.deploy.weblogic.data.TransfertConfiguration;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicDeploymentStatus;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicPreRequisteStatus;
 import org.jenkinsci.plugins.deploy.weblogic.data.WeblogicEnvironment;
+import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTask;
 import org.jenkinsci.plugins.deploy.weblogic.deployer.WebLogicCommand;
 import org.jenkinsci.plugins.deploy.weblogic.deployer.WebLogicDeployer;
 import org.jenkinsci.plugins.deploy.weblogic.deployer.WebLogicDeployerParameters;
@@ -51,7 +53,7 @@ import com.google.inject.Inject;
  * @author Raphael
  *
  */
-@Extension(optional=false)
+@Extension
 public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 
 	@Inject
@@ -124,11 +126,11 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			// En fonction du type de projet on utilise pas le meme selecteur
 			Class<? extends AbstractProject> jobType = build.getProject().getClass();
 			ArtifactSelector artifactSelector = null;
-			if(hudson.maven.AbstractMavenProject.class.isAssignableFrom(jobType)){
+			if(AbstractMavenProject.class.isAssignableFrom(jobType)){
 				artifactSelector = new MavenJobArtifactSelectorImpl();
 			}
 			// Cas d'un projet freestyle
-			else if(hudson.model.FreeStyleProject.class.isAssignableFrom(jobType)){
+			else if(FreeStyleProject.class.isAssignableFrom(jobType)){
 				artifactSelector = new FreeStyleJobArtifactSelectorImpl();
 			}
 			
@@ -145,6 +147,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			archivedArtifact = selectedArtifact;
 			fullArtifactFinalName = selectedArtifact.getName();
 		} catch (Throwable e) {
+			e.printStackTrace(listener.getLogger());
             listener.error("[WeblogicDeploymentPlugin] - Failed to get artifact from archive directory : " + e.getMessage());
             IOUtils.closeQuietly(deploymentLogOut);
             throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, convertParameters(task, envVars), null));
