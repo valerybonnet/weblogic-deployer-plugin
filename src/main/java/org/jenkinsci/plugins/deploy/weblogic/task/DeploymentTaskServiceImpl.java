@@ -149,8 +149,9 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 		} catch (Throwable e) {
 			e.printStackTrace(listener.getLogger());
             listener.error("[WeblogicDeploymentPlugin] - Failed to get artifact from archive directory : " + e.getMessage());
-            IOUtils.closeQuietly(deploymentLogOut);
             throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, convertParameters(task, envVars), null));
+        } finally {
+        	IOUtils.closeQuietly(deploymentLogOut);
         }
 		
 		//Deploiement
