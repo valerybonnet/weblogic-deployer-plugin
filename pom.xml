@@ -15,7 +15,7 @@
 	<packaging>hpi</packaging>
 
 	<url>http://wiki.jenkins-ci.org/display/JENKINS/WebLogic+Deployer+Plugin</url>
-	<description>This plugin deploy the artifacts built on Jenkins to a weblogic target (admin server, managed server, cluster ...) as an application or a library module.</description>
+	<description>This plugin deploys the artifacts built on Jenkins to a weblogic target (admin server, managed server, cluster ...) as an application or a library module.</description>
 
 	<developers>
 		<developer>
@@ -103,35 +103,5 @@
 			<url>http://repo.jenkins-ci.org/public/</url>
 		</pluginRepository>
 	</pluginRepositories>
-      	
-	<!-- <profiles>
-		<profile>
-			<id>jenkins-publish</id>
-			<activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.4</version>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles> -->
 
 </project>
