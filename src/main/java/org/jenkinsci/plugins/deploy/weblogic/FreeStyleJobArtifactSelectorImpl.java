@@ -34,7 +34,7 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
         listener.getLogger().println("[WeblogicDeploymentPlugin] - Retrieving artifacts recorded [filtered resources on "+filteredResource+"]...");
         List<FilePath> artifactsRecorded = new ArrayList<FilePath>();
         
-        // On parcours le workspace si aucun repertoire de base specifie à la recherche d'un fichier correspondant à l'expression régulière
+        // On parcours le workspace si aucun repertoire de base specifie a la recherche d'un fichier correspondant a l'expression reguliere
         if(baseDirectory == null || ! (new File(baseDirectory)).exists()){
 	        FilePath workspace = build.getWorkspace();
 	        List<FilePath> filesInWorkspace = workspace.list();
