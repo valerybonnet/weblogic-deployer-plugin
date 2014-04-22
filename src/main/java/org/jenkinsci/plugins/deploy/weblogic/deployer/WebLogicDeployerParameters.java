@@ -234,7 +234,7 @@ public class WebLogicDeployerParameters {
 	}
 
 	/**
-	 * @param artifactId the artifactName to set
+	 * @param artifactName the artifactName to set
 	 */
 	public void setArtifactName(String artifactName) {
 		this.artifactName = artifactName;
