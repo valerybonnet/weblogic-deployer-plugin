@@ -82,20 +82,22 @@ public class DeploymentTask  extends AbstractDescribableImpl<DeploymentTask> imp
 	 */
 	private final String deploymentPlan;
 
-	/**
-	 * Invoke only during data backup
-	 * @param id
-	 * @param taskName
-	 * @param weblogicEnvironmentTargetedName
-	 * @param deploymentName
-	 * @param deploymentTargets
-	 * @param isLibrary
-	 * @param builtResourceRegexToDeploy
-	 * @param baseResourcesGeneratedDirectory
-	 * @param jdkTool
-	 * @param nestedObject
-	 * @param deploymentPlan
-	 */
+    /**
+     * Invoke only during data backup
+     * @param id
+     * @param taskName
+     * @param weblogicEnvironmentTargetedName
+     * @param deploymentName
+     * @param deploymentTargets
+     * @param isLibrary
+     * @param builtResourceRegexToDeploy
+     * @param baseResourcesGeneratedDirectory
+     * @param jdkName
+     * @param jdkHome
+     * @param stageMode
+     * @param commandLine
+     * @param deploymentPlan
+     */
 	@DataBoundConstructor
 	public DeploymentTask(String id, String taskName, String weblogicEnvironmentTargetedName, String deploymentName, 
   		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory, String jdkName, String jdkHome, 
