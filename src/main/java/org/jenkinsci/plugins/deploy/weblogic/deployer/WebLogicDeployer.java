@@ -3,6 +3,7 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.deployer;
 
+import groovy.json.StringEscapeUtils;
 import hudson.EnvVars;
 import hudson.model.Run.RunnerAbortedException;
 import hudson.util.ArgumentListBuilder;
@@ -61,14 +62,13 @@ public class WebLogicDeployer {
         args.add("-name");
         // TODO Ajouter gestion var env
         String targetedDeploymentName = StringUtils.isNotBlank(parameter.getDeploymentName()) ? parameter.getDeploymentName() : parameter.getArtifactName();
-        if(StringUtils.isBlank(targetedDeploymentName)){
-        	// TODO
-        }
         args.add(targetedDeploymentName);
         
         if(StringUtils.isNotBlank(parameter.getSource())) {
         	args.add("-source");
-        	args.add(parameter.getSource());
+            // JENKINS#21244
+            //StringEscapeUtils.escapeJava()
+        	args.add("\""+ parameter.getSource()+"\"");
         }
 
         args.add("-targets");
@@ -106,12 +106,13 @@ public class WebLogicDeployer {
         return args.toCommandArray();
 	}
 
-	/**
-	 * 
-	 * @param parameters
-	 * @param commandLine
-	 * @return
-	 */
+    /**
+     *
+     * @param parameters
+     * @param commandLine
+     * @param envars
+     * @return the complete command line as an Array of String
+     */
 	public static final String[] getWebLogicCommandLine(WebLogicDeployerParameters parameters, String commandLine, EnvVars envars) {
 		
 		ArgumentListBuilder args = new ArgumentListBuilder();
