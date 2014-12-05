@@ -8,12 +8,16 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicDeployment;
+import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
 import org.jenkinsci.plugins.deploy.weblogic.task.TaskStatusUnSuccesfullPredicate;
 
 
 public class PrintingWebLogicDeploymentLastSuccessResultAction implements Action  {
 
 	private WebLogicDeployment lastDeploymentSucessfull;
+	
+	private static transient final String iconFileName = WebLogicDeploymentPluginConstantes.PLUGIN_RESOURCES_PATH + "/icons/48x48/BEA.png";
+	
 	
 	/**
 	 * 
@@ -52,7 +56,7 @@ public class PrintingWebLogicDeploymentLastSuccessResultAction implements Action
 	 * @see hudson.model.Action#getIconFileName()
 	 */
 	public String getIconFileName() {
-		return null;
+		return iconFileName;
 	}
 
 	/*

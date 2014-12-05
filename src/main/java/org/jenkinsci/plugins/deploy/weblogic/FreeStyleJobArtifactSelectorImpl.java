@@ -8,6 +8,7 @@ import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 
 import java.io.File;
+import java.io.FilePermission;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
@@ -34,8 +36,15 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
         listener.getLogger().println("[WeblogicDeploymentPlugin] - Retrieving artifacts recorded [filtered resources on "+filteredResource+"]...");
         List<FilePath> artifactsRecorded = new ArrayList<FilePath>();
         
+        //si un repertoire est specifie mais qu'il est inacessible ou invalide on renvoit une erreur
+        if(StringUtils.isNotBlank(baseDirectory) && 
+        		(! (new File(baseDirectory)).exists() || ! (new File(baseDirectory)).isDirectory() || ! (new File(baseDirectory)).canRead())){
+        	listener.getLogger().println("[WeblogicDeploymentPlugin] - the base directory specified ["+baseDirectory+"] is invalid (doesn't exists or is not a directory or has insufficient privilege). Please check the job configuration");
+        	throw new RuntimeException("The base directory specified ["+baseDirectory+"] is invalid (doesn't exists or is not a directory or has insufficient privilege)");
+        }
+        
         // On parcours le workspace si aucun repertoire de base specifie a la recherche d'un fichier correspondant a l'expression reguliere
-        if(baseDirectory == null || ! (new File(baseDirectory)).exists()){
+        if(baseDirectory == null){
 	        FilePath workspace = build.getWorkspace();
 	        List<FilePath> filesInWorkspace = workspace.list();
 	        for(FilePath file : filesInWorkspace){
