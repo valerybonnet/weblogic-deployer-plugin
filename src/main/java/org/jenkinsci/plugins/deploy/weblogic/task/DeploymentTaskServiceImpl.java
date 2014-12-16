@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.deploy.weblogic.ArtifactSelector;
 import org.jenkinsci.plugins.deploy.weblogic.FreeStyleJobArtifactSelectorImpl;
@@ -77,12 +78,19 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 		EnvVars envVars = null;
 		try {
 			envVars = getEnvVars(build, listener);
-		} catch (IOException e1) {
+		} catch (IOException ioe) {
 			// Nothing to do
-		} catch (InterruptedException e1) {
+		} catch (InterruptedException ie) {
 			// Nothing to do
 		}
-		
+
+        // Verification si la tache est a ignorer du fait de la presence d'une variable de la forme ${DEPLOY_<task_name>_SKIP}
+        String taskEnvVarSkippedFlag = String.format("DEPLOY_%s_SKIP",task.getTaskName()).toUpperCase();
+        if((envVars != null) && BooleanUtils.toBoolean(envVars.get(taskEnvVarSkippedFlag))){
+            listener.getLogger().println("[WeblogicDeploymentPlugin] - The variable '"+taskEnvVarSkippedFlag+"' has been set to true. The following deployment task "+task.getTaskName()+" is currently disabled.");
+            return new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.DISABLED, convertParameters(task, envVars), null);
+        }
+
 		// Recuperation du JDK
 		// The default JDK
 		JDK selectedJdk = null;
