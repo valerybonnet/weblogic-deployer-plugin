@@ -198,23 +198,23 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 		
 		return new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.SUCCEEDED, convertParameters(task, envVars), fullArtifactFinalName);
 	}
-	
-	/**
-	 * 
-	 * @param task
-	 * @param build
-	 * @param listener
-	 * @param launcher
-	 * @param weblogicEnvironmentTargeted
-	 * @param selectedJdk
-	 * @param artifactName
-	 * @param deploymentLogOut
-	 * @param sourceFile
-	 * @param remoteFilePath
-	 * @param archivedArtifact
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
+
+    /**
+     *
+     * @param task
+     * @param build
+     * @param listener
+     * @param launcher
+     * @param weblogicEnvironmentTargeted
+     * @param selectedJdk
+     * @param artifactName
+     * @param deploymentLogOut
+     * @param archivedArtifact
+     * @param fullArtifactFinalName
+     * @param envVars
+     * @throws IOException
+     * @throws InterruptedException
+     */
 	private void deploy(DeploymentTask task, AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher, 
 			WeblogicEnvironment weblogicEnvironmentTargeted, JDK selectedJdk, String artifactName, OutputStream deploymentLogOut,
 			FilePath archivedArtifact, String fullArtifactFinalName, EnvVars envVars)  throws IOException, InterruptedException {
