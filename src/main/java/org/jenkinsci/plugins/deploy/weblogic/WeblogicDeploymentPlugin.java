@@ -230,7 +230,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 			this.deploymentTaskService = Jenkins.getInstance().getInjector().getInstance(DeploymentTaskService.class);
 		}
 		
-		// Parcours des t�ches de deploiement
+		// Parcours des taches de deploiement
 		for(DeploymentTask task : getTasks()){
 			try {
 				results.add(this.deploymentTaskService.perform(task, getDescriptor().getJdkSelected(), build, listener, launcher));
