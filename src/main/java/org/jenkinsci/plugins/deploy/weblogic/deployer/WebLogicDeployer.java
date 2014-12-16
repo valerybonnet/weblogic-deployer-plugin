@@ -3,7 +3,6 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.deployer;
 
-import groovy.json.StringEscapeUtils;
 import hudson.EnvVars;
 import hudson.model.Run.RunnerAbortedException;
 import hudson.util.ArgumentListBuilder;
@@ -66,9 +65,7 @@ public class WebLogicDeployer {
         
         if(StringUtils.isNotBlank(parameter.getSource())) {
         	args.add("-source");
-            // JENKINS#21244
-            //StringEscapeUtils.escapeJava()
-        	args.add("\""+ parameter.getSource()+"\"");
+            args.add(parameter.getSource());
         }
 
         args.add("-targets");
