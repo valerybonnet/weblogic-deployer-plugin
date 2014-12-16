@@ -20,12 +20,14 @@ public class DeploymentTaskResult {
 	private String resourceName;
 	
 	private static final String PLUGIN_EXECUTION_CHECK_FAILED = "PLUGIN_EXECUTION_CHECK_FAILED";
-	
-	/**
-	 * 
-	 * @param status
-	 * @param environment
-	 */
+
+    /**
+     *
+     * @param check
+     * @param status
+     * @param task
+     * @param resourceName
+     */
 	public DeploymentTaskResult(WebLogicPreRequisteStatus check, WebLogicDeploymentStatus status, DeploymentTask task, String resourceName) {
 		this.check = check;
 		this.task = task;
