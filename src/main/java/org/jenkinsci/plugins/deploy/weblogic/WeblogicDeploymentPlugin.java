@@ -487,7 +487,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 
 		/**
 		 * 
-		 * @param jdkHomeSelected
+		 * @param jdkSelected
 		 */
 		public void setJdkSelected(String jdkSelected) {
 			this.jdkSelected = jdkSelected;
@@ -734,9 +734,8 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	 * 
 	 * @param build
 	 * @param listener
-	 * @param status
 	 * @param results
-	 * @return
+	 * @return true
 	 */
 	private boolean exitPerformAction(AbstractBuild<?, ?> build, BuildListener listener, List<DeploymentTaskResult> results){
 		
