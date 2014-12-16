@@ -34,6 +34,9 @@ public class PrintingWebLogicDeploymentLastSuccessResultAction implements Action
 		super();
 		
 		List<AbstractBuild<?, ?>> builds = (List<AbstractBuild<?, ?>>) project.getBuilds();
+
+        if(builds == null) { return;}
+
 		for (AbstractBuild<?, ?> build : builds) {
 			WatchingWeblogicDeploymentAction action = build.getAction(WatchingWeblogicDeploymentAction.class);
 				if(action != null && ! CollectionUtils.exists(action.getResults(), new TaskStatusUnSuccesfullPredicate())){
