@@ -44,7 +44,7 @@ public class WatchingWeblogicDeploymentAction implements Action, Serializable {
 	
 	/**
 	 * 
-	 * @param deploymentActionStatus
+	 * @param results the results of deployment tasks
 	 * @param b
 	 */
 	public WatchingWeblogicDeploymentAction(List<DeploymentTaskResult> results, AbstractBuild<?, ?> b){
@@ -86,7 +86,7 @@ public class WatchingWeblogicDeploymentAction implements Action, Serializable {
 
 	/**
 	 * 
-	 * @return
+	 * @return the build
 	 */
 	public AbstractBuild<?, ?> getBuild() {
         return build;
