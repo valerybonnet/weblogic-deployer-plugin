@@ -41,7 +41,7 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
         if(StringUtils.isBlank(baseDirectory)){
 	        FilePath workspace = build.getWorkspace();
             List<FilePath> filesInWorkspace = workspace.list(recursiveFileFilter());
-            listener.getLogger().println(filesInWorkspace.size() +" files found under "+workspace.getName());
+            listener.getLogger().println("[WeblogicDeploymentPlugin] - "+filesInWorkspace.size() +" files found under "+workspace.getName());
 	        for(FilePath file : filesInWorkspace){
 	        	if(! file.isDirectory() && Pattern.matches(filteredResource, file.getName())){
 	    			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following resource recorded "+file.getName()+" is eligible.");
@@ -61,7 +61,7 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
             }
         	
         	Collection<?> files = FileUtils.listFiles(baseDir, null, true);
-        	listener.getLogger().println(files.size() +" files found under "+baseDir);
+        	listener.getLogger().println("[WeblogicDeploymentPlugin] - "+files.size() +" files found under "+baseDir);
         	
         	for(File file : (Collection<File>) files){
         		if(! file.isDirectory() && Pattern.matches(filteredResource, file.getName())){
