@@ -8,7 +8,7 @@ import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 
 import java.io.File;
-import java.io.FilePermission;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.*;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
@@ -39,13 +40,14 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
         // On parcours le workspace si aucun repertoire de base specifie a la recherche d'un fichier correspondant a l'expression reguliere
         if(StringUtils.isBlank(baseDirectory)){
 	        FilePath workspace = build.getWorkspace();
-	        List<FilePath> filesInWorkspace = workspace.list();
+            List<FilePath> filesInWorkspace = workspace.list(recursiveFileFilter());
+            listener.getLogger().println(filesInWorkspace.size() +" files found under "+workspace.getName());
 	        for(FilePath file : filesInWorkspace){
 	        	if(! file.isDirectory() && Pattern.matches(filteredResource, file.getName())){
-	    			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact recorded "+file.getName()+" is eligible.");
+	    			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following resource recorded "+file.getName()+" is eligible.");
 	    			artifactsRecorded.add(file);
 	    		} else {
-	    			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following artifact "+file.getName()+" doesn't match "+filteredResource);
+	    			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following resource "+file.getName()+" doesn't match "+filteredResource);
 	    		}
 	        }
         } else {
@@ -59,7 +61,7 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
             }
         	
         	Collection<?> files = FileUtils.listFiles(baseDir, null, true);
-        	listener.getLogger().println("List Files, finished with "+ files.size() +"files");
+        	listener.getLogger().println(files.size() +" files found under "+baseDir);
         	
         	for(File file : (Collection<File>) files){
         		if(! file.isDirectory() && Pattern.matches(filteredResource, file.getName())){
@@ -98,4 +100,22 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
 		return "FreeStyleProject";
 	}
 
+    /**
+     *
+     * @return
+     */
+    private FileFilter recursiveFileFilter(){
+
+        //Setup effective file filter
+        IOFileFilter effFileFilter = FileFilterUtils.andFileFilter(TrueFileFilter.INSTANCE,
+                FileFilterUtils.notFileFilter(DirectoryFileFilter.INSTANCE));
+
+        //Setup effective directory filter
+        IOFileFilter effDirFilter = FileFilterUtils.andFileFilter(TrueFileFilter.INSTANCE,
+                DirectoryFileFilter.INSTANCE);
+
+
+        //Find files
+        return  FileFilterUtils.orFileFilter(effFileFilter, effDirFilter);
+    }
 }
