@@ -36,15 +36,8 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
         listener.getLogger().println("[WeblogicDeploymentPlugin] - Retrieving artifacts recorded [filtered resources on "+filteredResource+"]...");
         List<FilePath> artifactsRecorded = new ArrayList<FilePath>();
         
-        //si un repertoire est specifie mais qu'il est inacessible ou invalide on renvoit une erreur
-        if(StringUtils.isNotBlank(baseDirectory) && 
-        		(! (new File(baseDirectory)).exists() || ! (new File(baseDirectory)).isDirectory() || ! (new File(baseDirectory)).canRead())){
-        	listener.getLogger().println("[WeblogicDeploymentPlugin] - the base directory specified ["+baseDirectory+"] is invalid (doesn't exists or is not a directory or has insufficient privilege). Please check the job configuration");
-        	throw new RuntimeException("The base directory specified ["+baseDirectory+"] is invalid (doesn't exists or is not a directory or has insufficient privilege)");
-        }
-        
         // On parcours le workspace si aucun repertoire de base specifie a la recherche d'un fichier correspondant a l'expression reguliere
-        if(baseDirectory == null){
+        if(StringUtils.isBlank(baseDirectory)){
 	        FilePath workspace = build.getWorkspace();
 	        List<FilePath> filesInWorkspace = workspace.list();
 	        for(FilePath file : filesInWorkspace){
@@ -56,7 +49,18 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
 	    		}
 	        }
         } else {
-        	Collection<?> files = FileUtils.listFiles(new File(baseDirectory), null, true);
+        	
+        	File baseDir = new File(baseDirectory);
+
+        	//si un repertoire est specifie mais qu'il est inacessible ou invalide on renvoit une erreur
+            if(! baseDir.exists() || ! baseDir.isDirectory() || ! baseDir.canRead()){
+            	listener.getLogger().println("[WeblogicDeploymentPlugin] - the base directory specified ["+baseDirectory+"] is invalid (doesn't exists or is not a directory or has insufficient privilege). Please check the job configuration");
+            	throw new RuntimeException("The base directory specified ["+baseDirectory+"] is invalid (doesn't exists or is not a directory or has insufficient privilege)");
+            }
+        	
+        	Collection<?> files = FileUtils.listFiles(baseDir, null, true);
+        	listener.getLogger().println("List Files, finished with "+ files.size() +"files");
+        	
         	for(File file : (Collection<File>) files){
         		if(! file.isDirectory() && Pattern.matches(filteredResource, file.getName())){
 	    			listener.getLogger().println("[WeblogicDeploymentPlugin] - the following file recorded "+file.getName()+" is eligible.");
@@ -76,12 +80,13 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
         }
         
         selectedArtifact = artifactsRecorded.get(0);
+        
+    	
 		
 		// Erreur si l'artifact n'existe pas
 		if(selectedArtifact == null){
 			throw new RuntimeException("No artifact to deploy found.");
-		}
-        
+		}        
 		return selectedArtifact;
 	}
 	
