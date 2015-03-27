@@ -20,17 +20,17 @@ public class ParameterValueResolver {
 	/**
 	 * 
 	 * @param label
-	 * @param envars
+	 * @param envars all of the environment variable
 	 * @return
 	 */
 	public static String resolveEnvVar(String label, EnvVars envars) {
-		String key = "";
 		Matcher matcher = ENV_VAR_PATTERN.matcher(label);
 		if(matcher.matches()){
-			key = matcher.group(1);
+            String key = matcher.group(1);
+            return envars.get(key, label);
 		}
-			
-		return envars.get(key, label);
+
+		return label;
 		
 	}
 }

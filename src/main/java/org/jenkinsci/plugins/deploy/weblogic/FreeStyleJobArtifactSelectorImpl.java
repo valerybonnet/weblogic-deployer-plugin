@@ -3,6 +3,7 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic;
 
+import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
@@ -20,6 +21,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.*;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.jenkinsci.plugins.deploy.weblogic.util.ParameterValueResolver;
+import org.jenkinsci.plugins.deploy.weblogic.util.VarUtils;
 
 /**
  * @author rchaumie
@@ -46,12 +49,16 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
             baseDirName = workspace.getName();
             filesToCheck = FileUtils.listFiles(new File(workspace.toURI()), null, true);
         } else {
-        	File baseDir = new File(baseDirectory);
+
+            //Recuperation des variables
+            String resolvedBaseDirectory = ParameterValueResolver.resolveEnvVar(baseDirectory, VarUtils.getEnvVars(build, listener));
+
+            File baseDir = new File(resolvedBaseDirectory);
 
         	//si un repertoire est specifie mais qu'il est inacessible ou invalide on renvoit une erreur
             if(! baseDir.exists() || ! baseDir.isDirectory() || ! baseDir.canRead()){
-            	listener.getLogger().println("[WeblogicDeploymentPlugin] - the base directory specified ["+baseDirectory+"] is invalid (doesn't exists or is not a directory or has insufficient privilege). Please check the job configuration");
-            	throw new RuntimeException("The base directory specified ["+baseDirectory+"] is invalid (doesn't exists or is not a directory or has insufficient privilege)");
+            	listener.getLogger().println("[WeblogicDeploymentPlugin] - the base directory specified ["+resolvedBaseDirectory+"] is invalid (doesn't exists or is not a directory or has insufficient privilege). Please check the job configuration");
+            	throw new RuntimeException("The base directory specified ["+resolvedBaseDirectory+"] is invalid (doesn't exists or is not a directory or has insufficient privilege)");
             }
 
             baseDirName = baseDir.getName();

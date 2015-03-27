@@ -46,6 +46,7 @@ import org.jenkinsci.plugins.deploy.weblogic.exception.RequiredJDKNotFoundExcept
 import org.jenkinsci.plugins.deploy.weblogic.jdk.JdkToolService;
 import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
 import org.jenkinsci.plugins.deploy.weblogic.util.FTPUtils;
+import org.jenkinsci.plugins.deploy.weblogic.util.VarUtils;
 import org.jenkinsci.plugins.deploy.weblogic.util.ParameterValueResolver;
 
 import com.google.inject.Inject;
@@ -75,14 +76,7 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 	public DeploymentTaskResult perform(DeploymentTask task, String globalJdk, AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher) throws DeploymentTaskException {
 		
 		//Recuperation des variables
-		EnvVars envVars = null;
-		try {
-			envVars = getEnvVars(build, listener);
-		} catch (IOException ioe) {
-			// Nothing to do
-		} catch (InterruptedException ie) {
-			// Nothing to do
-		}
+		EnvVars envVars = VarUtils.getEnvVars(build, listener);
 
         // Verification si la tache est a ignorer du fait de la presence d'une variable de la forme ${DEPLOY_<task_name>_SKIP}
         String taskEnvVarSkippedFlag = String.format("DEPLOY_%s_SKIP",task.getTaskName()).toUpperCase();
@@ -367,26 +361,6 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 //		ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getLogin(), envars));
 //		ParameterValueResolver.resolveEnvVar(parameter.getEnvironment().getPassword(), envars);
 		return taskHistory;
-	}
-	
-	/**
-	 * 
-	 * @param build
-	 * @param listener
-	 * @return
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
-	private EnvVars getEnvVars(AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
-		// Added envVars
-    	EnvVars envVars = build.getEnvironment(listener);
-    	// on Windows environment variables are converted to all upper case,
-    	// but no such conversions are done on Unix, so to make this cross-platform,
-    	// convert variables to all upper cases.
-    	for(Map.Entry<String,String> e : build.getBuildVariables().entrySet()) {
-    		envVars.put(e.getKey(),e.getValue());
-    	}
-    	return envVars;
 	}
 	
 	/**
