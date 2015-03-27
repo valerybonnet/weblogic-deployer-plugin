@@ -18,11 +18,9 @@
 	</f:entry>
 		  	
     <!-- En fonction du type de projet on ne saisit que le nom ou aussi le repertoire ou se produit la generation -->
-	<j:if test="${projectModel == 'hudson.model.FreeStyleProject'}">
-	  	<f:entry title="${%BaseResourcesGeneratedDirectory}" field="baseResourcesGeneratedDirectory">
-	  		<f:textbox value="${it.baseResourcesGeneratedDirectory}"/>
-	  	</f:entry>		  	
-	</j:if>
+	<f:entry title="${%BaseResourcesGeneratedDirectory}" field="baseResourcesGeneratedDirectory">
+	    <f:textbox value="${it.baseResourcesGeneratedDirectory}"/>
+	</f:entry>
 	<f:entry title="${%RegexBuiltResourceToDeploy}" field="builtResourceRegexToDeploy">
 		<f:textbox value="${it.builtResourceRegexToDeploy}"/>
 	</f:entry>

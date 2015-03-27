@@ -1,7 +1,6 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hudson/project" xmlns:util="jelly:util">
 	<j:set var="weblogicEnvironments" value="${descriptor.weblogicEnvironments}" />
-	<j:set var="projectModel" value="${it.getClass().getName()}" />
-	
+
 	<st:bind var="desc" value="${descriptor}"/>
 	<script>
       function completeJdkhome(jdkName, jdkHomeId) {
