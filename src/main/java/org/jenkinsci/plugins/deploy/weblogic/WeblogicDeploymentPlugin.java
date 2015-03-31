@@ -23,6 +23,7 @@ import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 import hudson.util.FormValidation;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +44,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.plexus.util.FileUtils;
 import org.jenkinsci.plugins.deploy.weblogic.configuration.WeblogicDeploymentConfiguration;
 import org.jenkinsci.plugins.deploy.weblogic.data.DeploymentTaskResult;
 import org.jenkinsci.plugins.deploy.weblogic.data.WebLogicDeploymentStatus;
@@ -544,13 +544,13 @@ public class WeblogicDeploymentPlugin extends Recorder {
 				if(StringUtils.isBlank(configurationFilePath)){
 					return;
 				}
-				
-		        if(configurationFilePath.startsWith(URLUtils.HTTP_PROTOCOL_PREFIX)){
+
+                if(configurationFilePath.startsWith(URLUtils.HTTP_PROTOCOL_PREFIX)){
 		        	URI uri = new URI(configurationFilePath);
 		        	URL url = uri.toURL();
 		        	configurationFileInputStream =  url.openStream();
-		        } else if (FileUtils.fileExists(configurationFilePath)) {
-		        	configurationFileInputStream = new FileInputStream(FileUtils.getFile(configurationFilePath));
+		        } else if (new File(configurationFilePath).exists()) {
+		        	configurationFileInputStream = new FileInputStream(new File(configurationFilePath));
 		        } else {
 		        	throw new LoadingFileException("The file content doesn't exists");
 		        }
@@ -585,7 +585,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
         		return FormValidation.ok();
         	}
         	
-        	if(! FileUtils.fileExists(value)) {
+        	if(! new File(value).exists()) {
         		return FormValidation.error("The file " + value + " does not exists.");
         	}
             return FormValidation.ok();
@@ -611,7 +611,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
         		return FormValidation.error("The weblogic library has to be filled in.");
         	}
         	
-        	if(! FileUtils.fileExists(value)) {
+        	if(! new File(value).exists()) {
         		return FormValidation.error("The file " + value + " does not exists.");
         	}
         	
@@ -689,7 +689,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
         		return FormValidation.error("The path home is mandatory");
         	}
         	
-        	if(! FileUtils.fileExists(value)) {
+        	if(! new File(value).exists()) {
         		return FormValidation.error("The file " + value + " does not exists.");
         	}
         	

@@ -3,8 +3,10 @@
  */
 package org.jenkinsci.plugins.deploy.weblogic.util;
 
-import org.codehaus.plexus.util.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.jenkinsci.plugins.deploy.weblogic.properties.WebLogicDeploymentPluginConstantes;
+
+import java.io.File;
 
 /**
  * @author rchaumie
@@ -17,7 +19,7 @@ public class DeployerClassPathUtils {
 	 * @return
 	 */
 	public static boolean checkDefaultPathToWebLogicJar() {
-		return FileUtils.fileExists(getDefaultPathToWebLogicJar());
+		return new File(getDefaultPathToWebLogicJar()).exists();
 	}
 	
 	/**
@@ -26,6 +28,6 @@ public class DeployerClassPathUtils {
 	 */
 	public static String getDefaultPathToWebLogicJar() {
 		String envWlHome = System.getenv(WebLogicDeploymentPluginConstantes.WL_HOME_ENV_VAR_NAME);
-		return FileUtils.normalize(envWlHome+WebLogicDeploymentPluginConstantes.WL_HOME_LIB_DIR+WebLogicDeploymentPluginConstantes.WL_WEBLOGIC_LIBRARY_NAME);
+		return FilenameUtils.normalize(envWlHome+WebLogicDeploymentPluginConstantes.WL_HOME_LIB_DIR+WebLogicDeploymentPluginConstantes.WL_WEBLOGIC_LIBRARY_NAME);
 	}
 }
