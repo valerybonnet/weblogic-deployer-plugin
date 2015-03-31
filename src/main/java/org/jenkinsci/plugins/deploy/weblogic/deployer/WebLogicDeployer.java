@@ -65,7 +65,7 @@ public class WebLogicDeployer {
         
         if(StringUtils.isNotBlank(parameter.getSource())) {
         	args.add("-source");
-            args.add(parameter.getSource());
+            args.add('"' +parameter.getSource()+'"');
         }
 
         args.add("-targets");
