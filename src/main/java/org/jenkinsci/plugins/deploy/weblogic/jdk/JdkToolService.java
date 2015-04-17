@@ -77,7 +77,7 @@ public static final String EXTERNAL_ENV_JDK = "environment";
 	public static String getJDKHomeByName(String name) {
 		String out = null;
 		for(JDK jdk : getJdkToolAvailables()) {
-			if(name.equalsIgnoreCase(jdk.getName())){
+			if(jdk.getName().equalsIgnoreCase(name)){
 				out = jdk.getHome();
 			}
 		}
