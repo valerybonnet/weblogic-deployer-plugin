@@ -51,7 +51,9 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
         } else {
 
             //Recuperation des variables
-            String resolvedBaseDirectory = ParameterValueResolver.resolveEnvVar(baseDirectory, VarUtils.getEnvVars(build, listener));
+            EnvVars vars = VarUtils.getEnvVars(build, listener);
+            String resolvedBaseDirectory = vars.expand(baseDirectory);
+            //String resolvedBaseDirectory = ParameterValueResolver.resolveEnvVar(baseDirectory, VarUtils.getEnvVars(build, listener));
 
             File baseDir = new File(resolvedBaseDirectory);
 
