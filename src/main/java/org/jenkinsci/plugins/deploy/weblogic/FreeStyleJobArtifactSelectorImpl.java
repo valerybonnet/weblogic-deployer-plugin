@@ -20,7 +20,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.*;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkinsci.plugins.deploy.weblogic.util.ParameterValueResolver;
 import org.jenkinsci.plugins.deploy.weblogic.util.VarUtils;
 
@@ -34,7 +33,7 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
 	 * (non-Javadoc)
 	 * @see org.jenkinsci.plugins.deploy.weblogic.ArtifactSelector#selectArtifactRecorded(hudson.model.AbstractBuild, hudson.model.BuildListener, java.lang.String, java.lang.String)
 	 */
-	public FilePath selectArtifactRecorded(AbstractBuild<?, ?> build, BuildListener listener, String filteredResource, String baseDirectory) throws IOException, XmlPullParserException, InterruptedException  {
+	public FilePath selectArtifactRecorded(AbstractBuild<?, ?> build, BuildListener listener, String filteredResource, String baseDirectory) throws IOException, InterruptedException  {
 		
 		FilePath selectedArtifact = null;
 		
@@ -53,7 +52,6 @@ public class FreeStyleJobArtifactSelectorImpl implements ArtifactSelector {
             //Recuperation des variables
             EnvVars vars = VarUtils.getEnvVars(build, listener);
             String resolvedBaseDirectory = vars.expand(baseDirectory);
-            //String resolvedBaseDirectory = ParameterValueResolver.resolveEnvVar(baseDirectory, VarUtils.getEnvVars(build, listener));
 
             File baseDir = new File(resolvedBaseDirectory);
 
