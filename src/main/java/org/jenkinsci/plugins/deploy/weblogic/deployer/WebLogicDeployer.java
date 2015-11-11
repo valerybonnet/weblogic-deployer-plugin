@@ -59,9 +59,11 @@ public class WebLogicDeployer {
         }
         
         args.add("-name");
-        // TODO Ajouter gestion var env
         String targetedDeploymentName = StringUtils.isNotBlank(parameter.getDeploymentName()) ? parameter.getDeploymentName() : parameter.getArtifactName();
-        args.add(targetedDeploymentName);
+        args.add(
+    		// targetedDeploymentName
+    		ParameterValueResolver.resolveEnvVars(targetedDeploymentName, envars)
+		);
         
         if(StringUtils.isNotBlank(parameter.getSource())) {
         	args.add("-source");
