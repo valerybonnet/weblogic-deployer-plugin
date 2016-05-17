@@ -56,6 +56,7 @@
 		    		<f:option value="hudson.model.Cause\\$UpstreamCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.model.Cause\\$UpstreamCause')}">${%Cause.UpstreamCause}</f:option>
 		    		<f:option value="org.jenkinsci.plugins.deploy.weblogic.trigger.DeploymentTrigger\\$DeploymentTriggerCause" selected="${instance.selectedDeploymentStrategyIds.contains('org.jenkinsci.plugins.deploy.weblogic.trigger.DeploymentTrigger\\$DeploymentTriggerCause')}">${%Cause.DeploymentTriggerCause}</f:option>
 		    		<f:option value="hudson.triggers.SCMTrigger\\$SCMTriggerCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.triggers.SCMTrigger\\$SCMTriggerCause')}">${%Cause.SCMTriggerCause}</f:option>
+					<f:option value="hudson.triggers.TimerTrigger\\$TimerTriggerCause" selected="${instance.selectedDeploymentStrategyIds.contains('hudson.triggers.TimerTrigger\\$TimerTriggerCause')}">${%Cause.TimerTriggerCause}</f:option>
 				</select>
 			</f:entry>
 			
