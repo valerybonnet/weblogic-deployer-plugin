@@ -63,7 +63,11 @@
 			<f:entry title="${%SourceManagementDeploymentCriteria}" field="isDeployingOnlyWhenUpdates">
 		  		<f:checkbox name="isDeployingOnlyWhenUpdates" checked="${instance.isDeployingOnlyWhenUpdatese}" />
 		  	</f:entry>
-			
+
+			<f:entry title="${%BuildUnstableWhenDeploymentUnstable}" field="buildUnstableWhenDeploymentUnstable">
+		  		<f:checkbox name="buildUnstableWhenDeploymentUnstable" checked="${instance.buildUnstableWhenDeploymentUnstable}" />
+		  	</f:entry>
+
 			<f:entry title="${%DeployedProjectsDependencies}" description="${%DeployedProjectsDependenciesDescription}" field="deployedProjectsDependencies">
 				<f:textbox/>
 			</f:entry>

@@ -102,7 +102,9 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	 * le deploiement est effectif uniquement si les sources ont changes
 	 */
 	private boolean isDeployingOnlyWhenUpdates;
-	
+
+	private boolean buildUnstableWhenDeploymentUnstable;
+
 	/**
 	 * Liste des deploiements dont depends l'execution du projet sur un job
 	 */
@@ -135,7 +137,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	@DataBoundConstructor
     public WeblogicDeploymentPlugin(List<DeploymentTask> tasks, boolean mustExitOnFailure, List<String> selectedDeploymentStrategyIds, 
     		String deployedProjectsDependencies, boolean isDeployingOnlyWhenUpdates, boolean forceStopOnFirstFailure,
-    		String weblogicEnvironmentTargetedName, String deploymentName, 
+    		boolean buildUnstableWhenDeploymentUnstable, String weblogicEnvironmentTargetedName, String deploymentName, 
     		String deploymentTargets, boolean isLibrary, String builtResourceRegexToDeploy, String baseResourcesGeneratedDirectory, 
     		String deploymentPlan) {
         // ATTENTION : Appele au moment de la sauvegarde : On conserve la compatibilite ascendante
@@ -148,6 +150,7 @@ public class WeblogicDeploymentPlugin extends Recorder {
         this.deployedProjectsDependencies = deployedProjectsDependencies;
         this.isDeployingOnlyWhenUpdates = isDeployingOnlyWhenUpdates;
         this.forceStopOnFirstFailure = forceStopOnFirstFailure;
+        this.buildUnstableWhenDeploymentUnstable = buildUnstableWhenDeploymentUnstable;
 		// TODO Si on veut faire du controle
     }
 
@@ -738,30 +741,35 @@ public class WeblogicDeploymentPlugin extends Recorder {
 	 * @return true
 	 */
 	private boolean exitPerformAction(AbstractBuild<?, ?> build, BuildListener listener, List<DeploymentTaskResult> results){
-		
-		if(CollectionUtils.exists(results, new PreRequisiteStatusUnSuccesfullPredicate())) {
+
+		boolean hasUnsuccessfullPrerequisite = CollectionUtils.exists(results, new PreRequisiteStatusUnSuccesfullPredicate());
+        boolean hasUnsuccessfullTask = CollectionUtils.exists(results, new TaskStatusUnSuccesfullPredicate());
+
+        if (buildUnstableWhenDeploymentUnstable && hasUnsuccessfullPrerequisite) {
 			build.setResult(Result.UNSTABLE);
 		} else 
 		
 		// On teste si au moins une des taches est KO
-		if(CollectionUtils.exists(results, new TaskStatusUnSuccesfullPredicate())){
-			if(mustExitOnFailure){
-				build.setResult(Result.FAILURE);
-			} else {
-				build.setResult(Result.SUCCESS);
-			}
-		} else {
-			build.setResult(Result.SUCCESS);
+		if (mustExitOnFailure && hasUnsuccessfullTask) {
+			build.setResult(Result.FAILURE);
 		}
 		
 		//Ajout de la build action
 		build.addAction(new WatchingWeblogicDeploymentAction(results, build));
 		
 		listener.getLogger().println("[INFO] ------------------------------------------------------------------------");
-		listener.getLogger().println("[INFO] DEPLOYMENT "+build.getResult().toString());
+		listener.getLogger().println("[INFO] DEPLOYMENT " + (hasUnsuccessfullPrerequisite ? Result.UNSTABLE : (hasUnsuccessfullTask ? Result.FAILURE : Result.SUCCESS)));
 		listener.getLogger().println("[INFO] ------------------------------------------------------------------------");
 		return true;
 	}
+
+    public boolean isBuildUnstableWhenDeploymentUnstable() {
+        return buildUnstableWhenDeploymentUnstable;
+    }
+
+    public void setBuildUnstableWhenDeploymentUnstable(boolean buildUnstableWhenDeploymentUnstable) {
+        this.buildUnstableWhenDeploymentUnstable = buildUnstableWhenDeploymentUnstable;
+    }
 	
 
 	
