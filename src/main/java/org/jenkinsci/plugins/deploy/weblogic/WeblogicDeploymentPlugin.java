@@ -745,12 +745,12 @@ public class WeblogicDeploymentPlugin extends Recorder {
 		boolean hasUnsuccessfullPrerequisite = CollectionUtils.exists(results, new PreRequisiteStatusUnSuccesfullPredicate());
         boolean hasUnsuccessfullTask = CollectionUtils.exists(results, new TaskStatusUnSuccesfullPredicate());
 
-        if (buildUnstableWhenDeploymentUnstable && hasUnsuccessfullPrerequisite) {
-			build.setResult(Result.UNSTABLE);
-		} else 
-		
-		// On teste si au moins une des taches est KO
-		if (mustExitOnFailure && hasUnsuccessfullTask) {
+        if (hasUnsuccessfullPrerequisite) {
+            if (buildUnstableWhenDeploymentUnstable) {
+                build.setResult(Result.UNSTABLE);
+            }
+		} else if (mustExitOnFailure && hasUnsuccessfullTask) {
+	        // On teste si au moins une des taches est KO
 			build.setResult(Result.FAILURE);
 		}
 		
