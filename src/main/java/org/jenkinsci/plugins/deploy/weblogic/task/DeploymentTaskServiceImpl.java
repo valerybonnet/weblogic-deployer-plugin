@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -156,13 +157,25 @@ public class DeploymentTaskServiceImpl implements DeploymentTaskService {
 			}
 			
 			//Recuperation du parametrage
-			weblogicEnvironmentTargeted = getWeblogicEnvironmentTargeted(task.getWeblogicEnvironmentTargetedName(), listener);
+			
+			String variabilizedWebloEnvTargetName = ParameterValueResolver.resolveEnvVar("$buildParameterWebloEnvTargetName", envVars);
+			
+			if (variabilizedWebloEnvTargetName == null) {
+				variabilizedWebloEnvTargetName = task.getWeblogicEnvironmentTargetedName();
+			}
+		//	weblogicEnvironmentTargeted = getWeblogicEnvironmentTargeted(task.getWeblogicEnvironmentTargetedName(), listener);
+			weblogicEnvironmentTargeted = getWeblogicEnvironmentTargeted(variabilizedWebloEnvTargetName, listener);
+			
+			listener.getLogger().println("envVars :" + envVars + ". KEYS = ");
+			for(String kk:envVars.keySet()) {
+				listener.getLogger().println(" - " + kk + " : " + envVars.get(kk));			
+			}
 			
 			if(weblogicEnvironmentTargeted == null){
-				listener.error("[WeblogicDeploymentPlugin] - WebLogic environment Name " +task.getWeblogicEnvironmentTargetedName()+ " not found in the list. Please check the configuration file.");
+				listener.error("[WeblogicDeploymentPlugin] - WebLogic environment Name " +variabilizedWebloEnvTargetName+ " not found in the list. Please check the configuration file.");
 				throw new DeploymentTaskException(new DeploymentTaskResult(WebLogicPreRequisteStatus.OK, WebLogicDeploymentStatus.ABORTED, convertParameters(task, envVars), fullArtifactFinalName));
 			}
-			listener.getLogger().println("[WeblogicDeploymentPlugin] - Deploying the artifact on the following target : (name="+task.getWeblogicEnvironmentTargetedName()+") (host=" + weblogicEnvironmentTargeted.getHost() + ") (port=" +weblogicEnvironmentTargeted.getPort()+ ")");
+			listener.getLogger().println("[WeblogicDeploymentPlugin] - Deploying the artifact on the following target : (name="+variabilizedWebloEnvTargetName+") (host=" + weblogicEnvironmentTargeted.getHost() + ") (port=" +weblogicEnvironmentTargeted.getPort()+ ")");
 			
 			
 			if(StringUtils.isBlank(task.getCommandLine())){
